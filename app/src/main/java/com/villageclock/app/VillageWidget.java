@@ -116,10 +116,14 @@ public final class VillageWidget extends AppWidgetProvider {
             row.setViewVisibility(R.id.row_clock, u.done(now) ? View.GONE : View.VISIBLE);
             row.setProgressBar(R.id.row_bar, 1000, progress(snapshotAt, u.finishAt, now), false);
             row.setViewVisibility(R.id.readable_timer, !u.done(now) && readable ? View.VISIBLE : View.GONE);
+            boolean boosted = readable && !u.done(now) && u.hasBoosts();
+            row.setViewVisibility(R.id.row_boost, boosted ? View.VISIBLE : View.GONE);
+            row.setViewVisibility(R.id.row_eta, boosted ? View.VISIBLE : View.GONE);
+            if (boosted) { row.setTextViewText(R.id.row_boost, u.boostText(now)); row.setTextViewText(R.id.row_eta, u.etaText(now)); }
             if (u.done(now)) { row.setChronometer(R.id.timer, 0, null, false); row.setViewVisibility(R.id.timer, View.GONE); row.setViewVisibility(R.id.done, View.VISIBLE); }
             else {
                 row.setViewVisibility(R.id.timer, readable ? View.GONE : View.VISIBLE); row.setViewVisibility(R.id.done, View.GONE);
-                row.setTextViewText(R.id.readable_timer, DurationText.remaining(u.finishAt, now));
+                row.setTextViewText(R.id.readable_timer, boosted ? u.workText(now) : DurationText.remaining(u.finishAt, now));
                 // Native Chronometer ticks in the launcher; no second-by-second background task.
                 row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + u.finishAt - now, null, !readable);
                 row.setChronometerCountDown(R.id.timer, true);

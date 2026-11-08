@@ -11,12 +11,14 @@
                     <TextView android:id="@+id/goblin_tag" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:background="@drawable/tag_bg" android:paddingStart="3dp" android:paddingEnd="3dp" android:fontFamily="@font/lilita_one" android:text="GOBLIN" android:textSize="11sp" android:textColor="#8EE04A" android:visibility="gone" />
                     <TextView android:id="@+id/row_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:fontFamily="@font/lilita_one" android:textSize="15sp" android:textColor="#FFFFFF" android:shadowColor="#C0000000" android:shadowDy="1.5" android:shadowRadius="1.5" />
                 </LinearLayout>
+                <TextView android:id="@+id/row_boost" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/lilita_one" android:textSize="11sp" android:textColor="#FFE6A7" android:visibility="gone" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical">
                     <ImageView android:id="@+id/row_clock" android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_clock" android:contentDescription="Countdown" />
                     <TextView android:id="@+id/readable_timer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:fontFamily="@font/lilita_one" android:textSize="14sp" android:textColor="#FFFFFF" android:visibility="gone" android:shadowColor="#C0000000" android:shadowDy="1.5" android:shadowRadius="1.5" />
                     <Chronometer android:id="@+id/timer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:fontFamily="@font/lilita_one" android:textSize="14sp" android:textColor="#FFFFFF" android:shadowColor="#C0000000" android:shadowDy="1.5" android:shadowRadius="1.5" />
                     <TextView android:id="@+id/done" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Done ✓" android:fontFamily="@font/lilita_one" android:textSize="14sp" android:textColor="#FFFFFF" android:shadowColor="#C0000000" android:shadowDy="1.5" android:shadowRadius="1.5" android:visibility="gone" />
                 </LinearLayout>
+                <TextView android:id="@+id/row_eta" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="11sp" android:textColor="#FFF1DB" android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

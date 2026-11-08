@@ -60,7 +60,15 @@ public final class PlannerActivity extends Activity {
         TextView level=label(String.valueOf(r.level),12,WHITE,true);level.setGravity(Gravity.CENTER);level.setBackgroundColor(0xFF292420);FrameLayout.LayoutParams badge=new FrameLayout.LayoutParams(dp(24),dp(20),Gravity.BOTTOM|Gravity.START);art.addView(level,badge);line.addView(art,new LinearLayout.LayoutParams(dp(54),dp(54)));
         LinearLayout words=column();words.setPadding(dp(10),0,0,0);TextView name=label(r.item.name+(r.count>1?" × "+r.count:""),20,r.fresh?GREEN:WHITE,true);name.setShadowLayer(dp(1),0,dp(2),0xFF392417);words.addView(name);
         words.addView(label(r.state==UpgradePlanner.State.RUNNING?"Upgrading → "+(r.level+1):r.next==null?"Level "+r.level:"Level "+r.level+" → "+r.next.optInt("level")+" · max "+r.item.max(),12,INK,true));line.addView(words,new LinearLayout.LayoutParams(0,-2,1));box.addView(line);space(box,6);
-        if(r.state==UpgradePlanner.State.RUNNING){TextView timer=label("",16,WHITE,true);CountdownText.bind(timer,r.finishAt,"Timer ended · sync to confirm");box.addView(timer);}
+        if(r.state==UpgradePlanner.State.RUNNING){
+            Village.Upgrade running=null;for(Village.Upgrade u:village.upgrades)if(u.dataId==r.item.id&&u.finishAt==r.finishAt){running=u;break;}
+            if(running!=null&&running.hasBoosts()){
+                final Village.Upgrade u=running;
+                TextView speed=label("",12,INK,true);CountdownText.bind(speed,u.finishAt,"",System::currentTimeMillis,u::boostText);box.addView(speed);
+                TextView work=label("",15,WHITE,true);CountdownText.bind(work,u.finishAt,"Timer ended · sync to confirm",System::currentTimeMillis,u::workText);box.addView(work);
+                TextView eta=label("",12,INK,false);CountdownText.bind(eta,u.finishAt,"Sync to confirm completion",System::currentTimeMillis,u::etaText);box.addView(eta);
+            }else{TextView timer=label("",16,WHITE,true);CountdownText.bind(timer,r.finishAt,"Timer ended · sync to confirm");box.addView(timer);}
+        }
         else if(r.next!=null){box.addView(label(r.costText()+(r.count>1?" each":""),14,WHITE,true));box.addView(label("◷ "+duration(r.seconds())+(r.count>1?" each":""),12,INK,true));}
         TextView state=label(r.status(),12,r.state==UpgradePlanner.State.LOCKED?0xFF44251C:INK,true);state.setMaxLines(2);box.addView(state);
         if(!r.requirements.isEmpty()){TextView req=label(r.requirements,11,INK,false);req.setMaxLines(2);box.addView(req);}return box;}

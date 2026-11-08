@@ -41,7 +41,7 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.6; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.7; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
 4. Open CoC Base Tracker and tap Sync from clipboard / add account.
@@ -69,7 +69,9 @@ PLANNER LIMITS: The pinned community catalog contains 223 items, checked 8 Nov 2
 
 UPDATING FROM 1.0: Your original village, display name, and reminder cursor migrate automatically. Existing widgets retain that village and gain scrolling. Install over the old version to preserve app data. Names and reminders are now independent per account.
 
-POTIONS AND EVENTS: Stacked doses extend the exported boost duration; they do not multiply the boost speed. Different boosts and the currently assigned helper contribute independently until their respective expirations. Event/Gold Pass reductions already present in the exported upgrade timer are preserved without a second blanket discount. A known Hammer Jam note is informational only. Unobserved future helper assignments or new event speed multipliers still require a fresh export or updated rule. See docs/TIMING.md in the source ZIP.
+POTIONS AND HELPERS: Boosted upgrades show effective speed, accelerated Work left and estimated real Finishes in time. Boosts & Helpers lists imported effects and their next speed change. Research Potion runs Laboratory work at 24x for its remaining duration, Pet Potion applies to pets, Builder Potion to Home builders, and Clock Tower to Builder Base/Star Laboratory. Study Soup supports lab/pets; Builder Potion takes priority over Builder Bite while both run. Stacked doses extend duration. Assigned helper work adds separately. Explicit recurring assignments with a known exported cooldown are forecast on one-hour sessions every 23 hours. Missing future assignments are not invented. Books, Hammers and gem finishes require a fresh export; unused inventory and combat/resource effects do not accelerate these queues.
+
+EVENTS: Event/Gold Pass reductions already present in the exported work are retained without another blanket discount. The Hammer Jam note is informational only. Unsupported future effects require an updated rule. See docs/TIMING.md.
 
 Explore a sample village is a clearly marked preview. It never schedules real reminders or saves sample data as your village.
 
@@ -95,11 +97,11 @@ report = {
     'permissions': [e.attrib['{http://schemas.android.com/apk/res/android}name'] for e in ET.parse(ROOT / 'app/src/main/AndroidManifest.xml').getroot().findall('uses-permission')],
     'internet_permission': False, 'backup': 'Disabled, with cloud and device transfer exclusions',
     'android_device_test': 'Not run: no attached device or configured emulator available',
-    'android_framework_tests': 'Robolectric API 28 and API 35: widget inflation/adapters, migration, account/name isolation and persistence, widget name/tag headers, startup, base/category navigation, readable rows, countdown focus lifecycle, foreground notification/pause and bound-account snapshots',
+    'android_framework_tests': 'Robolectric API 28 and API 35: widget inflation/adapters, migration, account/name isolation and persistence, widget identity, readable boost rows, 24x work countdown vs real ETA, focus lifecycle, foreground notification/pause, startup and base/category navigation',
     'live_game_validation': 'Not run: no private user village export supplied',
     'sync': 'Explicit village export import; readable live countdowns afterward (foreground service for widgets)',
     'readable_widget_service': 'User-selected specialUse foreground service; ongoing notification with pause, screen-off/lock suspension, no wake lock',
-    'features': ['per-account in-game names with optional nicknames and visible tags', 'explicit days/hours/minutes/seconds countdowns', 'foreground live widget service with notification pause', 'README latest-release download button and title-case headings', 'offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
+    'features': ['accelerated Work left and real Finishes in countdowns with imported boost sources', 'finite potion/snack windows and builder overlap priority', 'known recurring helper forecasts on a 23-hour work day', 'per-account in-game names with optional nicknames and visible tags', 'explicit days/hours/minutes/seconds countdowns', 'foreground live widget service with notification pause', 'README latest-release download button and title-case headings', 'offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
     'planner_catalog': {'items': 223, 'revision': '7afaa0375e5865c04021836a3a4192ffcfea092d', 'coverage': 'standard levels through TH18/BH10; special rules require in-game confirmation'},
     'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }

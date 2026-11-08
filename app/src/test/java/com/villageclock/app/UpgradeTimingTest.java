@@ -7,7 +7,8 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 public class UpgradeTimingTest {
-    private UpgradeTiming.Boost potion(long seconds) { return new UpgradeTiming.Boost("builder-potion", 9, seconds); }
+    private UpgradeTiming.Boost potion(long seconds) { return new UpgradeTiming.Boost("builder-potion", 9, seconds, "builder-speed", "Builder Potion"); }
+    private UpgradeTiming.Boost bite(long seconds) { return new UpgradeTiming.Boost("bite", 1, seconds, "builder-speed", "Builder Bite"); }
     @Test public void twoBuilderPotionsExtendDurationNotSpeed() {
         assertEquals(7200, UpgradeTiming.secondsToFinish(72000, Arrays.asList(potion(7200))));
         assertEquals(97200, UpgradeTiming.secondsToFinish(162000, Arrays.asList(potion(7200))));
@@ -21,16 +22,16 @@ public class UpgradeTimingTest {
     @Test public void finishesBeforePotionExpiresAndRoundsUp() {
         assertEquals(361, UpgradeTiming.secondsToFinish(3601, Arrays.asList(potion(7200))));
     }
-    @Test public void potionAndSnackAddTheirExtraWorkRates() {
-        assertEquals(3600, UpgradeTiming.secondsToFinish(39600, Arrays.asList(potion(3600), new UpgradeTiming.Boost("bite", 1, 3600))));
+    @Test public void builderPotionTakesPriorityOverBuilderBite() {
+        assertEquals(7200, UpgradeTiming.secondsToFinish(39600, Arrays.asList(potion(3600), bite(3600))));
     }
     @Test public void apprenticeIsNotMultipliedByBuilderPotion() {
         assertEquals(3600, UpgradeTiming.secondsToFinish(64800, Arrays.asList(potion(3600), new UpgradeTiming.Boost("helper", 8, 3600))));
     }
     @Test public void potionSnackAndHelperExpireIndependently() {
-        // 0..100: rate 19 =>1900; 100..200: rate11=>1100;
-        // 200..300: rate2=>200; remaining100 at rate1.
-        assertEquals(400, UpgradeTiming.secondsToFinish(3300, Arrays.asList(potion(200), new UpgradeTiming.Boost("bite", 1, 300), new UpgradeTiming.Boost("helper", 8, 100))));
+        // 0..100: rate18=>1800; 100..200: rate10=>1000;
+        // 200..300: rate2=>200; remaining300 at rate1.
+        assertEquals(600, UpgradeTiming.secondsToFinish(3300, Arrays.asList(potion(200), bite(300), new UpgradeTiming.Boost("helper", 8, 100))));
     }
     @Test public void researchPotionAndSoupUseDistinctFamilies() {
         assertEquals(3600, UpgradeTiming.secondsToFinish(97200, Arrays.asList(new UpgradeTiming.Boost("research", 23, 3600), new UpgradeTiming.Boost("soup", 3, 3600))));

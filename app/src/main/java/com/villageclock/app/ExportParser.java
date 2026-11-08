@@ -29,12 +29,15 @@ public final class ExportParser {
             if (!tag.matches("#[A-Za-z0-9]{2,16}")) throw new InvalidExport("This export has no valid player tag." );
             long exportedAt = seconds * 1000;
             Map<Integer,Integer> helperLevels = new HashMap<>();
+            long helperCooldown = 0;
             JSONArray helpers = root.optJSONArray("helpers");
             if (helpers != null) for (int i = 0; i < helpers.length(); i++) {
                 JSONObject h = helpers.optJSONObject(i);
                 if (h != null) helperLevels.put(h.optInt("data"), Math.max(0, Math.min(20, h.optInt("lvl"))));
+                if (h != null) helperCooldown = Math.max(helperCooldown, bounded(h, "helper_cooldown", MAX_SECONDS));
             }
             JSONObject boosts = root.optJSONObject("boosts");
+            if (boosts != null) helperCooldown = Math.max(helperCooldown, bounded(boosts, "helper_cooldown", MAX_SECONDS));
             String[] fields = {"buildings", "traps", "heroes", "guardians", "units", "spells", "siege_machines", "pets", "buildings2", "traps2", "heroes2", "units2"};
             Village.Queue[] queues = {Village.Queue.BUILDERS, Village.Queue.BUILDERS, Village.Queue.BUILDERS, Village.Queue.BUILDERS,
                 Village.Queue.LAB, Village.Queue.LAB, Village.Queue.LAB, Village.Queue.PETS,
@@ -60,14 +63,14 @@ public final class ExportParser {
                         if (id == 1000034) baseBuilders = Math.max(1, baseBuilders);
                         if (id == 1000078 || id == 1000047) baseBuilders = 2;
                     }
-                    add(entry, count, queues[f], exportedAt, boosts, helperLevels, names, jobs);
+                    add(entry, count, queues[f], exportedAt, boosts, helperLevels, helperCooldown, names, jobs);
                     JSONArray types = entry.optJSONArray("types");
                     if (types != null) for (int t = 0; t < Math.min(types.length(), 100); t++) {
                         JSONObject type = types.optJSONObject(t);
                         JSONArray modules = type == null ? null : type.optJSONArray("modules");
                         if (modules != null) for (int m = 0; m < Math.min(modules.length(), 100); m++) {
                             JSONObject module = modules.optJSONObject(m);
-                            if (module != null) add(module, 1, queues[f], exportedAt, boosts, helperLevels, names, jobs);
+                            if (module != null) add(module, 1, queues[f], exportedAt, boosts, helperLevels, helperCooldown, names, jobs);
                         }
                     }
                 }
@@ -78,7 +81,7 @@ public final class ExportParser {
         }
     }
     private static void add(JSONObject item, int count, Village.Queue queue, long at, JSONObject boosts,
-                            Map<Integer,Integer> levels, Names names, List<Village.Upgrade> out) throws InvalidExport {
+                            Map<Integer,Integer> levels, long helperCooldown, Names names, List<Village.Upgrade> out) throws InvalidExport {
         long work = bounded(item, "timer", MAX_SECONDS);
         if (work == 0) return;
         int id = item.optInt("data", -1);
@@ -87,20 +90,22 @@ public final class ExportParser {
         if (level < 0 || level > 1000) throw new InvalidExport("An upgrade level is out of range." );
         ArrayList<UpgradeTiming.Boost> windows = new ArrayList<>();
         if (boosts != null) {
-            if (queue == Village.Queue.BUILDERS) { boost(windows, boosts, "builder_boost", 9); boost(windows, boosts, "builder_consumable", 1); }
-            if (queue == Village.Queue.LAB) { boost(windows, boosts, "lab_boost", 23); boost(windows, boosts, "lab_consumable", 3); }
-            if (queue == Village.Queue.PETS) { boost(windows, boosts, "pet_boost", 23); boost(windows, boosts, "lab_consumable", 3); }
-            if (queue == Village.Queue.BASE || queue == Village.Queue.STAR_LAB) boost(windows, boosts, "clocktower_boost", 9);
+            if (queue == Village.Queue.BUILDERS) { boost(windows, boosts, "builder_boost", 9, "builder-speed", "Builder Potion"); boost(windows, boosts, "builder_consumable", 1, "builder-speed", "Builder Bite"); }
+            if (queue == Village.Queue.LAB) { boost(windows, boosts, "lab_boost", 23, "research", "Research Potion"); boost(windows, boosts, "lab_consumable", 3, "soup", "Study Soup"); }
+            if (queue == Village.Queue.PETS) { boost(windows, boosts, "pet_boost", 23, "pet", "Pet Potion"); boost(windows, boosts, "lab_consumable", 3, "soup", "Study Soup"); }
+            if (queue == Village.Queue.BASE || queue == Village.Queue.STAR_LAB) boost(windows, boosts, "clocktower_boost", 9, "clock-tower", "Clock Tower");
         }
         int helper = queue == Village.Queue.BUILDERS ? 93000000 : queue == Village.Queue.LAB ? 93000001 : 0;
         long helperDuration = bounded(item, "helper_timer", MAX_SECONDS);
-        if (helper != 0 && levels.getOrDefault(helper, 0) > 0 && helperDuration > 0)
-            windows.add(new UpgradeTiming.Boost("helper", levels.get(helper), helperDuration));
-        long finish = at + UpgradeTiming.secondsToFinish(work, windows) * 1000;
+        UpgradeTiming.Helper assignment = helper == 0 || levels.getOrDefault(helper, 0) == 0 ? null : new UpgradeTiming.Helper(
+            levels.get(helper), helperDuration, item.optBoolean("recurrent_helper", false) && helperCooldown > 0 ? helperCooldown : -1,
+            queue == Village.Queue.BUILDERS ? "Builder's Apprentice" : "Lab Assistant");
+        UpgradeTiming.Plan plan = new UpgradeTiming.Plan(work, windows, assignment);
+        long finish = at + plan.secondsToFinish() * 1000;
         String name = names.name(id);
         if (name == null || name.isEmpty()) name = queue.label + " item #" + id;
         if (out.size() + count > 500) throw new InvalidExport("Too many active upgrades in this export." );
-        for (int i = 0; i < count; i++) out.add(new Village.Upgrade(id, level + 1, name, queue, finish, item.optBoolean("extra", false), out.size()));
+        for (int i = 0; i < count; i++) out.add(new Village.Upgrade(id, level + 1, name, queue, finish, item.optBoolean("extra", false), out.size(), at, plan));
     }
     private static long bounded(JSONObject obj, String field, long max) throws InvalidExport {
         if (!obj.has(field)) return 0;
@@ -110,8 +115,8 @@ public final class ExportParser {
         if (!Double.isFinite(d) || d < 0 || d > max || d != Math.floor(d)) throw new InvalidExport("Out-of-range field: " + field);
         return ((Number)v).longValue();
     }
-    private static void boost(List<UpgradeTiming.Boost> out, JSONObject obj, String key, long extra) throws InvalidExport {
+    private static void boost(List<UpgradeTiming.Boost> out, JSONObject obj, String key, long extra, String group, String label) throws InvalidExport {
         long duration = bounded(obj, key, MAX_SECONDS);
-        if (duration > 0) out.add(new UpgradeTiming.Boost(key, extra, duration));
+        if (duration > 0) out.add(new UpgradeTiming.Boost(key, extra, duration, group, label));
     }
 }

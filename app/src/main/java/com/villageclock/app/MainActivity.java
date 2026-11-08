@@ -109,6 +109,8 @@ public final class MainActivity extends Activity {
         if (village == null) emptyState(); else {
             button(content, "Build Menu · what’s left to upgrade", true, v -> startActivity(new Intent(this, PlannerActivity.class)
                 .putExtra("tag", village.tag).putExtra("sample", demo != null)));
+            gap(content, 8);
+            button(content, "Boosts & Helpers", false, v -> showBoosts(village));
             gap(content, 12);
             villageState(village, now);
         }
@@ -190,7 +192,13 @@ public final class MainActivity extends Activity {
     }
     private LinearLayout upgradeCard(Village.Upgrade u, long now, long snapshotAt) {
         LinearLayout card = (LinearLayout)VillageWidget.row(this, u, now, snapshotAt, true).apply(this, new android.widget.FrameLayout(this));
-        if (!u.done(now)) CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓");
+        if (!u.done(now)) {
+            if (u.hasBoosts()) {
+                CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓", System::currentTimeMillis, u::workText);
+                CountdownText.bind(card.findViewById(R.id.row_boost), u.finishAt, "", System::currentTimeMillis, u::boostText);
+                CountdownText.bind(card.findViewById(R.id.row_eta), u.finishAt, "Sync to confirm completion", System::currentTimeMillis, u::etaText);
+            } else CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓");
+        }
         card.setOnClickListener(v -> openGame());
         return card;
     }
@@ -209,7 +217,7 @@ public final class MainActivity extends Activity {
         }); panel.addView(live);
         panel.addView(text("Shows days, hours, minutes and seconds with an ongoing notification. Updates pause while the screen is off or locked. Pause the notification or turn this off to use the native widget timer.", 11, MUTED, false)); gap(panel, 12);
         panel.addView(text(FastEvents.noteAt(village.exportedAt), 12, MUTED, false)); gap(panel, 8);
-        panel.addView(text("Stacked copies extend boost duration. Potions, snacks, and the active helper contribute independently until each expires. Sync after changing boosts or helper assignments.", 11, MUTED, false)); gap(panel, 10);
+        panel.addView(text("Stacked copies extend boost duration. Known boosts apply only while active, and helpers contribute separately. Sync after using items or changing helper assignments.", 11, MUTED, false)); gap(panel, 10);
         button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
         button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
         Switch toggle = new Switch(this); toggle.setText("Notifications for all saved villages"); toggle.setTextColor(TEXT); toggle.setTextSize(13); toggle.setMinHeight(dp(48));
@@ -299,6 +307,23 @@ public final class MainActivity extends Activity {
         LinearLayout box = vertical(); box.setPadding(dp(20), dp(8), dp(20), 0); box.addView(input);
         new AlertDialog.Builder(this).setTitle("Account Nickname").setMessage("Optional label such as Main or Mini. Your in-game name stays separate.").setView(box).setNegativeButton("Cancel", null)
             .setPositiveButton("Save", (d, w) -> { Store.rename(this, village.tag, input.getText().toString()); VillageWidget.refresh(this); render(); }).show();
+    }
+    private void showBoosts(Village village) {
+        long now = System.currentTimeMillis(); StringBuilder detail = new StringBuilder("From your latest village export. Use items in Clash, then sync here.\n\n");
+        boolean any = false;
+        for (Village.Upgrade u : village.upgrades) if (!u.done(now) && u.hasBoosts()) {
+            any = true; detail.append(u.label()).append('\n').append(u.boostText(now)).append('\n')
+                .append(u.workText(now)).append('\n').append(u.etaText(now)).append('\n');
+            long change = u.timing.nextChange(u.elapsed(now));
+            if (change != Long.MAX_VALUE) detail.append("Next speed change in: ").append(DurationText.remaining(u.snapshotAt + change * 1000, now)).append('\n');
+            if (u.timing.helper != null && u.timing.helper.nextStartSeconds >= 0)
+                detail.append("Repeat-helper forecast: 1-hour sessions on the exported 23-hour work-day schedule.\n");
+            detail.append('\n');
+        }
+        if (!any) detail.append("No timed upgrade boosts are recorded for your running upgrades.\n\n");
+        detail.append("Potions and Magic Snacks in storage do not change timers until used. Books, Hammers and gem finishes are reflected after a fresh export. Resource and combat boosts, Alchemist and Prospector do not speed up these upgrade queues. Repeating helpers are forecast only when the export marks that assignment and includes its cooldown.");
+        new AlertDialog.Builder(this).setTitle("Boosts & Helpers").setMessage(detail.toString()).setPositiveButton("Close", null)
+            .setNeutralButton("Open Clash", (d,w) -> openGame()).show();
     }
     private void editInGameName(Village village, Runnable after) {
         EditText input = new EditText(this); input.setSingleLine(true); input.setHint("Name shown on your Clash profile");

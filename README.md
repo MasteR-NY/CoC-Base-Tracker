@@ -38,7 +38,9 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 Timers run from your most recent village export and continue counting down when Clash is closed. Import a fresh export after starting an upgrade, finishing one early, using a potion, or changing helper assignments. New activity in Clash appears after you sync.
 
-Active boost durations, potion stacking, and supported helper boosts are included in the timer calculations. Time reductions already present in an exported timer are retained. See [Timer Rules](docs/TIMING.md) for details.
+Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. Boosted upgrades show their work rate, accelerated **Work left** countdown, and estimated real **Finishes in** time. Open **Boosts & Helpers** to review the effects recorded in your export.
+
+Additional doses extend boost duration. Known repeating helper assignments are forecast when their assignment and cooldown are included in the export. Books, Hammers and other instant finishes appear after a fresh sync; unused chest rewards and combat/resource boosts do not accelerate upgrade timers. See [Timer Rules](docs/TIMING.md) for supported effects and examples.
 
 ## Multiple Accounts and Widgets
 

@@ -22,9 +22,9 @@ import static org.junit.Assert.*;
 public class DesignPreviewTest {
     @Test public void rendersAppAndScrollableWidgetWithGameAssets() throws Exception {
         Context context = RuntimeEnvironment.getApplication();
-        long timestamp = System.currentTimeMillis()/1000 - 43200;
+        long timestamp = System.currentTimeMillis()/1000 - 900;
         String export = "{\"tag\":\"#PREVIEW\",\"timestamp\":" + timestamp
-            + ",\"buildings\":[{\"data\":1000001,\"lvl\":17},{\"data\":1000015,\"cnt\":5},{\"data\":1000064,\"lvl\":1},"
+            + ",\"boosts\":{\"lab_boost\":3600,\"builder_consumable\":1800},\"buildings\":[{\"data\":1000001,\"lvl\":17},{\"data\":1000015,\"cnt\":5},{\"data\":1000064,\"lvl\":1},"
             + "{\"data\":1000003,\"lvl\":16,\"timer\":3600},{\"data\":1000008,\"lvl\":20,\"timer\":60000},{\"data\":1000008,\"lvl\":20,\"timer\":90000,\"extra\":true}],"
             + "\"heroes\":[{\"data\":28000000,\"lvl\":99,\"timer\":200000}],"
             + "\"units\":[{\"data\":4000008,\"lvl\":11,\"timer\":400000}],"
