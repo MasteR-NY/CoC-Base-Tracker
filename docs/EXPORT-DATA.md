@@ -60,7 +60,7 @@ There is no `helper_timer` in this sample. It therefore does not establish a cur
 | Medium | Crafting and module tracker | Nested `types` and `modules` IDs/levels | Verify names, types, caps, unlock requirements, costs and times for IDs missing from the catalog |
 | Optional | Cosmetics collection | Skins, sceneries, decorations, obstacles and house parts | Verified name/art mappings and an optional collection catalog for comparison |
 
-Auto-sync on return is implemented in v1.12. The other recommendations above are possible future additions, not newly implemented dashboards or reminders.
+Auto-sync on return is implemented in v1.12. Version 1.13 adds the base progress, crafting, helper/Clock Tower availability and equipment/collection views described in [Village Overview](OVERVIEW.md). Snapshot history and comparisons remain future work. Unverified module/cosmetic mappings and missing resource balances remain limitations.
 
 ## Information Not Supplied
 

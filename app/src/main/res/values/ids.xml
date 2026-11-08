@@ -3,6 +3,10 @@
     <item name="check_updates" type="id" />
     <item name="settings_toggle" type="id" />
     <item name="auto_sync" type="id" />
+    <item name="open_overview" type="id" />
+    <item name="overview_list" type="id" />
+    <item name="overview_heading" type="id" />
+    <item name="availability_alerts" type="id" />
     <item name="settings_panel" type="id" />
     <item name="update_status" type="id" />
     <item name="whats_new" type="id" />

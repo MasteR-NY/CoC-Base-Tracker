@@ -32,6 +32,10 @@ public final class Reminders {
         for (Village village : Store.all(c)) {
             long cursor = Store.notifiedThrough(c, village.tag);
             for (Village.Upgrade u : village.upgrades) if (u.finishAt > cursor) next = Math.min(next, u.finishAt);
+            if(Store.prefs(c).getBoolean("notify",true)&&Store.prefs(c).getBoolean(Availability.PREF,true)){
+                long readyCursor=Availability.cursor(c,village.tag);
+                for(Availability.Entry e:Availability.load(c,village))if(e.readyAt>readyCursor)next=Math.min(next,e.readyAt);
+            }
         }
         if (next == Long.MAX_VALUE) return;
         long trigger = Math.max(next, now + 1000);
@@ -41,7 +45,7 @@ public final class Reminders {
         } catch (SecurityException revoked) { alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pending); }
     }
     public static void deliver(Context c) {
-        for (Village village : Store.all(c)) deliverVillage(c, village);
+        for (Village village : Store.all(c)){deliverVillage(c, village);deliverAvailability(c,village);}
     }
     private static void deliverVillage(Context c, Village v) {
         long now = System.currentTimeMillis(), cursor = Store.notifiedThrough(c, v.tag);
@@ -62,5 +66,17 @@ public final class Reminders {
         long last = cursor;
         for (Village.Upgrade u : due) last = Math.max(last, u.finishAt);
         Store.setNotifiedThrough(c, v.tag, last);
+    }
+    private static void deliverAvailability(Context c,Village village){
+        long now=System.currentTimeMillis(),cursor=Availability.cursor(c,village.tag),last=cursor;ArrayList<Availability.Entry> due=new ArrayList<>();
+        for(Availability.Entry e:Availability.load(c,village))if(e.readyAt>cursor&&e.readyAt<=now){due.add(e);last=Math.max(last,e.readyAt);}
+        if(due.isEmpty())return;
+        if(Store.prefs(c).getBoolean("notify",true)&&Store.prefs(c).getBoolean(Availability.PREF,true)&&canNotify(c)){
+            NotificationManager manager=c.getSystemService(NotificationManager.class);manager.createNotificationChannel(new NotificationChannel("availability","Helper and Clock Tower availability",NotificationManager.IMPORTANCE_DEFAULT));
+            String detail=due.get(0).name+(due.size()>1?" and "+(due.size()-1)+" more":"")+" · sync to confirm";
+            Intent open=new Intent(c,OverviewActivity.class).putExtra("tag",village.tag).putExtra("tab","Helpers").putExtra("builder",due.get(0).key.equals("clock-tower"));
+            PendingIntent tap=PendingIntent.getActivity(c,village.tag.hashCode(),open.setData(android.net.Uri.parse("villageclock://availability/"+android.net.Uri.encode(village.tag))),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+            manager.notify(VillageArchive.canonical(village.tag),8,new Notification.Builder(c,"availability").setSmallIcon(R.drawable.ic_village).setContentTitle(due.size()==1?"Ready to use":"Helpers and boosts ready").setContentText(detail).setSubText(Store.title(c,village)).setContentIntent(tap).setAutoCancel(true).setCategory(Notification.CATEGORY_REMINDER).setVisibility(Notification.VISIBILITY_PRIVATE).build());
+        }Availability.through(c,village.tag,last);
     }
 }

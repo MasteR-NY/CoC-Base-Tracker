@@ -2,6 +2,19 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.13 — Your Village at a Glance
+
+- **Progress for Both Bases:** Overview shows building, wall, trap, army and hero level progress. Choose targets for your Current Hall or the full offline Catalog Max.
+- **Crafting and Collections:** Track all exported crafting modules, equipment levels and cosmetic collections. Unverified names stay visible as IDs, and unknown module caps are clearly marked.
+- **Helper and Clock Tower Alerts:** See exported cooldowns and receive a one-time availability reminder for each deadline. Sync after using a helper or Clock Tower to keep estimates current.
+- **Official Game References:** The News button in Overview opens dated notes and links to Supercell’s official blog, support and community-channel directory. Notes are bundled with this release.
+
+### How to Use It
+
+1. Tap Overview beside Build Menu, then switch Village Base or Builder Base.
+2. Use Progress, Crafting, Helpers or Collection to explore your export. Collection includes an equipment and cosmetic selector.
+3. Enable notifications and Helper & Clock Tower alerts in Settings. Availability is estimated from the last export; sync after use in Clash.
+
 ## v1.12 — Auto-Sync on Return
 
 - **Copy, Then Return:** Copy a village export in Clash and return to CoC Base Tracker. A fresh export imports automatically when the tracker has focus. Android does not allow background clipboard watching or an automatic redirect from Clash’s Copy button.

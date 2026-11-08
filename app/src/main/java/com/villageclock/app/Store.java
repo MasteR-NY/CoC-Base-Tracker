@@ -78,6 +78,7 @@ public final class Store {
         Village previous = read(c, tag);
         if (previous != null && previous.exportedAt > village.exportedAt) throw new IOException("An older export cannot replace this village.");
         archive(c).write(tag, text);
+        Availability.through(c,tag,System.currentTimeMillis());
         SharedPreferences.Editor edit = prefs(c).edit().putString("active-tag", tag).putLong(key("notified-through", tag), System.currentTimeMillis())
             .putLong(key("last-import", tag), System.currentTimeMillis());
         String importedName = !village.playerName.isEmpty() ? village.playerName : previous == null ? "" : previous.playerName;
@@ -88,9 +89,11 @@ public final class Store {
         String tag = activeTag(c);
         if (tag.isEmpty()) return;
         archive(c).remove(tag);
+        prefs(c).edit().remove("availability-through."+VillageArchive.canonical(tag)).apply();
         prefs(c).edit().remove(key("name", tag)).remove(key("in-game-name", tag)).remove(key("imported-name", tag))
             .remove(key("notified-through", tag)).remove(key("last-import", tag)).remove("active-tag").apply();
         c.getSystemService(android.app.NotificationManager.class).cancel(tag, 7);
+        c.getSystemService(android.app.NotificationManager.class).cancel(tag, 8);
     }
     public static void rename(Context c, String tag, String name) { prefs(c).edit().putString(key("name", tag), AccountNames.clean(name)).apply(); }
     public static String nickname(Context c, String tag) { return AccountNames.clean(prefs(c).getString(key("name", tag), "")); }

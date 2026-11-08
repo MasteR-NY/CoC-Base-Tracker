@@ -45,6 +45,12 @@ public class DesignPreviewTest {
         render(widget, 400, 560, "widget-design.png");
         WhatsNewActivity guide = Robolectric.buildActivity(WhatsNewActivity.class).setup().get();
         render(guide.getWindow().getDecorView(), 411, 1000, "whats-new-design.png");
+        OverviewActivity overview = Robolectric.buildActivity(OverviewActivity.class,
+            new android.content.Intent(context, OverviewActivity.class).putExtra("sample",true)).setup().get();
+        render(overview.getWindow().getDecorView(),411,1000,"overview-design.png");
+        OverviewUiTest.find(overview.getWindow().getDecorView(),"Crafting").performClick();render(overview.getWindow().getDecorView(),411,1000,"crafting-design.png");
+        OverviewUiTest.find(overview.getWindow().getDecorView(),"Helpers").performClick();render(overview.getWindow().getDecorView(),411,1000,"helpers-design.png");
+        OverviewUiTest.find(overview.getWindow().getDecorView(),"Collection").performClick();render(overview.getWindow().getDecorView(),411,1000,"collection-design.png");
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));
     }

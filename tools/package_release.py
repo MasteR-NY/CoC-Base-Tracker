@@ -19,7 +19,7 @@ APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
 assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
-for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design'):
+for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design'):
     assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -43,7 +43,7 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.11; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.12; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
 4. Return to CoC Base Tracker. Auto-sync on return imports a fresh export automatically; Sync / Add Account remains available for manual import.
@@ -66,6 +66,8 @@ UPDATE RELIABILITY: If the API fails, a second anonymous HTTPS GET checks the pu
 AUTO-SYNC: Enabled by default in Settings and available before your first account import. Copy the village export in Clash, then switch back through Recent Apps, the launcher or the live-timer notification. A focused tracker imports a fresh export without an extra Sync tap. Duplicate/older exports are ignored, manual widget account guards remain enforced, and each widget keeps its selected account. Unrelated clipboard text is ignored and URIs are never opened. Disable Auto-sync on return for manual imports. Android 10+ does not let this tracker detect Clash's Copy button from the background or automatically bring itself forward. No background clipboard monitoring service is added.
 
 EXPORT FIELD REFERENCE: docs/EXPORT-DATA.md contains a non-identifying review of the supplied snapshot, supported fields, missing information, the potion calculation example and potential features. The original personal export is excluded from this source ZIP. Helper repeat flags support helper_recurrent and recurrent_helper; idle preferences do not fabricate active jobs, and helper cooldowns are kept separate.
+
+VILLAGE OVERVIEW: Tap Overview beside Build Menu. Progress compares building, wall, trap, army and hero level/count data for each base with Current Hall or Catalog Max targets. Percentages are level steps, not costs or time. Crafting includes every exported module, with unknown caps/names clearly marked. Collection includes equipment levels and cosmetic quantities; it does not invent unowned collectibles or ore balances. Helpers shows exported availability estimates, with Clock Tower under Builder Base. Enable Helper & Clock Tower alerts and Android notifications for a one-time reminder per exported deadline. Fresh sync replaces deadlines; no recurring uses are invented. News opens bundled official references and optional browser links. See docs/OVERVIEW.md and docs/GAME-DATA.md.
 
 SMOOTHER TIMERS AND HOME: Boosted Work left updates through intermediate work seconds in the app and Build Menu, recalculated from fractional real seconds with a 16 ms minimum display interval. Widgets show steady real time remaining and a boost badge with the existing one-second service refresh. Settings starts collapsed; expand it for account and notification controls. Help & About contains the longer sync, timer, widget, privacy and credit information.
 
@@ -123,6 +125,10 @@ report = {
 report['features'][:0] = ['public GitHub release redirect fallback with specific connection diagnostics', 'fractional-time accelerated work countdowns in app and planner', 'steady real-time widget countdowns with boost badges', 'collapsed settings and Help & About', 'offline release guide and per-version launch summary', 'expandable earlier release notes', 'shared bundled notes and generated changelog']
 report['features'][:0] = ['foreground clipboard auto-sync on return with duplicate/stale suppression', 'first-import settings and auto-sync opt-out', 'per-helper cooldowns and helper_recurrent compatibility', 'export field reference and grounded feature recommendations']
 report['clipboard'] = 'User-selected foreground auto-sync (default enabled), or manual Sync; resumed focused activity only; plain-text export validation; no background reads, URI coercion, unrelated-text persistence or uploads'
+report['features'][:0] = ['per-base Current Hall and Catalog Max level progress', 'nested crafting module inventory', 'per-account helper and Clock Tower availability alerts', 'equipment and cosmetic collection views', 'bundled dated official game references with browser links']
+report['availability_alerts'] = 'Exported deadlines only; one-time per account cursor; shared alarm receiver, separate notification ID 8; missing cooldowns unknown; fresh import resets cursor; settings and notification permissions respected'
+report['official_references'] = 'Reviewed 2026-11-08; Supercell blog, crafted defense and helper support, official channel directory; bundled notes, no background feed or automatic rule downloads'
+report['android_framework_tests'] += '; Overview tab/base navigation, sample safety, availability one-shot delivery, replacement deadlines, Clock Tower alarm scheduling and account removal on API 26/29/35'
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')
 print(json.dumps({'apk': str(APK), 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,

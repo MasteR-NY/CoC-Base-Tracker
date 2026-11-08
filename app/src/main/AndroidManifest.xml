@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlannerActivity" android:exported="false" />
+        <activity android:name=".OverviewActivity" android:exported="false" />
         <activity android:name=".WhatsNewActivity" android:exported="false" />
         <activity android:name=".WidgetConfigActivity" android:exported="true">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter>

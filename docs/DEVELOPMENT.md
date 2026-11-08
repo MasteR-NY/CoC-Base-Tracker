@@ -71,6 +71,10 @@ Packaging requires the signed APK, passing test reports, lint output, matching R
 
 ## Data and Validation
 
+Overview models are in `VillageOverview.java` and `Availability.java`. Hall caps follow the planner’s known facility gates; progress does not promote levels on timer expiry. Availability shares the existing alarm receiver but has per-account cursors and notification ID 8, separate from upgrade-finished ID 7. Import resets the availability cursor to the import time, so already-ready stale exports do not trigger a notification burst. Disabling alerts suppresses notifications and removes their scheduling contribution; upgrade alarms remain independent.
+
+Official source notes are bundled in `app/src/main/assets/official-updates.json` and displayed from Overview → News. Updating these is a release-maintenance task, not a runtime background download. See [Official Game Data References](GAME-DATA.md) for the review procedure. Android-rendered Overview previews are included in normal builds and source packages.
+
 Auto-sync registers a clipboard-change listener only while MainActivity is resumed, and reads text only when its window has focus and the preference is enabled. Focus return also queues a check so an export copied in Clash is discovered without background access. A shape filter precedes full validation on the import executor; non-text clipboard URIs are never coerced. A SHA-256 fingerprint suppresses repeated clipboard exports, and saved timestamps prevent older/equal snapshots from replacing or selecting an account. Manual widget imports retain their tag guard. Settings is available before the first account is saved, including the option to disable auto-sync.
 
 Clipboard lifecycle, duplicate/stale handling, settings, account isolation and manual widget guards are tested on API 26, 29 and 35. The supplied personal export is inspected locally and excluded from the source package; tests use synthetic data. See [Village Export Data](EXPORT-DATA.md) for the sample field inventory, calculation example and feature recommendations.

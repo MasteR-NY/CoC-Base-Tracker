@@ -120,8 +120,9 @@ public final class MainActivity extends Activity {
             LinearLayout tools = horizontal();
             Button planner = button(tools, "Build Menu", true, v -> startActivity(new Intent(this, PlannerActivity.class)
                 .putExtra("tag", village.tag).putExtra("sample", demo != null)));
-            Button boosts = button(tools, "Boosts & Helpers", false, v -> showBoosts(village));
-            equalButtons(planner, boosts);content.addView(tools);
+            Button overview=button(tools,"Overview",false,v->startActivity(new Intent(this,OverviewActivity.class).putExtra("tag",village.tag).putExtra("sample",demo!=null)));overview.setId(R.id.open_overview);
+            Button boosts = button(tools, "Boosts", false, v -> showBoosts(village));
+            for(Button action:new Button[]{planner,overview,boosts}){LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(0,dp(50),1);params.setMargins(dp(2),0,dp(2),0);action.setLayoutParams(params);action.setTextSize(14);action.setPadding(dp(3),0,dp(3),0);}content.addView(tools);
             gap(content, 12);
             villageState(village, now);
         }
@@ -308,6 +309,7 @@ public final class MainActivity extends Activity {
             Store.prefs(this).edit().putBoolean("notify", checked).apply();
             if (checked) requestNotifications(); Reminders.schedule(this);
         }); panel.addView(toggle);
+        Switch availability=new Switch(this);availability.setId(R.id.availability_alerts);availability.setText("Helper & Clock Tower alerts");availability.setTextColor(TEXT);availability.setTextSize(13);availability.setMinHeight(dp(48));availability.setChecked(Store.prefs(this).getBoolean(Availability.PREF,true));availability.setOnCheckedChangeListener((b,on)->{Store.prefs(this).edit().putBoolean(Availability.PREF,on).apply();if(on)requestNotifications();Reminders.deliver(this);Reminders.schedule(this);});panel.addView(availability);
         if (!Reminders.canNotify(this) && Store.prefs(this).getBoolean("notify", true)) {
             button(panel, "Allow notifications", false, v -> requestNotifications()); gap(panel, 8);
         }
@@ -486,6 +488,7 @@ public final class MainActivity extends Activity {
             +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Review imported effects in Boosts & Helpers. Green bars show progress since export.\n\n"
             +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
             +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
+            +"Overview\nProgress compares exported levels and counts with Current Hall or Catalog Max targets. Crafting shows all exported modules. Helpers shows cooldown estimates and availability alerts; sync after use. Collection contains equipment and cosmetic records, using stable IDs when names are unavailable.\n\n"
             +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL.")
             .setPositiveButton("Close",null).show();
     }

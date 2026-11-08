@@ -51,11 +51,29 @@ public final class UpgradePlanner {
             switch(status){case "All":return true;case "Requirements met":return r.state==State.AVAILABLE;case "In progress":return r.state==State.RUNNING||r.state==State.SYNC;
                 case "Locked / unowned":return r.state==State.LOCKED||r.state==State.UNOWNED||r.state==State.UNKNOWN;case "Maxed":return r.state==State.MAXED;default:return r.state!=State.MAXED;}}
     }
-    private final List<Item> items=new ArrayList<>(); private final Map<Integer,Item> byId=new HashMap<>(); public final String revision;
+    private final List<Item> items=new ArrayList<>(); private final Map<Integer,Item> byId=new HashMap<>();private final Map<String,Integer> hallCaps=new HashMap<>(); public final String revision;
     public UpgradePlanner(String json)throws Exception{JSONObject root=new JSONObject(json);revision=root.optString("revision");JSONArray a=root.getJSONArray("items");
         for(int i=0;i<a.length();i++){Item item=new Item(a.getJSONObject(i));items.add(item);byId.put(item.id,item);}}
     public List<Item> items(){return Collections.unmodifiableList(items);}
     public Item item(int id){return byId.get(id);}
+    public int capAtHall(Item item,int hall){return capAtHall(item,hall,new HashSet<>());}
+    private int capAtHall(Item item,int hall,Set<Integer> visiting){
+        String cacheKey=item.id+":"+hall;Integer known=hallCaps.get(cacheKey);if(known!=null)return known;
+        if(!visiting.add(item.id))return 0;
+        try{
+            if(item.category.equals("town-hall")||item.category.equals("builder-hall"))return Math.min(hall,item.max());
+            int cap=0;JSONArray levels=item.data.optJSONArray("levels");if(levels==null)return 0;
+            for(int i=0;i<levels.length();i++){JSONObject level=levels.optJSONObject(i);if(level==null||level.optBoolean("supercharge"))continue;boolean allowed=true;
+                for(Map.Entry<String,Integer> gate:reqMap(item,level).entrySet()){
+                    if(gate.getKey().equals("Town Hall")||gate.getKey().equals("Builder Hall")){if(gate.getValue()>hall)allowed=false;}
+                    else{Item facility=null;for(Item candidate:items)if(candidate.base.equals(item.base)&&candidate.name.equals(gate.getKey())){facility=candidate;break;}
+                        if(facility==null||capAtHall(facility,hall,visiting)<gate.getValue())allowed=false;}
+                }
+                if(allowed)cap=Math.max(cap,level.optInt("level"));
+            }hallCaps.put(cacheKey,cap);return cap;
+        }finally{visiting.remove(item.id);}
+    }
+    public int countAtHall(Item item,int hall){return hasMergeCounts(item,hall,item.base.equals("builder"))?-1:allowed(item,hall,item.base.equals("builder"));}
     public List<Row> rows(String json,Village village,String base,Tab tab,long now)throws Exception{
         JSONObject root=new JSONObject(json);Map<Integer,List<JSONObject>> owned=new HashMap<>();Map<Integer,Integer> levels=new HashMap<>();
         boolean builder=base.equals("builder");String[] sections=builder?new String[]{"buildings2","traps2","heroes2","units2","spells2"}:

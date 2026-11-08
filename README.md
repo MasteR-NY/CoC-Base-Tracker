@@ -16,6 +16,19 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 
 *Previews use sample account data. Widget appearance may vary by launcher.*
 
+<details>
+<summary>Village Overview Previews</summary>
+
+| Base Progress | Crafting Modules |
+| --- | --- |
+| <img src="docs/images/overview-design.png" width="270" alt="Base progress with hall targets and grouped level counts"> | <img src="docs/images/crafting-design.png" width="270" alt="Crafting modules grouped by defense with exported levels"> |
+
+| Helper Availability | Equipment Collection |
+| --- | --- |
+| <img src="docs/images/helpers-design.png" width="270" alt="Exported helper cooldown and estimated availability"> | <img src="docs/images/collection-design.png" width="270" alt="Equipment collection with levels and catalog maximums"> |
+
+</details>
+
 ## Features
 
 - Automatic import of fresh village exports when returning to the app, with a manual-sync option.
@@ -25,6 +38,8 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 - Resource, type, hero, and status filters, with cost, time, and name sorting.
 - Multiple accounts with in-game names, optional nicknames, and independent widgets.
 - An offline What’s New guide with release highlights and usage instructions.
+- Base progress, crafting modules, equipment and cosmetic collection views.
+- Helper and Clock Tower availability alerts with account-specific deadlines.
 
 ## Getting Started
 
@@ -38,7 +53,7 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.12**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.13**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. When a newer release is available, it notifies you and opens the GitHub release page, where you can download the APK under **Assets**. If the API check fails, the app tries GitHub’s public latest-release redirect. If both checks fail, the dialog explains the connection, DNS, TLS or server error and offers **Retry** or **Open Releases**. Update checks run only when requested; installing an update remains your choice.
 
@@ -61,7 +76,7 @@ Timers run from your most recent village export and continue counting down when 
 
 With **Auto-sync on return** enabled, copy the export in Clash and switch back to the tracker. A new valid export imports without tapping Sync. Duplicate and older snapshots are ignored, and each widget keeps its account selection. Turn the option off in **Settings** to use manual import. Android does not allow the tracker to watch Clash’s Copy button in the background or automatically redirect you from it; returning to the app gives it clipboard access. See [Village Export Data](docs/EXPORT-DATA.md) for the field reference and platform limits.
 
-Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. In the app and Build Menu, boosted upgrades show their work rate, a smooth accelerated **Work left** countdown, and estimated real **Finishes in** time. A 24× boost advances work through intermediate seconds instead of subtracting 24 seconds in one jump. Widgets show the estimated real time remaining in steady seconds, alongside a boost badge. Open **Boosts & Helpers** to review the effects recorded in your export.
+Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. In the app and Build Menu, boosted upgrades show their work rate, a smooth accelerated **Work left** countdown, and estimated real **Finishes in** time. A 24× boost advances work through intermediate seconds instead of subtracting 24 seconds in one jump. Widgets show the estimated real time remaining in steady seconds, alongside a boost badge. Open **Boosts** to review the effects recorded in your export.
 
 Additional doses extend boost duration. Known repeating helper assignments are forecast when their assignment and cooldown are included in the export. Books, Hammers and other instant finishes appear after a fresh sync; unused chest rewards and combat/resource boosts do not accelerate upgrade timers. See [Timer Rules](docs/TIMING.md) for supported effects and examples.
 
@@ -96,6 +111,16 @@ Planning costs and durations are baseline values. Event discounts, Gold Pass ben
 
 The offline catalog covers standard levels through **Town Hall 18** and **Builder Hall 10**. Supercharges, some crafted modules, merge recipes, and other special conditions require confirmation in game. See the [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md) for coverage and limitations.
 
+## Village Overview
+
+Tap **Overview** beside Build Menu to open the account’s **Progress**, **Crafting**, **Helpers** and **Collection** views. Switch between Village Base and Builder Base at the top.
+
+Progress compares exported levels and quantities with **Current Hall** or **Catalog Max** targets. Crafting includes all exported modules, including the nine in the supplied sample. Collection shows equipment levels and owned cosmetics, with quantities for grouped decorations and obstacles. Unverified names and caps remain clearly marked.
+
+Helpers lists exported cooldown estimates; Builder Base shows Clock Tower availability. **Helper & Clock Tower alerts** sends a one-time reminder for each exported deadline when notifications are enabled. Sync after using either in game to replace the old estimate. The **News** button opens dated notes and links to Supercell’s official sources; included notes work offline.
+
+See [Village Overview](docs/OVERVIEW.md) for calculation details and [Official Game Data References](docs/GAME-DATA.md) for the sources reviewed with this release.
+
 ## Privacy
 
 Upgrade tracking and planning work offline. Village exports and account labels are stored on your device, with system cloud backup disabled. No Supercell login, password, or verification code is required.
@@ -108,6 +133,8 @@ There is no advertising or analytics. Clipboard text is read when you tap Sync o
 
 - [Release Notes](CHANGELOG.md)
 - [Village Export Data and Feature Possibilities](docs/EXPORT-DATA.md)
+- [Village Overview](docs/OVERVIEW.md)
+- [Official Game Data References](docs/GAME-DATA.md)
 - [Timer Rules](docs/TIMING.md)
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)

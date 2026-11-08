@@ -1,6 +1,18 @@
 {
   "releases": [
     {
+      "version": "1.13",
+      "versionCode": 14,
+      "title": "Your Village at a Glance",
+      "highlights": [
+        {"title": "Progress for Both Bases", "body": "Overview shows building, wall, trap, army and hero level progress. Choose targets for your Current Hall or the full offline Catalog Max."},
+        {"title": "Crafting and Collections", "body": "Track all exported crafting modules, equipment levels and cosmetic collections. Unverified names stay visible as IDs, and unknown module caps are clearly marked."},
+        {"title": "Helper and Clock Tower Alerts", "body": "See exported cooldowns and receive a one-time availability reminder for each deadline. Sync after using a helper or Clock Tower to keep estimates current."},
+        {"title": "Official Game References", "body": "The News button in Overview opens dated notes and links to Supercell’s official blog, support and community-channel directory. Notes are bundled with this release."}
+      ],
+      "steps": ["Tap Overview beside Build Menu, then switch Village Base or Builder Base.", "Use Progress, Crafting, Helpers or Collection to explore your export. Collection includes an equipment and cosmetic selector.", "Enable notifications and Helper & Clock Tower alerts in Settings. Availability is estimated from the last export; sync after use in Clash."]
+    },
+    {
       "version": "1.12",
       "versionCode": 13,
       "title": "Auto-Sync on Return",

@@ -1,0 +1,11 @@
+{
+  "reviewed": "2026-11-08",
+  "notes": [
+    {"title": "October Balance Announcement", "date": "2026-10-17", "summary": "Supercell announced troop and equipment adjustments. This notice does not change exported upgrade work or establish a new upgrade-cost table.", "url": "https://supercell.com/en/games/clashofclans/blog/news/balance-changes-incoming-october-2026/"},
+    {"title": "Current Crafted Defenses", "date": "2026-07-31", "summary": "The seasonal announcement opened Cake-A-Pult, Hero Hunter and Hot Candle to TH11+. Crafting shows the modules actually present in your export; caps and phase-end dates are not guessed.", "url": "https://supercell.com/en/games/clashofclans/blog/news/the-awesome-quest-is-here/"},
+    {"title": "Helper Work Days", "date": "Support reference", "summary": "Helpers share a 23-hour work day. Availability alerts use exported deadlines and need a fresh sync after use in Clash.", "url": "https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529140074139-Helpers-The-Helper-Hut"},
+    {"title": "Crafting Modules", "date": "Support reference", "summary": "Crafted defenses have individually upgraded modules and change with crafting phases. General support and seasonal unlock wording differ; this tracker follows your exported inventory.", "url": "https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529139405595-Crafted-Defenses"}
+  ],
+  "blog": "https://supercell.com/en/games/clashofclans/blog/",
+  "channels": "https://supercell.com/en/games/clashofclans/"
+}
