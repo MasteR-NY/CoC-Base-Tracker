@@ -1,8 +1,10 @@
 # Presentation credits
 
-The app and widget presentation in CoC Village Tracker (formerly Village Clock) is adapted at the user's request from [Yusuf-Bedri-Bitiren/Coc-Widget](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget), reference commit `68626b688116ff19a535ec5be630f8b9bd85d759`.
+Version 1.4 also adapts the gray headers, brown upgrade cards, black level badges and category-tab structure shown in [Supercell's October 2026 interface announcement](https://supercell.com/en/games/clashofclans/blog/news/weve-revamped-the-clash-of-clans-user-interface/). Its public Build Menu and filter screenshots were used as visual references, not included as app or README screenshots. README previews render this app's actual Android layouts with synthetic data.
 
-The reference's wooden panel, green/gold row drawables, gold buttons, outlines, item icons, and Lilita One font informed this adaptation. The panel and rows are adapted to CoC Village Tracker's scrollable lists and independent widget account selections. Application logic, account storage, and timer calculations remain this project's implementation.
+The app and widget presentation in CoC Base Tracker (formerly Village Clock) is adapted at the user's request from [Yusuf-Bedri-Bitiren/Coc-Widget](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget), reference commit `68626b688116ff19a535ec5be630f8b9bd85d759`.
+
+The reference's wooden panel, green/gold row drawables, gold buttons, outlines, item icons, and Lilita One font informed this adaptation. The panel and rows are adapted to CoC Base Tracker's scrollable lists and independent widget account selections. Application logic, account storage, and timer calculations remain this project's implementation.
 
 The reference repository did not include a project-wide license at the reviewed commit. Its adapted presentation files retain this origin notice; the MIT license for original Village Clock code does not relicense third-party presentation files or game artwork. This source/APK is delivered for the user's requested local adaptation.
 

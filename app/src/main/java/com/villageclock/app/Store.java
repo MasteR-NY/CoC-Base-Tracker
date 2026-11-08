@@ -11,6 +11,18 @@ import java.util.List;
 
 public final class Store {
     private static volatile Catalog catalog;
+    private static volatile UpgradePlanner planner;
+    public static UpgradePlanner planner(Context c) throws Exception {
+        if (planner == null) synchronized (Store.class) {
+            if (planner == null) try (java.io.InputStream in = c.getAssets().open("planner-catalog.json")) {
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(); byte[] buffer = new byte[8192]; int n;
+                while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n);
+                planner = new UpgradePlanner(out.toString(StandardCharsets.UTF_8.name()));
+            }
+        }
+        return planner;
+    }
+    public static synchronized String raw(Context c, String tag) throws IOException { migrate(c); return archive(c).read(tag); }
     public static SharedPreferences prefs(Context context) { return context.getSharedPreferences("village-clock", Context.MODE_PRIVATE); }
     public static Catalog catalog(Context context) {
         if (catalog == null) synchronized (Store.class) { if (catalog == null) catalog = new Catalog(context.getApplicationContext()); }

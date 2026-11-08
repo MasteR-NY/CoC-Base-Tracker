@@ -2,6 +2,7 @@
 import collections
 import hashlib
 import json
+import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import zipfile
@@ -9,8 +10,15 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'outputs'
 OUT.mkdir(exist_ok=True)
-APK = OUT / 'CoC-Village-Tracker-1.3.apk'
+config = (ROOT / 'app/build.gradle.kts').read_text(encoding='utf-8')
+VERSION = re.search(r'versionName\s*=\s*"([0-9.]+)"', config).group(1)
+VERSION_CODE = int(re.search(r'versionCode\s*=\s*(\d+)', config).group(1))
+APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
+scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
+assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
+for preview in ('app-design', 'build-menu-design', 'widget-design'):
+    assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
 tests = {key: sum(int(suite.attrib[key]) for suite in test_suites) for key in ('tests', 'failures', 'errors', 'skipped')}
@@ -20,25 +28,26 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-source = OUT / 'CoC-Village-Tracker-1.3-source.zip'
+files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json')]
+source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
         if file.is_file():
             relative = file.relative_to(ROOT).as_posix()
             assert not any(part in ('.private', '.tools', '.gradle', 'apk-review', 'outputs', 'build') for part in file.relative_to(ROOT).parts)
-            z.write(file, 'CoC-Village-Tracker/' + relative)
+            z.write(file, 'CoC-Base-Tracker/' + relative)
 with zipfile.ZipFile(source) as z:
     assert z.testzip() is None
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
-guide = '''COC VILLAGE TRACKER — ANDROID SETUP
+guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Village-Tracker-1.3.apk to your Android phone and open it. Install as an update over Village Clock 1.0, 1.1, or 1.2; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.4; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
-4. Open CoC Village Tracker and tap Sync from clipboard / add account.
+4. Open CoC Base Tracker and tap Sync from clipboard / add account.
 5. Allow notifications if you want upgrade-finished reminders.
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
-7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Village Tracker and choose a village when prompted.
+7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Base Tracker and choose a village when prompted.
 
 The countdowns tick every second even when Clash is closed. After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
 
@@ -46,7 +55,11 @@ Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Cl
 
 MULTIPLE ACCOUNTS: Copy and import the village export for each account. Each one is saved separately. Add two widgets and choose a different village for each. Tap the downward arrow beside Sync on an existing widget to change its village. Switching villages in the app does not change other widgets. A widget's Sync rejects clipboard data from the wrong account; use Sync from clipboard / add account in the app to save another account.
 
-CLASH-STYLE DESIGN: This version adapts the reference repository's wooden panel, Lilita One font, gold controls, circular item icons, green countdown bars, and gold completed rows. Both app and widget group upgrades by queue. Green bars show countdown progress since the last exported snapshot. The widget remains scrollable and each widget retains its own selected account.
+CLASH-STYLE DESIGN: Gray headers, brown upgrade cards and bottom category tabs adapt Supercell's October 2026 Build Menu. Timers retain the reference repository's wooden panel, Lilita One font, gold controls, item art and green/gold countdown rows. Bars show progress since export. README includes actual framework-rendered app, planner and widget previews, refreshed by normal builds.
+
+BUILD MENU: Tap Build Menu above the timers. Switch Village Base / Builder Base. Village has Buildings & Heroes, Army Upgrades, Hero Equipment and Hero Pets; Builder Base has the first two. Cards show remaining standard upgrades, grouped levels/counts, baseline per-item costs/times and prerequisites. Tap for details. Use the filter button for resource/type/hero filters and Cost Min/Max sorting. Extra status/time/name options are available. Different active timers remain separate.
+
+PLANNER LIMITS: The pinned community catalog contains 223 items, checked 8 Nov 2026, through TH18 / BH10. Planning costs/times are baseline values, without future event, Gold Pass, potion or helper reductions. Running timers still use exported boost-adjusted countdowns. Requirements met does not promise resources or a free builder. Supercharges, some crafted modules, merges and special hall/unlock conditions require confirmation in game. Sync to confirm ended levels. See docs/UPGRADE-PLANNER.md.
 
 UPDATING FROM 1.0: Your original village, display name, and reminder cursor migrate automatically. Existing widgets retain that village and gain scrolling. Install over the old version to preserve app data. Names and reminders are now independent per account.
 
@@ -62,7 +75,7 @@ Keep the local .private folder secret and backed up for future updates. It is no
 '''
 (OUT / 'Setup.txt').write_text(guide, encoding='utf-8')
 report = {
-    'app': 'CoC Village Tracker', 'version': '1.3', 'version_code': 4, 'package': 'com.villageclock.app',
+    'app': 'CoC Base Tracker', 'version': VERSION, 'version_code': VERSION_CODE, 'package': 'com.villageclock.app',
     'review_date': '2026-11-08', 'timezone': 'Asia/Manila',
     'apk_file': APK.name, 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,
     'source_file': source.name, 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
@@ -76,11 +89,12 @@ report = {
     'permissions': ['android.permission.POST_NOTIFICATIONS', 'android.permission.RECEIVE_BOOT_COMPLETED', 'android.permission.SCHEDULE_EXACT_ALARM'],
     'internet_permission': False, 'backup': 'Disabled, with cloud and device transfer exclusions',
     'android_device_test': 'Not run: no attached device or configured emulator available',
-    'android_framework_tests': 'Robolectric API 28 and API 35: list widget inflation, all 20 rows in adapter, migration, account isolation, startup',
+    'android_framework_tests': 'Robolectric API 28 and API 35: list widget inflation, all 20 rows in adapter, migration, account isolation, startup, base/category navigation and sample isolation',
     'live_game_validation': 'Not run: no private user village export supplied',
     'sync': 'Explicit village export import; native live countdowns afterward',
-    'features': ['scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
-    'design': 'Clash-style wooden panels, Lilita One font, gold controls, verified game item icons, grouped green/gold countdown rows; adapted from Coc-Widget at user request',
+    'features': ['offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
+    'planner_catalog': {'items': 223, 'revision': '7afaa0375e5865c04021836a3a4192ffcfea092d', 'coverage': 'standard levels through TH18/BH10; special rules require in-game confirmation'},
+    'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')

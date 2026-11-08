@@ -7,8 +7,8 @@ android {
         applicationId = "com.villageclock.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 6
+        versionName = "1.5"
     }
     buildTypes { release { isMinifyEnabled = false } }
     compileOptions {
@@ -22,4 +22,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20250517")
     testImplementation("org.robolectric:robolectric:4.17")
+}
+
+tasks.withType<Test>().configureEach {
+    outputs.dir(rootProject.layout.projectDirectory.dir("outputs/previews"))
 }

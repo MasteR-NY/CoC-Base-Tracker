@@ -106,7 +106,12 @@ public final class MainActivity extends Activity {
         if (demo != null) { content.addView(text("SAMPLE VILLAGE · PREVIEW ONLY", 12, GOLD, true)); gap(content, 8); }
         if (!message.isEmpty()) { gap(content, 14); TextView status = text(message, 13, GOLD, false); status.setPadding(dp(14), dp(12), dp(14), dp(12)); status.setBackground(shape(CARD, 12)); content.addView(status); }
         gap(content, 8);
-        if (village == null) emptyState(); else villageState(village, now);
+        if (village == null) emptyState(); else {
+            button(content, "Build Menu · what’s left to upgrade", true, v -> startActivity(new Intent(this, PlannerActivity.class)
+                .putExtra("tag", village.tag).putExtra("sample", demo != null)));
+            gap(content, 12);
+            villageState(village, now);
+        }
         gap(content, 16);
         button(content, importing ? "Importing…" : "Sync from clipboard / add account", true, v -> { syncTarget = ""; importClipboard(); }).setEnabled(!importing);
         gap(content, 8);
@@ -149,6 +154,7 @@ public final class MainActivity extends Activity {
     private void villageState(Village village, long now) {
         LinearLayout panel = vertical(); panel.setBackgroundResource(R.drawable.widget_bg); panel.setPadding(dp(12), dp(10), dp(12), dp(9));
         LinearLayout header = horizontal();
+        header.setBackgroundResource(R.drawable.build_header); header.setPadding(dp(6), dp(5), dp(6), dp(5));
         TextView villageTitle = text(Store.title(this, village) + "  TH" + village.townHall, 21, Color.WHITE, true);
         android.text.SpannableStringBuilder title = new android.text.SpannableStringBuilder(Store.title(this, village));
         title.append(" TH" + village.townHall, new android.text.style.ForegroundColorSpan(GOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); villageTitle.setText(title);
@@ -307,9 +313,9 @@ public final class MainActivity extends Activity {
     private void show(String text) { if (isDestroyed()) return; message = text; Toast.makeText(this, text, Toast.LENGTH_LONG).show(); render(); }
     private Village sample() {
         long now = System.currentTimeMillis(); ArrayList<Village.Upgrade> jobs = new ArrayList<>();
-        jobs.add(new Village.Upgrade(1000008, 19, "Archer Tower", Village.Queue.BUILDERS, now + 27 * 3600000L + 42 * 60000L, false, 0));
-        jobs.add(new Village.Upgrade(1000003, 16, "Gold Mine", Village.Queue.BUILDERS, now + 3 * 3600000L + 18 * 60000L, false, 1));
-        jobs.add(new Village.Upgrade(26000011, 11, "Electro Dragon", Village.Queue.LAB, now + 2 * 86400000L, false, 2));
+        jobs.add(new Village.Upgrade(1000009, 19, "Archer Tower", Village.Queue.BUILDERS, now + 27 * 3600000L + 42 * 60000L, false, 0));
+        jobs.add(new Village.Upgrade(1000004, 16, "Gold Mine", Village.Queue.BUILDERS, now + 3 * 3600000L + 18 * 60000L, false, 1));
+        jobs.add(new Village.Upgrade(4000059, 6, "Electro Dragon", Village.Queue.LAB, now + 2 * 86400000L, false, 2));
         jobs.add(new Village.Upgrade(73000000, 8, "L.A.S.S.I", Village.Queue.PETS, now + 7 * 3600000L, false, 3));
         jobs.add(new Village.Upgrade(1000034, 10, "Builder Hall", Village.Queue.BASE, now + 19 * 3600000L, false, 4));
         return new Village("#SAMPLE", now - 12 * 3600000L, 15, 6, 2, jobs);

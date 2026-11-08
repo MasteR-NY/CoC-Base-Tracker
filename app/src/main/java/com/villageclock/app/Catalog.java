@@ -15,6 +15,7 @@ public final class Catalog implements ExportParser.Names {
             JSONObject data = new JSONObject(out.toString(StandardCharsets.UTF_8.name()));
             java.util.Iterator<String> keys = data.keys();
             while (keys.hasNext()) { String key = keys.next(); names.put(Integer.parseInt(key), data.getJSONObject(key).getString("n")); }
+            for (UpgradePlanner.Item item : Store.planner(context).items()) names.put(item.id, item.name);
         } catch (Exception ignored) { /* Unknown IDs retain a visible, stable fallback. */ }
     }
     @Override public String name(int id) { return names.get(id); }

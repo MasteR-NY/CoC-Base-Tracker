@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 $releaseVersion = [regex]::Match((Get-Content -LiteralPath 'app\build.gradle.kts' -Raw), 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
 if (!$releaseVersion) { throw 'Release version is missing.' }
-$outputApk = "outputs\CoC-Village-Tracker-$releaseVersion.apk"
+$outputApk = "outputs\CoC-Base-Tracker-$releaseVersion.apk"
 if (!$JavaHome) { $JavaHome = $env:JAVA_HOME }
 if (!$JavaHome) {
     $portable = Get-ChildItem -LiteralPath '.tools\jdk' -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -24,6 +24,14 @@ $tasks = @(':app:lintRelease', ':app:assembleRelease')
 if (!$SkipTests) { $tasks = @(':app:testDebugUnitTest') + $tasks }
 & $GradlePath --no-daemon @tasks
 if ($LASTEXITCODE -ne 0) { throw "Android build failed ($LASTEXITCODE)." }
+if (!$SkipTests) {
+    New-Item -ItemType Directory -Path 'docs/images' -Force | Out-Null
+    foreach ($preview in @('app-design', 'build-menu-design', 'widget-design')) {
+        $previewPath = "outputs/previews/$preview.png"
+        if (!(Test-Path -LiteralPath $previewPath)) { throw "Missing rendered preview: $previewPath" }
+        Copy-Item -LiteralPath $previewPath -Destination "docs/images/$preview.png" -Force
+    }
+}
 $sdkRoot = $env:ANDROID_HOME
 if (!$sdkRoot) { $sdkRoot = "$env:LOCALAPPDATA\Android\Sdk" }
 $buildTools = Get-ChildItem -LiteralPath "$sdkRoot\build-tools" -Directory | Sort-Object Name -Descending | Select-Object -First 1
