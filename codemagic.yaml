@@ -1,0 +1,52 @@
+# Start this workflow manually in Codemagic after committing/pushing this file.
+# Produces a Simulator app, not an IPA for installation on a physical device.
+# No Apple signing credentials or App Store Connect integration are required.
+workflows:
+  apple-simulator:
+    name: iPhone and iPad - tests and Simulator build
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      xcode: latest
+      vars:
+        XCODE_PROJECT: apple/CoCBaseTracker.xcodeproj
+        XCODE_SCHEME: CoCBaseTracker
+    scripts:
+      - name: Check Apple project and catalog
+        script: |
+          set -euo pipefail
+          cd "$CM_BUILD_DIR"
+          mkdir -p outputs/codemagic
+          xcodebuild -version | tee outputs/codemagic/toolchain.log
+          swift --version | tee -a outputs/codemagic/toolchain.log
+          python3 tools/verify_apple.py 2>&1 | tee outputs/codemagic/preflight.log
+      - name: Run Swift parser, timing and account tests
+        script: |
+          set -euo pipefail
+          cd "$CM_BUILD_DIR"
+          swift test --package-path apple 2>&1 | tee outputs/codemagic/swift-tests.log
+      - name: Build iPhone and iPad app with embedded widget
+        script: |
+          set -euo pipefail
+          cd "$CM_BUILD_DIR"
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath apple/.derivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tee outputs/codemagic/xcodebuild.log
+      - name: Package Simulator app
+        script: |
+          set -euo pipefail
+          cd "$CM_BUILD_DIR"
+          APP_BUNDLE="apple/.derivedData/Build/Products/Debug-iphonesimulator/CoCBaseTracker.app"
+          test -d "$APP_BUNDLE/PlugIns/VillageWidget.appex"
+          /usr/bin/ditto -c -k --sequesterRsrc --keepParent \
+            "$APP_BUNDLE" outputs/codemagic/CoC-Base-Tracker-iOS-Simulator.zip
+    artifacts:
+      - apple/.derivedData/Build/Products/Debug-iphonesimulator/CoCBaseTracker.app
+      - outputs/codemagic/CoC-Base-Tracker-iOS-Simulator.zip
+      - outputs/codemagic/*.log
