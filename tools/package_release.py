@@ -9,7 +9,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'outputs'
 OUT.mkdir(exist_ok=True)
-APK = OUT / 'VillageClock-1.2.apk'
+APK = OUT / 'CoC-Village-Tracker-1.3.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -20,25 +20,25 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-source = OUT / 'VillageClock-1.2-source.zip'
+source = OUT / 'CoC-Village-Tracker-1.3-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
         if file.is_file():
             relative = file.relative_to(ROOT).as_posix()
             assert not any(part in ('.private', '.tools', '.gradle', 'apk-review', 'outputs', 'build') for part in file.relative_to(ROOT).parts)
-            z.write(file, 'VillageClock/' + relative)
+            z.write(file, 'CoC-Village-Tracker/' + relative)
 with zipfile.ZipFile(source) as z:
     assert z.testzip() is None
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
-guide = '''VILLAGE CLOCK — ANDROID SETUP
+guide = '''COC VILLAGE TRACKER — ANDROID SETUP
 
-1. Copy VillageClock-1.2.apk to your Android phone and open it. Install as an update over 1.0 or 1.1; do not uninstall first.
+1. Copy CoC-Village-Tracker-1.3.apk to your Android phone and open it. Install as an update over Village Clock 1.0, 1.1, or 1.2; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
-4. Open Village Clock and tap Paste village export.
+4. Open CoC Village Tracker and tap Sync from clipboard / add account.
 5. Allow notifications if you want upgrade-finished reminders.
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
-7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > Village Clock and choose a village when prompted.
+7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Village Tracker and choose a village when prompted.
 
 The countdowns tick every second even when Clash is closed. After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
 
@@ -62,7 +62,7 @@ Keep the local .private folder secret and backed up for future updates. It is no
 '''
 (OUT / 'Setup.txt').write_text(guide, encoding='utf-8')
 report = {
-    'app': 'Village Clock', 'version': '1.2', 'version_code': 3, 'package': 'com.villageclock.app',
+    'app': 'CoC Village Tracker', 'version': '1.3', 'version_code': 4, 'package': 'com.villageclock.app',
     'review_date': '2026-11-08', 'timezone': 'Asia/Manila',
     'apk_file': APK.name, 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,
     'source_file': source.name, 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),

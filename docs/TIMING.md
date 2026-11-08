@@ -1,6 +1,6 @@
-# Timer rules in Village Clock 1.1
+# Timer rules in CoC Village Tracker
 
-Village Clock predicts finish times from the village snapshot, not from the catalog's normal full upgrade duration. The snapshot's `timestamp` anchors all calculations. The `timer` is treated as remaining upgrade work after any permanent/event time reductions already applied by the game.
+CoC Village Tracker predicts finish times from the village snapshot, not from the catalog's normal full upgrade duration. The snapshot's `timestamp` anchors all calculations. The `timer` is treated as remaining upgrade work after any permanent/event time reductions already applied by the game.
 
 ## Stacked copies of a potion
 
@@ -28,7 +28,7 @@ Already stacked durations are never truncated to one hour, and duplicate entries
 
 ## Fast-upgrade events and Gold Pass
 
-Time discounts are retained from the exported remaining work. Village Clock does not halve the timer again merely because Hammer Jam is active, and does not reconstruct a duration from a normal catalog value. This also avoids applying a Home Village discount to Builder Base, or to excluded upgrades such as Crafted Defenses and Supercharges.
+Time discounts are retained from the exported remaining work. CoC Village Tracker does not halve the timer again merely because Hammer Jam is active, and does not reconstruct a duration from a normal catalog value. This also avoids applying a Home Village discount to Builder Base, or to excluded upgrades such as Crafted Defenses and Supercharges.
 
 The app includes an informational note for the announced November 2026 Hammer Jam snapshot window. That calendar note never changes timer arithmetic. Other duration-reduction events work through their exported remaining time in the same way; the app does not download event calendars or invent unknown speed multipliers.
 

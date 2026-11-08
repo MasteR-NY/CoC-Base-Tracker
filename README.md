@@ -1,13 +1,15 @@
-# Village Clock
+# CoC Village Tracker
 
 A private Android home-screen widget for Clash of Clans upgrade countdowns.
 
+Repository name: `CoC-Village-Tracker`. Previously named Village Clock; version 1.3 updates the app and launcher/widget-picker name while preserving the existing Android package, signing identity, saved villages, and widget selections.
+
 ## Use it
 
-1. Install `VillageClock-1.2.apk` on an Android 8.0+ phone. It uses the original private signing key and installs as an update over 1.0 or 1.1; do not uninstall first.
+1. Install `CoC-Village-Tracker-1.3.apk` on an Android 8.0+ phone. It uses the original private signing key and installs as an update over Village Clock 1.0–1.2; do not uninstall first.
 2. In Clash of Clans, open **Settings → More Settings → Export village data**, then **Copy**. The exact wording can vary with the game's language/version.
-3. Open Village Clock and tap **Paste village export**.
-4. Tap **Add widget** and choose its village, or long-press the home screen and find Village Clock under Widgets.
+3. Open CoC Village Tracker and tap **Sync from clipboard / add account**.
+4. Tap **Add widget** and choose its village, or long-press the home screen and find CoC Village Tracker under Widgets.
 5. Allow notifications for finish reminders. On Android 12+, **Allow precise timers** improves alarm timing and changes finished widget rows promptly.
 
 The visible countdowns tick every second using Android's native Chronometer. They continue after Clash and the companion app close. Tap a widget's **Sync** button after copying a fresh export; only that user action reads clipboard text. Scroll vertically inside the widget to see all upgrades. Tap an upgrade to open Clash. The widget does not switch the actual in-game Supercell account for you.
@@ -24,7 +26,7 @@ Scrollable widgets use native collection items on Android 12+, with a permission
 
 ## Features
 
-Version 1.2 adapts the requested repository's Clash-style presentation: wooden panels, Lilita One font, gold buttons/headings, circular game artwork, green timer bars, and gold completed rows. Sections stay grouped in the scrollable widget. Green bars measure elapsed countdown time since the last export, rather than an unknown full-upgrade percentage. See [presentation credits](docs/DESIGN-CREDITS.md).
+The app keeps the Clash-style presentation introduced in 1.2: wooden panels, Lilita One font, gold buttons/headings, circular game artwork, green timer bars, and gold completed rows. Sections stay grouped in the scrollable widget. Green bars measure elapsed countdown time since the last export, rather than an unknown full-upgrade percentage. See [presentation credits](docs/DESIGN-CREDITS.md).
 
 - Builders, research, pets, Builder Base, and Star Laboratory queues.
 - Export timestamp-based countdowns, including known active boosts and helper speed-ups.
@@ -55,8 +57,8 @@ The signing keystore and its random password are generated locally in `.private/
 
 ## Credits
 
-Original application logic and vector artwork: Village Clock contributors, MIT license. Version 1.2 adapts presentation resources from the reviewed Coc-Widget repository at the user's request; see [presentation credits](docs/DESIGN-CREDITS.md). Third-party presentation resources, font, and game artwork retain their separate attribution and terms.
+Original application logic and vector artwork: Village Clock contributors (now CoC Village Tracker), MIT license. The app adapts presentation resources from the reviewed Coc-Widget repository at the user's request; see [presentation credits](docs/DESIGN-CREDITS.md). Third-party presentation resources, font, and game artwork retain their separate attribution and terms.
 
-The bundled factual names/durations catalog was extracted from the inspected Coc-Widget build at commit `68626b688116ff19a535ec5be630f8b9bd85d759`, which attributes it to the MIT-licensed [clash-of-clans-data](https://github.com/chiefpansancolt/clash-of-clans-data) dataset by Christopher Pezza. Its license is retained at `app/src/main/assets/data-license.txt`. Village Clock uses the item names only; it does not rely on nominal catalog durations to invent upgrade start times.
+The bundled factual names/durations catalog was extracted from the inspected Coc-Widget build at commit `68626b688116ff19a535ec5be630f8b9bd85d759`, which attributes it to the MIT-licensed [clash-of-clans-data](https://github.com/chiefpansancolt/clash-of-clans-data) dataset by Christopher Pezza. Its license is retained at `app/src/main/assets/data-license.txt`. CoC Village Tracker uses the item names only; it does not rely on nominal catalog durations to invent upgrade start times.
 
 This project is not affiliated with, endorsed, sponsored, or approved by Supercell. Clash of Clans and its related names belong to Supercell. See [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/).

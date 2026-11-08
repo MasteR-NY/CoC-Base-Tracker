@@ -97,7 +97,7 @@ public final class MainActivity extends Activity {
         content.removeAllViews();
         Village village = demo != null ? demo : Store.load(this);
         long now = System.currentTimeMillis();
-        content.addView(text("Village Clock", 30, GOLD, true));
+        content.addView(text(getString(R.string.app_name), 30, GOLD, true));
         gap(content, 14);
         if (demo == null && !Store.all(this).isEmpty()) {
             button(content, "Villages (" + Store.all(this).size() + ") · choose account", false, v -> chooseVillage());
@@ -291,7 +291,7 @@ public final class MainActivity extends Activity {
         String[] names = new String[villages.size()];
         for (int i = 0; i < names.length; i++) names[i] = Store.title(this, villages.get(i)) + " · " + villages.get(i).tag;
         new AlertDialog.Builder(this).setTitle("Village for the new widget").setItems(names, (d, which) -> {
-            if (!manager.isRequestPinAppWidgetSupported()) { show("Long-press your home screen, choose Widgets, then find Village Clock. Choose this widget’s village when prompted."); return; }
+            if (!manager.isRequestPinAppWidgetSupported()) { show("Long-press your home screen, choose Widgets, then find " + getString(R.string.app_name) + ". Choose this widget’s village when prompted."); return; }
             String tag = villages.get(which).tag;
             Intent callback = new Intent(this, VillageWidget.class).setAction(VillageWidget.PINNED).putExtra("tag", tag).setData(Uri.parse("villageclock://pin/" + Uri.encode(tag)));
             int flags = android.app.PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 31 ? android.app.PendingIntent.FLAG_MUTABLE : 0);

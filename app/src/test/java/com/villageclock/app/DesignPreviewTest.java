@@ -34,10 +34,10 @@ public class DesignPreviewTest {
         Store.save(context, export, village); Store.rename(context, village.tag, "Kuswa"); Store.bind(context, 777, village.tag);
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         View app = activity.getWindow().getDecorView();
-        render(app, 411, 1000, "app-design-1.2.png");
+        render(app, 411, 1000, "app-design-1.3.png");
         AppWidgetHostView host = new AppWidgetHostView(context);
         View widget = VillageWidget.render(context, village, 777, village.tag).apply(context, host);
-        render(widget, 400, 560, "widget-design-1.2.png");
+        render(widget, 400, 560, "widget-design-1.3.png");
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));
     }

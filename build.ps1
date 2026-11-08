@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 $releaseVersion = [regex]::Match((Get-Content -LiteralPath 'app\build.gradle.kts' -Raw), 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
 if (!$releaseVersion) { throw 'Release version is missing.' }
-$outputApk = "outputs\VillageClock-$releaseVersion.apk"
+$outputApk = "outputs\CoC-Village-Tracker-$releaseVersion.apk"
 if (!$JavaHome) { $JavaHome = $env:JAVA_HOME }
 if (!$JavaHome) {
     $portable = Get-ChildItem -LiteralPath '.tools\jdk' -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
