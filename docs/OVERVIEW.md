@@ -16,7 +16,7 @@ Progress covers buildings, walls, traps, army upgrades, heroes and pets where th
 
 Crafting reads all exported `buildings[].types[].modules[]` records. The supplied sample has three types and nine modules; other export sizes are supported. Cards show exported levels and any active module timer.
 
-The nine current modules have verified names and catalog caps, with a defense portrait and stat symbol. Other unmapped modules retain their IDs; missing caps read **Maximum level not verified**. The tracker does not guess a phase deadline/reset, future cost or unlock gate. See [Item Names and Artwork](ITEM-IDENTITIES.md) for mappings and source revisions.
+The nine Phase 4 modules have verified names, catalog caps, baseline prices, durations and hall requirements, with a defense portrait and stat symbol. Cards show the current-hall target; tap for the next-level quote and prerequisites. Other unmapped modules retain their IDs; missing caps read **Maximum level not verified**. The tracker does not guess a phase deadline/reset or requirements for a later phase. See [Crafting Requirements](CRAFTING.md) for the verified tables and scope. See [Item Names and Artwork](ITEM-IDENTITIES.md) for mappings and source revisions.
 
 Supercell’s seasonal announcement opened the current defenses from TH11, whereas general support still describes a highest-hall condition. The tracker follows actual exported inventory, including the supplied TH12 sample. See [Official Game Data References](GAME-DATA.md).
 

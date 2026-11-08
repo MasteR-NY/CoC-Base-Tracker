@@ -8,7 +8,7 @@ import org.json.JSONObject
 class VillageOverview @Throws(JSONException::class) constructor(raw: String) {
     class Owned(@JvmField val data: JSONObject) {
         @JvmField val id = data.optInt("data", -1)
-        @JvmField val level = data.optInt("lvl").coerceIn(0, 1000)
+        @JvmField val level = if (id == 1000097 && !data.has("lvl") && (data.optJSONArray("types")?.length() ?: 0) > 0) 1 else data.optInt("lvl").coerceIn(0, 1000)
         @JvmField val count = data.optInt("cnt", 1).coerceIn(1, 1000)
     }
     class Progress(@JvmField val name: String) {

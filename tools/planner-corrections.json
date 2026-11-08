@@ -1,13 +1,61 @@
 {
-  "reviewed": "2026-11-08",
+  "reviewed": "2026-11-09",
   "corrections": [
-    {"source": "data/home/hero-equipment/monolith-arrow.json", "field": "dataId", "old": 90000059, "value": 90000016},
-    {"source": "data/home/hero-equipment/electro-fangs.json", "field": "dataId", "old": 90000016, "value": 90000059},
-    {"source": "data/home/siege-machines/stone-slammer.json", "levels": [1, 2, 3], "field": "townHallRequired", "old": 13, "value": 12}
+    {
+      "source": "data/home/hero-equipment/monolith-arrow.json",
+      "field": "dataId",
+      "old": 90000059,
+      "value": 90000016
+    },
+    {
+      "source": "data/home/hero-equipment/electro-fangs.json",
+      "field": "dataId",
+      "old": 90000016,
+      "value": 90000059
+    },
+    {
+      "source": "data/home/siege-machines/stone-slammer.json",
+      "levels": [
+        1,
+        2,
+        3
+      ],
+      "field": "townHallRequired",
+      "old": 13,
+      "value": 12
+    },
+    {
+      "source": "data/home/defenses/crafting-station.json",
+      "field": "availablePerTownHall",
+      "old": [
+        {
+          "townHallLevel": 18,
+          "count": 1
+        }
+      ],
+      "value": [
+        {
+          "townHallLevel": 11,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "source": "data/home/defenses/crafting-station.json",
+      "levels": [
+        1
+      ],
+      "field": "townHallRequired",
+      "old": 18,
+      "value": 11
+    }
   ],
   "evidence": [
     "https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json",
     "https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/characters.csv",
-    "https://clashofclans.fandom.com/wiki/Stone_Slammer"
-  ]
+    "https://clashofclans.fandom.com/wiki/Stone_Slammer",
+    "https://supercell.com/en/games/clashofclans/blog/news/the-awesome-quest-is-here/",
+    "https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/seasonal_defense_modules.csv"
+  ],
+  "seasonalScope": "Crafting Station corrections apply to Phase 4 only, reviewed 2026-11-09. A later phase needs a new catalog review."
 }

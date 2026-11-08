@@ -2,6 +2,19 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.21 — Balanced Build Menu and Crafting Requirements
+
+- **Clearer Navigation:** Close Build Menu is now beside the base selectors on the left. Category buttons use equal icon boxes, centered two-line labels and comfortable padding on both bases. The Work for Hire Goblin marker is smaller in upgrade rows and widgets.
+- **Nine Crafting Module Tables:** Hot Candle, Hero Hunter and Cake-A-Pult modules now have verified baseline costs, durations and per-hall requirements in Build Menu. Current Hall hides future module levels while retaining running jobs; Catalog Max shows future gates.
+- **Crafting Details:** Overview keeps all exported modules visible with the current-hall target. Tap a module for its next baseline cost, duration and prerequisites. The phase-specific TH11 station unlock is included; future phase dates and eligibility are not inferred.
+
+### How to Use It
+
+1. Open Build Menu and use the close button at the left of Village Base and Builder Base.
+2. Find owned crafting modules under Buildings & Heroes. At TH12, modules at level 2 have reached the current-hall target; turn off Current Hall Only in filters to view their TH13 upgrades.
+3. Open Overview → Crafting and tap a module for requirements. Sync after completing or starting an upgrade in Clash.
+4. Install over your existing app to retain accounts, widgets and settings. This release uses the same signing key.
+
 ## v1.20 — Fully Kotlin and Clearer Signing Checks
 
 - **All App Screens in Kotlin:** Main, Build Menu and Overview complete the Kotlin migration. Every production app source file is now Kotlin. Existing compact layouts, account storage, widget selections, timers and filters are retained.

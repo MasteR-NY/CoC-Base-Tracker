@@ -76,7 +76,7 @@ Menu names vary by manufacturer. After force-stopping the app, open it again to 
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.20**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.21**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
 
@@ -191,13 +191,13 @@ The default order offers up to three owned, requirement-met upgrades with the sh
 
 Planning costs and durations are baseline values. Event discounts, Gold Pass benefits, potions, and helpers may change the in-game quote. Listed requirements do not account for your available resources or free builders.
 
-The offline catalog covers standard levels through **Town Hall 18** and **Builder Hall 10**. Supercharges, some crafted modules, merge recipes, and other special conditions require confirmation in game. See the [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md) for coverage and limitations.
+The offline catalog covers standard levels through **Town Hall 18** and **Builder Hall 10**. Supercharges, future crafting phases, merge recipes, and other special conditions require confirmation in game. See the [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md) for coverage and limitations.
 
 ## Village Overview
 
 Tap **Overview** beside Build Menu to open the account’s **Progress**, **Crafting**, **Helpers** and **Collection** views. Switch between Village Base and Builder Base at the top.
 
-Progress compares exported levels and quantities with **Current Hall** or **Catalog Max** targets. Crafting includes all exported modules, including the nine in the supplied sample. Collection shows equipment levels and owned cosmetics, with quantities for grouped decorations and obstacles. Unverified names and caps remain clearly marked.
+Progress compares exported levels and quantities with **Current Hall** or **Catalog Max** targets. Crafting includes all exported modules. The nine current Phase 4 modules have baseline costs, durations and hall requirements checked against official game tables. Tap a module for details. At TH12, level 2 is the current-hall target; future levels appear in Build Menu under Catalog Max. Collection shows equipment levels and owned cosmetics, with quantities for grouped decorations and obstacles. Unverified names and caps remain clearly marked. See [Crafting Requirements](docs/CRAFTING.md) for coverage and sources.
 
 Helpers lists exported cooldown estimates; Builder Base shows Clock Tower availability. **Helper & Clock Tower alerts** sends a one-time reminder for each exported deadline when notifications are enabled. Sync after using either in game to replace the old estimate. The **News** button opens dated notes and links to Supercell’s official sources; included notes work offline.
 

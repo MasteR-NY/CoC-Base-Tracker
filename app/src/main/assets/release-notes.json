@@ -1,6 +1,31 @@
 {
   "releases": [
     {
+      "version": "1.21",
+      "versionCode": 22,
+      "title": "Balanced Build Menu and Crafting Requirements",
+      "highlights": [
+        {
+          "title": "Clearer Navigation",
+          "body": "Close Build Menu is now beside the base selectors on the left. Category buttons use equal icon boxes, centered two-line labels and comfortable padding on both bases. The Work for Hire Goblin marker is smaller in upgrade rows and widgets."
+        },
+        {
+          "title": "Nine Crafting Module Tables",
+          "body": "Hot Candle, Hero Hunter and Cake-A-Pult modules now have verified baseline costs, durations and per-hall requirements in Build Menu. Current Hall hides future module levels while retaining running jobs; Catalog Max shows future gates."
+        },
+        {
+          "title": "Crafting Details",
+          "body": "Overview keeps all exported modules visible with the current-hall target. Tap a module for its next baseline cost, duration and prerequisites. The phase-specific TH11 station unlock is included; future phase dates and eligibility are not inferred."
+        }
+      ],
+      "steps": [
+        "Open Build Menu and use the close button at the left of Village Base and Builder Base.",
+        "Find owned crafting modules under Buildings & Heroes. At TH12, modules at level 2 have reached the current-hall target; turn off Current Hall Only in filters to view their TH13 upgrades.",
+        "Open Overview → Crafting and tap a module for requirements. Sync after completing or starting an upgrade in Clash.",
+        "Install over your existing app to retain accounts, widgets and settings. This release uses the same signing key."
+      ]
+    },
+    {
       "version": "1.20",
       "versionCode": 21,
       "title": "Fully Kotlin and Clearer Signing Checks",

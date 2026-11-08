@@ -14,7 +14,7 @@ This reference describes the supplied village export and the features its fields
 | Builder Base | 36 building records, 6 trap records representing 18 traps, 10 troops and 2 heroes | Builder Base planning and progress |
 | Helpers | 3 helper records with levels; 2 include cooldowns | Helper level and availability dashboard, once item IDs are verified |
 | Boosts | `lab_boost: 3585`, `clocktower_cooldown: 65897` | Laboratory acceleration and next Clock Tower availability |
-| Crafting | 3 type records containing 9 modules, all listed at level 2 | A crafting collection and module progress view; costs and unlock rules need verified catalog data |
+| Crafting | 3 type records containing 9 modules, all listed at level 2 | Crafting collection and progress; Phase 4 baseline costs, durations and hall gates are verified in v1.21 |
 | Home cosmetics | 10 skin IDs, 2 scenery IDs, 25 house-part IDs, 26 decorations and 21 obstacles by quantity | Collection inventory and snapshot comparisons |
 | Builder Base cosmetics | 1 skin ID, no scenery or decoration entries, 89 obstacles by quantity | Builder Base collection inventory |
 
@@ -60,7 +60,7 @@ There is no `helper_timer` in this sample. It therefore does not establish a cur
 | Medium | Crafting and module tracker | Nested `types` and `modules` IDs/levels | Verify names, types, caps, unlock requirements, costs and times for IDs missing from the catalog |
 | Optional | Cosmetics collection | Skins, sceneries, decorations, obstacles and house parts | Verified name/art mappings and an optional collection catalog for comparison |
 
-Auto-sync on return is implemented in v1.12. Version 1.13 adds the base progress, crafting, helper/Clock Tower availability and equipment/collection views described in [Village Overview](OVERVIEW.md). Snapshot history and comparisons remain future work. Unverified module/cosmetic mappings and missing resource balances remain limitations.
+Auto-sync on return is implemented in v1.12. Version 1.13 adds the base progress, crafting, helper/Clock Tower availability and equipment/collection views described in [Village Overview](OVERVIEW.md). Version 1.21 adds verified Phase 4 module planning, documented in [Crafting Requirements](CRAFTING.md). Snapshot history and comparisons remain future work. Unverified module/cosmetic mappings and missing resource balances remain limitations.
 
 ## Information Not Supplied
 

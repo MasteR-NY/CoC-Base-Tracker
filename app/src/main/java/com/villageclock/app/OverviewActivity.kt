@@ -115,6 +115,7 @@ class OverviewActivity : Activity() {
         if (builder) { empty("Crafted defenses belong to Village Base. Switch bases to view them."); return }
         val modules = overview.crafts()
         if (modules.isEmpty()) { empty("No crafting modules were included in this export."); return }
+        val plans = planner.rows(overview.root.toString(), village, "home", UpgradePlanner.Tab.BUILDINGS, System.currentTimeMillis()).associateBy { it.item.id }
         header.addView(label("${modules.map { it.type }.toSet().size} defense types · ${modules.size} modules", 13, MUTED, false))
         var last = -1; var ordinal = 0
         for (module in modules) {
@@ -125,9 +126,13 @@ class OverviewActivity : Activity() {
             if (identity != null) line.addView(ImageView(this).apply { setImageResource(ItemIdentities.moduleSymbol(identity.shortName)); contentDescription = identity.shortName }, LinearLayout.LayoutParams(dp(22), dp(22)))
             line.addView(label("Level ${module.level}" + if (identity != null && identity.cap > 0) " / ${identity.cap}" else "", 17, GOLD, true)); card.addView(line)
             val cap = identity?.cap ?: planner.item(module.id)?.max() ?: 0
-            card.addView(label(if (cap > 0) "${(cap - module.level).coerceAtLeast(0)} levels to catalog max" else "Maximum level not verified", 12, MUTED, false))
+            val plan = plans[module.id]
+            card.addView(label(if (plan != null && plan.hallCap > 0) "TH ${overview.hall(false)} target ${plan.hallCap} · ${(cap - module.level).coerceAtLeast(0)} levels to catalog max" else if (cap > 0) "${(cap - module.level).coerceAtLeast(0)} levels to catalog max" else "Maximum level not verified", 12, MUTED, false))
             for (upgrade in village.upgrades) if (upgrade.dataId == module.id) card.addView(label("", 14, TEXT, true).also { CountdownText.bind(it, upgrade.finishAt, "Timer ended · sync to confirm") })
-            card.setOnClickListener { AlertDialog.Builder(this).setTitle(itemName(module.id, "Crafting Module")).setMessage("Defense: ${itemName(module.type, "Defense")}\nModule ID: ${module.id}\nExported level: ${module.level}" + (if (cap > 0) "\nCatalog max: $cap" else "") + "\n\nOnly modules present in the export are shown. Portraits identify the defense, with a symbol for the module’s stat. Phase resets and future prices are not guessed.").setPositiveButton("Close", null).show() }; cards.add(card)
+            card.setOnClickListener {
+                val quote = if (plan?.next != null) "\n\nNext level: ${plan.targetLevel()}\nBaseline cost: ${plan.costText()}\nBaseline duration: ${PlannerActivity.duration(plan.seconds())}\nRequires: ${plan.requirements}\n${if (plan.missing.isNotEmpty()) "Missing: ${plan.missing}" else plan.status()}" else ""
+                AlertDialog.Builder(this).setTitle(itemName(module.id, "Crafting Module")).setMessage("Defense: ${itemName(module.type, "Defense")}\nModule ID: ${module.id}\nExported level: ${module.level}" + (if (cap > 0) "\nCatalog max: $cap" else "") + quote + "\n\nOnly exported modules are shown. Phase 4 baseline costs and hall gates were checked against official game tables on ${planner.checked}. Discounts and boosts are not applied to future quotes. Phase dates and later unlocks are not inferred.").setPositiveButton("Close", null).show()
+            }; cards.add(card)
         }
     }
     private fun renderHelpers() {

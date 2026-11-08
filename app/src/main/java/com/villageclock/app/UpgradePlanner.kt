@@ -19,12 +19,12 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
         @JvmField val tab = when (category) { "hero-equipment" -> Tab.EQUIPMENT; "pet" -> Tab.PETS; "troop", "spell", "siege-machine" -> Tab.ARMY; else -> Tab.BUILDINGS }
         fun next(level: Int): JSONObject? = data.optJSONArray("levels").objects().filter { !it.optBoolean("supercharge") && it.optInt("level") > level }.minByOrNull { it.optInt("level") }
         fun max(): Int = data.optJSONArray("levels").objects().filter { !it.optBoolean("supercharge") }.maxOfOrNull { it.optInt("level") } ?: 0
-        fun seasonal(): Boolean = category == "crafted-defense"
+        fun seasonal(): Boolean = category == "crafted-defense" || category == "crafted-module"
         fun type(): String = when {
             category == "hero" || category == "guardian" -> "Hero"
             category == "army" || category == "research" -> "Army"
             category == "resource" -> "Resource"
-            category in listOf("defense", "trap", "wall", "crafted-defense") -> "Defense"
+            category in listOf("defense", "trap", "wall", "crafted-defense", "crafted-module") -> "Defense"
             tab == Tab.ARMY -> when (category) { "troop" -> "Troops"; "spell" -> "Spells"; else -> "Siege" }
             else -> "Other"
         }
@@ -89,9 +89,11 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
     private val hallCaps = mutableMapOf<String, Int>()
     private val displayNames = mutableMapOf<Int, String>()
     @JvmField val revision: String
+    @JvmField val checked: String
     init {
         val root = JSONObject(json)
         revision = root.optString("revision")
+        checked = root.optString("checked", "Unverified")
         for (data in root.getJSONArray("items").objects()) Item(data).let { items.add(it); byId[it.id] = it }
     }
     fun items(): List<Item> = Collections.unmodifiableList(items)
@@ -154,6 +156,8 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
         for (item in items) {
             if (item.base != base || item.tab != tab) continue
             val inventory = owned[item.id].orEmpty()
+            // A module is owned only when it is explicitly included in the export.
+            if (item.category == "crafted-module" && inventory.isEmpty()) continue
             var total = 0
             for (entry in inventory) {
                 val level = entry.optInt("lvl").coerceIn(0, 1000)
@@ -166,9 +170,9 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
                 result.add(Row(item, level, count, state, end, requirements(item, next).joinToString(" · "), missing, false))
             }
             val allowed = allowed(item, hall, builder)
-            var absent = (allowed - total).coerceAtLeast(0)
+            var absent = if (item.category == "crafted-module") 0 else (allowed - total).coerceAtLeast(0)
             if (hasMergeCounts(item, hall, builder)) absent = 0
-            if (total == 0 && allowed < 0) absent = 1
+            if (total == 0 && allowed < 0 && item.category != "crafted-module") absent = 1
             if (absent > 0) {
                 val next = item.next(0)
                 val missing = missing(item, next, levels, builder)
@@ -235,8 +239,10 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
         private fun addOwned(entry: JSONObject, owned: MutableMap<Int, MutableList<JSONObject>>, levels: MutableMap<Int, Int>) {
             val id = entry.optInt("data", -1)
             if (id < 0) return
-            owned.getOrPut(id) { mutableListOf() }.add(entry)
-            levels[id] = maxOf(levels[id] ?: 0, entry.optInt("lvl").coerceIn(0, 1000))
+            // A station containing exported defenses is placed; its export omits lvl.
+            val record = if (id == 1000097 && !entry.has("lvl") && (entry.optJSONArray("types")?.length() ?: 0) > 0) JSONObject(entry.toString()).put("lvl", 1) else entry
+            owned.getOrPut(id) { mutableListOf() }.add(record)
+            levels[id] = maxOf(levels[id] ?: 0, record.optInt("lvl").coerceIn(0, 1000))
         }
         private fun allowed(item: Item, hall: Int, builder: Boolean): Int {
             val source = item.data.optJSONArray(if (builder) "availablePerBuilderHall" else "availablePerTownHall") ?: return -1
@@ -245,8 +251,8 @@ class UpgradePlanner @Throws(Exception::class) constructor(json: String) {
             return count
         }
         private fun hasMergeCounts(item: Item, hall: Int, builder: Boolean): Boolean = item.data.optJSONArray(if (builder) "availablePerBuilderHall" else "availablePerTownHall").objects().any { it.optInt(if (builder) "builderHallLevel" else "townHallLevel") <= hall && it.has("countAfterMerges") }
-        private val REQUIREMENT_NAMES = linkedMapOf("townHallRequired" to "Town Hall", "builderHallRequired" to "Builder Hall", "builderHallLevelRequired" to "Builder Hall", "laboratoryRequired" to "Laboratory", "starLabRequired" to "Star Laboratory", "heroHallLevelRequired" to "Hero Hall", "blacksmithLevelRequired" to "Blacksmith", "petHouseLevelRequired" to "Pet House", "builderBarracksRequired" to "Builder Barracks", "barrackLevelRequired" to "Barracks", "spellFactoryLevelRequired" to "Spell Factory", "workshopLevelRequired" to "Workshop")
-        private fun needsGameCheck(item: Item): Boolean = item.seasonal() || item.category in setOf("guardian", "town-hall", "builder-hall") || item.data.optString("id") in setOf("ricochet-cannon", "multi-archer-tower", "multi-gear-tower", "inferno-artillery")
+        private val REQUIREMENT_NAMES = linkedMapOf("townHallRequired" to "Town Hall", "builderHallRequired" to "Builder Hall", "builderHallLevelRequired" to "Builder Hall", "laboratoryRequired" to "Laboratory", "starLabRequired" to "Star Laboratory", "heroHallLevelRequired" to "Hero Hall", "blacksmithLevelRequired" to "Blacksmith", "petHouseLevelRequired" to "Pet House", "builderBarracksRequired" to "Builder Barracks", "barrackLevelRequired" to "Barracks", "spellFactoryLevelRequired" to "Spell Factory", "workshopLevelRequired" to "Workshop", "craftingStationRequired" to "Crafting Station")
+        private fun needsGameCheck(item: Item): Boolean = item.category == "crafted-defense" || item.category in setOf("guardian", "town-hall", "builder-hall") || item.data.optString("id") in setOf("ricochet-cannon", "multi-archer-tower", "multi-gear-tower", "inferno-artillery")
         private fun matchesResource(cost: String, selected: Set<String>): Boolean = selected.any { cost == it || it in cost.split(" or ") }
         @JvmStatic fun title(slug: String): String = slug.split('-').filter { it.isNotEmpty() }.joinToString(" ") { Character.toUpperCase(it[0]) + it.substring(1) }
     }

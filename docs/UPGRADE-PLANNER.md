@@ -4,7 +4,7 @@ The planner reads the same private per-account village JSON used by the timers. 
 
 ## Data Provenance
 
-`app/src/main/assets/planner-catalog.json` is a compact factual subset of Christopher Pezza's MIT-licensed clash-of-clans-data repository at commit `7afaa0375e5865c04021836a3a4192ffcfea092d`. Checked 2026-11-08. It contains 223 Home Village and Builder Base items: buildings, traps, walls, troops, spells, siege machines, heroes, guardians, equipment, pets, and identifiable crafted defenses. Each item retains its source path. License: `app/src/main/assets/data-license.txt`.
+`app/src/main/assets/planner-catalog.json` is a compact factual subset of Christopher Pezza's MIT-licensed clash-of-clans-data repository at commit `7afaa0375e5865c04021836a3a4192ffcfea092d`. Checked 2026-11-09. It contains 232 Home Village and Builder Base items: buildings, traps, walls, troops, spells, siege machines, heroes, guardians, equipment, pets, and nine Phase 4 crafting modules. Module hall gates are cross-checked against pinned official tables. Each item retains its source path. License: `app/src/main/assets/data-license.txt`.
 
 Reproduce with Python 3:
 
@@ -27,7 +27,7 @@ The first command downloads JSON from the pinned public revision in `tools/plann
 
 ## Limits
 
-The community snapshot covers standard levels through Town Hall 18 and Builder Hall 10. It cannot guarantee complete or current gameplay rules. Supercharges are excluded because their reused level numbers must not become normal upgrades. Items without verified IDs are excluded. Crafted modules, merge ingredients, hall upgrade checklists, acquisition conditions, storage capacity, currencies, builder availability and other special conditions require in-game confirmation. Unknown exported IDs remain visible as needing a catalog update.
+The community snapshot covers standard levels through Town Hall 18 and Builder Hall 10. It cannot guarantee complete or current gameplay rules. Supercharges are excluded because their reused level numbers must not become normal upgrades. Items without verified IDs are excluded. Future crafting phases, merge ingredients, hall upgrade checklists, acquisition conditions, storage capacity, currencies, builder availability and other special conditions require in-game confirmation. Unknown exported IDs remain visible as needing a catalog update.
 
 Baseline planning costs/durations do not include events, Gold Pass, potions or helpers. Running countdowns still use the export-based timing engine, preserving in-game reductions and known active boosts without applying them twice. A menu value is not an affordability claim or a promise that an upgrade can start.
 
@@ -50,3 +50,9 @@ Future hero equipment is gated by its owner’s availability at the current hall
 The artwork changes offline as imported levels and upgrade targets change. No runtime image downloads are added. Ended timers request a fresh sync rather than assuming the upgrade completed normally. See [Level Artwork](LEVEL-ART.md) for source pins and reproduction.
 
 Army items absent from the export appear under Unlocks / Not in Export with Check Unlock, not a zero-cost research quote. Their source prerequisites remain available in details. Ownership, calendar availability and actual research eligibility are confirmed in game.
+
+## Crafting Modules and Navigation
+
+Version 1.21 places Close Build Menu at the left of the base selectors. Category controls use centered, aspect-preserving 24dp icon boxes and two-line label space; the Work for Hire marker is 14dp. Compact, standard and landscape previews are regenerated with the app.
+
+Only exported crafting modules become upgrade rows. They appear under Buildings & Heroes → Defense; Permanent excludes them. Current Hall uses the phase-specific station gate and target-level hall requirements, retaining active or ended timers for sync. Missing modules and parent defenses do not become invented new construction. A station containing exported defense types is treated as placed at level 1 when its export omits `lvl`, without rewriting the saved export. See [Crafting Requirements](CRAFTING.md) for tables, source hashes and seasonal limits.

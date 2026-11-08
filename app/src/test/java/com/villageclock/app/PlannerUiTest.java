@@ -23,6 +23,12 @@ public class PlannerUiTest {
     private AlertDialog filters(PlannerActivity activity){activity.findViewById(R.id.planner_filters).performClick();return ShadowAlertDialog.getLatestAlertDialog();}
     private void click(AlertDialog dialog,String text){View view=find(dialog.getWindow().getDecorView(),text);assertNotNull(text,view);view.performClick();}
     private void apply(AlertDialog dialog){dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();shadowOf(android.os.Looper.getMainLooper()).idle();}
+    @Test public void closeControlIsBesideBaseSelectorsAndStillClosesMenu(){
+        PlannerActivity activity=sample();View root=activity.getWindow().getDecorView();View close=find(root,"Close Build Menu"),home=find(root,"Village Base"),builder=find(root,"Builder Base");
+        assertNotNull(close);assertSame(home.getParent(),close.getParent());assertSame(home.getParent(),builder.getParent());
+        ViewGroup bases=(ViewGroup)home.getParent();assertEquals(0,bases.indexOfChild(close));assertTrue(bases.indexOfChild(home)>0);assertTrue(bases.indexOfChild(builder)>0);
+        close.performClick();assertTrue(activity.isFinishing());
+    }
     @Test public void defaultMenuShowsRunningFirstAndOnlyCurrentHallTargets(){
         PlannerActivity activity=sample();List<UpgradePlanner.Row> rows=rows(activity);assertEquals(UpgradePlanner.State.RUNNING,rows.get(0).state);
         assertTrue(((TextView)activity.findViewById(R.id.planner_scope)).getText().toString().contains("Town Hall 15"));

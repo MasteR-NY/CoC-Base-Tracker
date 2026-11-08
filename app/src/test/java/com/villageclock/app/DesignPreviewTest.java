@@ -71,8 +71,23 @@ public class DesignPreviewTest {
         render(filters.getWindow().getDecorView(),411,670,"build-menu-filter-design.png");filters.dismiss();
         PlannerUiTest.find(planner.getWindow().getDecorView(),"Army Upgrades").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-army-design.png");
         PlannerUiTest.find(planner.getWindow().getDecorView(),"Hero Equipment").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-equipment-design.png");
+        render(planner.getWindow().getDecorView(),320,740,"build-menu-home-compact-qa.png");
         PlannerUiTest.find(planner.getWindow().getDecorView(),"Builder Base").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-builder-design.png");
         render(planner.getWindow().getDecorView(),320,740,"build-menu-compact-qa.png");render(planner.getWindow().getDecorView(),800,480,"build-menu-landscape-qa.png");
+        String raw=OverviewActivity.sampleExport();Village village=ExportParser.parse(raw,Store.catalog(context),System.currentTimeMillis());Store.save(context,raw,village);
+        PlannerActivity crafting=Robolectric.buildActivity(PlannerActivity.class,new android.content.Intent(context,PlannerActivity.class).putExtra("tag",village.tag)).setup().get();
+        ListViewScroll.crafting(crafting);render(crafting.getWindow().getDecorView(),411,891,"build-menu-crafting-qa.png");
+    }
+    private static class ListViewScroll { static void crafting(PlannerActivity activity){android.widget.ListView list=activity.findViewById(R.id.planner_list);for(int n=0;n<list.getAdapter().getCount();n++){Object item=list.getAdapter().getItem(n);if(item instanceof UpgradePlanner.Row&&((UpgradePlanner.Row)item).item.category.equals("crafted-module")){list.setSelection(n);org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();return;}}fail("Missing crafting rows");} }
+    @Test public void categoryLabelsFitAtLargeFontOnCompactPhone()throws Exception{
+        Context context=RuntimeEnvironment.getApplication();android.content.res.Configuration configuration=new android.content.res.Configuration(context.getResources().getConfiguration());configuration.fontScale=1.3f;context.getResources().updateConfiguration(configuration,context.getResources().getDisplayMetrics());
+        PlannerActivity planner=Robolectric.buildActivity(PlannerActivity.class,new android.content.Intent(context,PlannerActivity.class).putExtra("sample",true)).setup().get();
+        render(planner.getWindow().getDecorView(),320,740,"build-menu-large-font-qa.png");
+        for(String name:new String[]{"Buildings & Heroes","Army Upgrades","Hero Equipment","Hero Pets"}){
+            android.widget.Button button=(android.widget.Button)PlannerUiTest.find(planner.getWindow().getDecorView(),name);assertNotNull(button);assertNotNull(button.getLayout());
+            assertEquals(name.length(),button.getLayout().getLineEnd(button.getLayout().getLineCount()-1));assertEquals(0,button.getLayout().getEllipsisCount(button.getLayout().getLineCount()-1));
+            assertTrue(button.getCompoundPaddingTop()+button.getLayout().getHeight()+button.getPaddingBottom()<=button.getHeight());
+        }
     }
     private void render(View view, int width, int height, String name) throws Exception {
         view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));

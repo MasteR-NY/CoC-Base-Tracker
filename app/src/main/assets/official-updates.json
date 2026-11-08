@@ -1,6 +1,12 @@
 {
-  "reviewed": "2026-11-08",
+  "reviewed": "2026-11-09",
   "notes": [
+    {
+      "title": "Phase 4 Module Requirements",
+      "date": "Reviewed 2026-11-09",
+      "summary": "Official game tables 18.647.6 confirm ten levels for each of the nine current modules. Target levels 1–7 require TH11–17; levels 8–10 require TH18. Phase-specific station availability starts at TH11. Next-phase dates and unlocks are not inferred.",
+      "url": "https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529139405595-Crafted-Defenses"
+    },
     {
       "title": "Hammer Jam End Time",
       "date": "2026-11-01",

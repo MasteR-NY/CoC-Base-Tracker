@@ -4,6 +4,11 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Typeface
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.*
 import android.text.TextUtils
@@ -79,12 +84,13 @@ class PlannerActivity : Activity() {
         visible = UpgradePlanner.select(all, filter()); sections(); top.removeAllViews()
         top.addView(label(if (sample) "SAMPLE VILLAGE" else Store.title(this, village), 13, GOLD, true).apply { setSingleLine(true); ellipsize = TextUtils.TruncateAt.END }); space(top, 5)
         val bases = row()
+        bases.addView(control("✕", false) { finish() }.apply { textSize = 22f; setPadding(0, 0, 0, 0); contentDescription = "Close Build Menu"; background = panel(0xFFE9534A.toInt(), 0xFF961B16.toInt()) }, LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginEnd = dp(5) })
         for (selected in listOf("home", "builder")) bases.addView(control(if (selected == "home") "Village Base" else "Builder Base", base == selected) { base = selected; if (base == "builder" && tab.ordinal > 1) tab = UpgradePlanner.Tab.BUILDINGS; render(); list.setSelection(0) }, LinearLayout.LayoutParams(0, dp(44), 1f))
         top.addView(bases); space(top, 7)
         val header = row().apply { setBackgroundResource(R.drawable.build_header); setPadding(dp(5), dp(4), dp(5), dp(4)) }
         header.addView(ImageButton(this).apply { id = R.id.planner_filters; setImageResource(R.drawable.ic_filter); setBackgroundResource(R.drawable.build_header); contentDescription = "Sort and filter upgrades"; setOnClickListener { showFilters() } }, LinearLayout.LayoutParams(dp(48), dp(48)))
         header.addView(label(tab.label, 19, WHITE, true).apply { gravity = Gravity.CENTER; setShadowLayer(dp(1).toFloat(), 0f, dp(2).toFloat(), 0xFF191512.toInt()) }, LinearLayout.LayoutParams(0, -2, 1f))
-        header.addView(control("✕", false) { finish() }.apply { textSize = 25f; setPadding(0, 0, 0, 0); contentDescription = "Close Build Menu"; background = panel(0xFFE9534A.toInt(), 0xFF961B16.toInt()) }, LinearLayout.LayoutParams(dp(44), dp(48))); top.addView(header)
+        top.addView(header)
         val remaining = visible.count { !it.active() && it.next != null }
         val scope = if (filter().currentHallOnly) (if (base == "home") "Town Hall " else "Builder Hall ") + hall else "Catalog Max"
         top.addView(label("$scope · $remaining remaining groups", 12, GOLD, false).apply { id = R.id.planner_scope; setPadding(dp(5), dp(5), 0, 0) })
@@ -101,11 +107,46 @@ class PlannerActivity : Activity() {
         bottom.removeAllViews(); val tabs = row(); val art = intArrayOf(1000015, 4000000, 90000000, 73000000)
         for (i in 0 until if (base == "builder") 2 else 4) {
             val selected = UpgradePlanner.Tab.entries[i]
-            val button = control(selected.label, tab == selected) { tab = selected; render(); list.setSelection(0) }.apply { textSize = 11f; setPadding(dp(2), dp(4), dp(2), dp(4)) }
-            val image = getDrawable(ItemArt.icon(this, art[i]))!!; image.setBounds(0, 0, dp(21), dp(21)); button.setCompoundDrawables(null, image, null, null)
-            tabs.addView(button, LinearLayout.LayoutParams(0, dp(64), 1f))
+            val button = control(selected.label, tab == selected) { tab = selected; render(); list.setSelection(0) }.apply {
+                textSize = 11f; gravity = Gravity.CENTER; includeFontPadding = false
+                val labelLines = if (resources.configuration.fontScale > 1.2f) 3 else 2
+                minLines = labelLines; maxLines = labelLines; minHeight = dp(68); minimumHeight = dp(68)
+                setPadding(dp(4), dp(7), dp(4), dp(7)); compoundDrawablePadding = dp(4)
+                setCompoundDrawables(null, categoryIcon(art[i]), null, null)
+            }
+            tabs.addView(button, LinearLayout.LayoutParams(0, -2, 1f))
         }
         bottom.addView(tabs); bottom.addView(label("Catalog prices before discounts · sync to refresh levels", 10, MUTED, false).apply { gravity = Gravity.CENTER; setPadding(0, dp(4), 0, 0) })
+    }
+    /** Equal icon boxes without stretching portraits of different aspect ratios. */
+    private fun categoryIcon(id: Int): BitmapDrawable {
+        val source = getDrawable(ItemArt.icon(this, id))!!; val side = dp(24)
+        val image = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+        val bitmap = (source as? BitmapDrawable)?.bitmap?.let {
+            if (it.config == Bitmap.Config.HARDWARE) it.copy(Bitmap.Config.ARGB_8888, false) else it
+        }
+        if (bitmap != null) {
+            // Different game thumbnails contain different transparent margins.
+            val pixels = IntArray(bitmap.width * bitmap.height)
+            bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+            var left = bitmap.width; var top = bitmap.height; var right = -1; var bottom = -1
+            for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) if ((pixels[y * bitmap.width + x] ushr 24) > 24) {
+                left = minOf(left, x); top = minOf(top, y); right = maxOf(right, x); bottom = maxOf(bottom, y)
+            }
+            if (right >= left && bottom >= top) {
+                val scale = side.toFloat() / maxOf(right - left + 1, bottom - top + 1)
+                val width = ((right - left + 1) * scale).toInt().coerceAtLeast(1)
+                val height = ((bottom - top + 1) * scale).toInt().coerceAtLeast(1)
+                Canvas(image).drawBitmap(bitmap, Rect(left, top, right + 1, bottom + 1), Rect((side - width) / 2, (side - height) / 2, (side - width) / 2 + width, (side - height) / 2 + height), Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
+            }
+        } else {
+            val scale = side.toFloat() / maxOf(source.intrinsicWidth, source.intrinsicHeight, 1)
+            val width = (source.intrinsicWidth * scale).toInt().coerceAtLeast(1)
+            val height = (source.intrinsicHeight * scale).toInt().coerceAtLeast(1)
+            source.setBounds((side - width) / 2, (side - height) / 2, (side - width) / 2 + width, (side - height) / 2 + height)
+            source.draw(Canvas(image))
+        }
+        return BitmapDrawable(resources, image).apply { setBounds(0, 0, side, side) }
     }
     private fun sections() {
         display.clear()
@@ -185,9 +226,10 @@ class PlannerActivity : Activity() {
             if (item.next != null) append("\nNext level: ${item.targetLevel()}\nBaseline cost: ${item.costText()}\nBaseline duration: ${duration(item.seconds())}")
             append("\n\nRequirements: ").append(item.requirements.ifEmpty { "Check special conditions in game." }).append("\nCurrent hall target: ").append(if (item.hallCap > 0) item.hallCap.toString() else "Unverified").append("\nCatalog max: ${item.item.max()}")
             if (item.count > 1) append("\n\nThis group contains ${item.count} items at the same level. Costs and times are per item.")
-            if (item.item.seasonal() || item.item.category.endsWith("hall") || item.item.data.optString("id").contains("multi-") || item.item.data.optString("id").contains("ricochet")) append("\n\nMerge recipes, crafting, hall prerequisites and special unlock conditions require confirmation in game.")
+            if (item.item.category == "crafted-defense" || item.item.category.endsWith("hall") || item.item.data.optString("id").contains("multi-") || item.item.data.optString("id").contains("ricochet")) append("\n\nMerge recipes, crafting, hall prerequisites and special unlock conditions require confirmation in game.")
+            if (item.item.category == "crafted-module") append("\n\nPhase 4 module. Only exported modules are shown. The Crafting Station unlock and hall caps apply to this phase; a later phase needs a reviewed catalog update. Upgrade modules rather than the defense as a separate building.")
             if (item.fresh && item.item.tab == UpgradePlanner.Tab.ARMY) append("\n\nThis army item was not included in the export. Its first catalog level is an unlock record, not a confirmed research job. Check its production-building and event conditions in game.")
-            append("\n\nArtwork previews the next level. Exported levels change after a fresh sync. Prices and future times are baseline catalog values before event or Gold Pass reductions. Running timers use exported boosts. Resource balances and equipped equipment are not supplied by this export; affordability and equipped status are not inferred.\n\nSuggested upgrades are up to three owned, requirement-met upgrades with the shortest baseline durations. These are local suggestions, independent of Supercell’s recommendations.\n\nCatalog checked 8 Nov 2026 · ").append(item.item.data.optString("source", "No catalog entry"))
+            append("\n\nArtwork previews the next level. Exported levels change after a fresh sync. Prices and future times are baseline catalog values before event or Gold Pass reductions. Running timers use exported boosts. Resource balances and equipped equipment are not supplied by this export; affordability and equipped status are not inferred.\n\nSuggested upgrades are up to three owned, requirement-met upgrades with the shortest baseline durations. These are local suggestions, independent of Supercell’s recommendations.\n\nCatalog checked ${planner.checked} · ").append(item.item.data.optString("source", "No catalog entry"))
         }
         AlertDialog.Builder(this).setTitle(item.item.name).setMessage(text).setPositiveButton("Close", null).setNeutralButton("Open Clash") { _, _ -> startActivity(Intent(this, MainActivity::class.java).setAction("com.villageclock.app.OPEN_GAME").putExtra("tag", village.tag)) }.show()
     }

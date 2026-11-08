@@ -1,6 +1,6 @@
 # Official Game Data References
 
-Reviewed **8 November 2026**. Official announcements explain game rules; exports provide saved account state. The planner’s separate community catalog supplies ID mappings and baseline tables. These sources serve different purposes.
+Reviewed **9 November 2026**. Official announcements explain game rules; exports provide saved account state. The planner’s separate community catalog supplies ID mappings and baseline tables. These sources serve different purposes.
 
 ## Sources Used in This Release
 
@@ -8,12 +8,12 @@ Reviewed **8 November 2026**. Official announcements explain game rules; exports
 | --- | --- | --- |
 | [October Balance Announcement](https://supercell.com/en/games/clashofclans/blog/news/balance-changes-incoming-october-2026/) · 17 Oct 2026 | Troop and equipment combat adjustments | A dated News reference; no unsupported rewrite of upgrade work or prices |
 | [The Awesome Quest](https://supercell.com/en/games/clashofclans/blog/news/the-awesome-quest-is-here/) · 31 Jul 2026 | Current crafting trio and seasonal TH11 availability | Show modules actually exported by lower-hall accounts |
-| [Support: Crafted Defenses](https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529139405595-Crafted-Defenses) | Individual modules and phase changes | Keep unverified caps, stat mappings and phase dates unknown |
+| [Support: Crafted Defenses](https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529139405595-Crafted-Defenses) | Individual modules and phase changes | Track the nine current modules; keep future phase dates unknown |
 | [Support: Helpers and the Helper Hut](https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529140074139-Helpers-The-Helper-Hut) | Shared work-day schedule and helper behavior | Use exported availability deadlines and supported assigned-helper rules |
 | [November Season](https://supercell.com/en/games/clashofclans/blog/news/clash-of-titans-is-hot-off-the-press/) · 1 Nov 2026 | Next hall announced for mid-month | Retain explicit TH18 / BH10 catalog coverage instead of inventing future levels |
 | [Hammer Jam Details](https://supercell.com/en/games/clashofclans/blog/news/hammer-jam-is-here-backup-has-arrived/) · 1 Nov 2026 | Eligible reductions and exclusions | Keep exported active work authoritative; avoid a duplicate discount |
 
-The general crafting support page and seasonal announcement differ on the unlock hall. The dated seasonal exception and actual export explain the TH12 sample’s modules, without establishing unknown module caps or a permanent future unlock rule.
+The general crafting support page and seasonal announcement differ on the unlock hall. The dated seasonal exception and actual export explain the TH12 sample’s modules, without establishing a permanent future unlock rule. The new official-table review establishes the nine Phase 4 module caps and gates; see [Crafting Requirements](CRAFTING.md).
 
 ## Official Social and Community Channels
 

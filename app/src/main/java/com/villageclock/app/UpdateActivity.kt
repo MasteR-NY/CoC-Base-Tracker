@@ -36,7 +36,7 @@ class UpdateActivity : Activity() {
                 val parsed = UpdateChecker.parse(json)
                 release = if (intent.getBooleanExtra("redirect", false)) UpdateChecker.parseReleaseRedirect("/MasteR-NY/CoC-Base-Tracker/releases/tag/${parsed.tag}") else parsed
             }
-            if (intent.getBooleanExtra("preview", false)) { showReady("1.21"); return }
+            if (intent.getBooleanExtra("preview", false)) { showReady("1.22"); return }
             release?.let { if (UpdateDownloads.id(this) == -1L || it.version != UpdateDownloads.version(this)) startDownload() }
         } catch (error: Exception) { showError(error) }
     }

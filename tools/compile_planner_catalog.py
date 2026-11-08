@@ -3,6 +3,7 @@ Run fetch_planner_data.py first. No gameplay code or images are downloaded here.
 """
 import json
 from pathlib import Path
+from compile_crafting_catalog import compile_modules, provenance
 ROOT = Path(__file__).resolve().parents[1]
 spec = json.loads((ROOT / 'tools/planner-sources.json').read_text())
 items = []
@@ -19,6 +20,7 @@ for path in spec['paths']:
                       for level in data['levels']]
     item['source'] = path
     items.append(item)
+items.extend(compile_modules())
 corrections = json.loads((ROOT / 'tools/planner-corrections.json').read_text(encoding='utf-8'))
 for fix in corrections['corrections']:
     item = next(item for item in items if item['source'] == fix['source'])
@@ -28,7 +30,7 @@ for fix in corrections['corrections']:
         assert target[fix['field']] == fix['old'], 'Review the correction against changed upstream data'
         target[fix['field']] = fix['value']
 assert len({item['dataId'] for item in items}) == len(items), 'Duplicate catalog IDs'
-result = {'source': 'chiefpansancolt/clash-of-clans-data', 'revision': spec['sha'], 'checked': '2026-11-08', 'items': items}
+result = {'source': 'chiefpansancolt/clash-of-clans-data', 'revision': spec['sha'], 'checked': '2026-11-09', 'items': items, 'craftingReview': provenance()}
 result['corrections'] = corrections
 target = ROOT / 'app/src/main/assets/planner-catalog.json'
 target.write_text(json.dumps(result, separators=(',', ':'), ensure_ascii=False), encoding='utf-8')

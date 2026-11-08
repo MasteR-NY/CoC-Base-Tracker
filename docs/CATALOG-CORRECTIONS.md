@@ -1,6 +1,6 @@
 # Reviewed Catalog Corrections
 
-Reviewed November 8, 2026 for version 1.18. The planner keeps its pinned upstream snapshot and applies a small, explicit correction list at build time. It does not download game rules while running.
+Equipment and siege corrections were reviewed November 8, 2026; Phase 4 crafting was reviewed November 9 for version 1.21. The planner keeps its pinned upstream snapshot and applies a small, explicit correction list at build time. It does not download game rules while running.
 
 ## Equipment IDs
 
@@ -26,3 +26,7 @@ The supplied export has TH12, Laboratory 10, Workshop 3 and a level-1 Stone Slam
 `tools/planner-corrections.json` records the fields, original values, corrected values and evidence. `python tools/compile_planner_catalog.py` applies only those entries, checks the expected upstream values and rejects duplicate IDs. An upstream change stops compilation for review instead of silently applying an outdated correction. The runtime catalog also records the corrections.
 
 Android framework tests on API 26, 29 and 35 use a synthetic snapshot with the relevant levels and verify both rows in the default Build Menu, equipment names/artwork, hero gates, hall caps and Monolith Arrow's ore costs. The original personal export is inspected locally and excluded from source packages. This review does not establish that every upstream item is current; unusual requirements still need confirmation in game.
+
+## Phase 4 Crafting Station
+
+Version 1.21 corrects the pinned station’s TH18 availability/count gate and level-1 hall requirement to TH11 for Phase 4. The dated seasonal announcement and numeric official module gates establish the exception; the generic highest-hall rule remains relevant to future phases. The original expected values are checked before correction. Module items are compiled separately from all 90 official-checked cost/time records, with ten target-level hall gates each. See [Crafting Requirements](CRAFTING.md).
