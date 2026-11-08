@@ -47,6 +47,16 @@ The README download button opens `https://github.com/MasteR-NY/CoC-Base-Tracker/
 
 For documentation-only changes, the APK does not need a new version or rebuild.
 
+## Files Kept Local
+
+`.gitignore` excludes build outputs, Gradle/Kotlin caches, downloaded tools, local SDK paths, signing keys, environment files, logs, APKs and root-level ZIP archives. Attach signed APKs and release archives to **GitHub Releases** instead of committing them to the source tree.
+
+Keep personal exports in `local-exports/`. The original `Sample CoC Exported Data*.txt` files and `sample ui/` reference screenshots are also ignored and kept locally. Tests use synthetic fixtures; they do not require the personal export or reference screenshots. App resources in `app/src/main/res/`, offline catalog assets and the published README previews in `docs/images/` remain tracked.
+
+Ignore rules apply to untracked files. If a local-only file was tracked previously, remove that specific path from the Git index with `git rm --cached -- "path"` (add `-r` for a directory), then commit the removal together with `.gitignore`. This keeps the local file but removes it from subsequent repository snapshots. Earlier commits retain previously committed copies unless repository history is separately rewritten.
+
+Before pushing, review `git status --short` and use `git check-ignore -v -- "path"` to identify the rule protecting a local file. Avoid `git add -f` for ignored material.
+
 ## What’s New Guide
 
 `app/src/main/assets/release-notes.json` is the source for both the offline app guide and the public changelog. Run `python tools/update_release_notes.py` after editing it to regenerate `CHANGELOG.md`; source packaging also runs this step. Use concrete changes and instructions for each release. Keep earlier entries so users can expand their history in the app.

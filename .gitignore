@@ -1,14 +1,61 @@
+# Local SDKs, downloaded reference data, and review work
 .tools/
 apk-review/
+
+# Android / Gradle / Kotlin build state
 .gradle/
 .gradle-home/
+.kotlin/
 .android/
-.private/
 **/build/
 local.properties
+
+# Release artifacts belong in GitHub Releases, not the source tree
 outputs/
+*.apk
+*.aab
+*.apks
+*.hprof
+/*.zip
+
+# Local signing keys and environment secrets
+.private/
+*.jks
+*.keystore
+*.p12
+*.pfx
+signing-password.txt
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Personal village exports and original UI references
+/Sample CoC Exported Data*.txt
+/sample ui/
+/local-exports/
+
+# Editor settings and Python tooling caches
 *.iml
-__pycache__/
 .idea/
-build-log.txt
-verification-log.txt
+*.swp
+*.swo
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated logs, temporary files, and operating-system metadata
+*.log
+/build-log*.txt
+/verification-log*.txt
+*.tmp
+*.temp
+*.bak
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
