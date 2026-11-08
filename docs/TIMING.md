@@ -70,6 +70,10 @@ The known Hammer Jam calendar note is informational. It never changes timer arit
 
 Activity text updates while its window has focus and cancels callbacks when rows detach or the window loses focus. Readable widgets use a user-selected foreground service and ongoing notification. It refreshes the existing list adapter, preserving account selections and scroll position.
 
+Boosted work in the app and Build Menu includes fractional real seconds. Updates follow each next displayed work-second boundary, capped at one update per 16 milliseconds; at 24× speed this is roughly every 42 milliseconds. Normal clocks retain one-second updates. Each displayed value is recalculated from the snapshot and boost/helper schedule, including expiry, rather than subtracting an assumed amount per callback. A delayed frame therefore catches up accurately.
+
+Home screen widgets show real time remaining and a boost badge, using one-second foreground-service refreshes. They do not attempt the activity’s rapid text updates through the launcher’s RemoteViews collection. This avoids large work-time jumps in the widget and keeps the existing scrolling behavior. The app retains both accelerated Work left and real Finishes in for boosted jobs.
+
 Screen-off and lock pause display updates without a wake lock. Unlocking recalculates work and estimated completion from the saved snapshot. Upgrade-finish alarms use the projected real finish time. Pausing live updates returns the widget to Android's native countdown of real time until completion.
 
 Force-stop requires reopening the app. Android battery restrictions can delay updates or alarms. Framework tests and previews do not establish physical-device accuracy for every launcher.

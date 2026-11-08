@@ -44,7 +44,6 @@ public final class PlannerActivity extends Activity {
         header.addView(control("☷",false,v->filters()),new LinearLayout.LayoutParams(dp(52),dp(46)));header.getChildAt(1).setContentDescription("Sort and filter upgrades");top.addView(header);
         summary=label(visible.size()+" groups · "+filter().status+" · "+sortName(filter().sort),12,GOLD,false);summary.setPadding(dp(5),dp(8),dp(5),dp(3));top.addView(summary);
         if(auto)top.addView(label("Filters cleared: no matching upgrades remain.",11,WHITE,false));
-        TextView baseline=label("Baseline costs / times · tap a card for requirements",11,WHITE,false);baseline.setPadding(dp(5),0,dp(5),dp(3));top.addView(baseline);
         list.setAdapter(new BaseAdapter(){public int getCount(){return visible.size()+(visible.isEmpty()?1:0);}public Object getItem(int n){return visible.isEmpty()?null:visible.get(n);}public long getItemId(int n){return n;}
             public boolean isEnabled(int n){return !visible.isEmpty();}public View getView(int n,View old,ViewGroup p){return visible.isEmpty()?empty():card(visible.get(n));}});
         bottom.removeAllViews();LinearLayout tabs=row();String[] icons={"⌂","⚔","◆","♞"};int count=base.equals("builder")?2:4;
@@ -52,7 +51,7 @@ public final class PlannerActivity extends Activity {
         for(int i=0;i<count;i++){final UpgradePlanner.Tab selected=UpgradePlanner.Tab.values()[i];Button b=control(selected.label,tab==selected,v->{tab=selected;render();list.setSelection(0);});b.setTextSize(12);b.setPadding(dp(2),dp(5),dp(2),dp(4));
             android.graphics.drawable.Drawable art=getDrawable(ItemArt.icon(this,tabArt[i]));art.setBounds(0,0,dp(26),dp(26));b.setCompoundDrawables(null,art,null,null);tabs.addView(b,new LinearLayout.LayoutParams(0,dp(82),1));}bottom.addView(tabs);
         TextView identity=label(Store.identity(this,village),11,GOLD,false);identity.setGravity(Gravity.CENTER);bottom.addView(identity);
-        TextView footer=label("Export snapshot · "+android.text.format.DateFormat.format("MMM d, HH:mm",village.exportedAt)+" · sync after changes",10,WHITE,false);footer.setGravity(Gravity.CENTER);bottom.addView(footer);
+        TextView footer=label("Synced "+android.text.format.DateFormat.format("MMM d, HH:mm",village.exportedAt),10,WHITE,false);footer.setGravity(Gravity.CENTER);bottom.addView(footer);
     }
     private View empty(){TextView v=label("No upgrades match this view. Try All, another tab, or a fresh export. An omitted base is not treated as an empty village.",16,WHITE,false);v.setPadding(dp(18),dp(26),dp(18),dp(26));return v;}
     private View card(UpgradePlanner.Row r){LinearLayout box=column();box.setPadding(dp(10),dp(10),dp(10),dp(10));box.setBackgroundResource(R.drawable.build_card);
@@ -65,11 +64,11 @@ public final class PlannerActivity extends Activity {
             if(running!=null&&running.hasBoosts()){
                 final Village.Upgrade u=running;
                 TextView speed=label("",12,INK,true);CountdownText.bind(speed,u.finishAt,"",System::currentTimeMillis,u::boostText);box.addView(speed);
-                TextView work=label("",15,WHITE,true);CountdownText.bind(work,u.finishAt,"Timer ended · sync to confirm",System::currentTimeMillis,u::workText);box.addView(work);
+                TextView work=label("",15,WHITE,true);CountdownText.bindWork(work,u,"Timer ended · sync to confirm");box.addView(work);
                 TextView eta=label("",12,INK,false);CountdownText.bind(eta,u.finishAt,"Sync to confirm completion",System::currentTimeMillis,u::etaText);box.addView(eta);
             }else{TextView timer=label("",16,WHITE,true);CountdownText.bind(timer,r.finishAt,"Timer ended · sync to confirm");box.addView(timer);}
         }
-        else if(r.next!=null){box.addView(label(r.costText()+(r.count>1?" each":""),14,WHITE,true));box.addView(label("◷ "+duration(r.seconds())+(r.count>1?" each":""),12,INK,true));}
+        else if(r.next!=null){box.addView(label(r.costText()+(r.count>1?" each":"")+" · baseline",14,WHITE,true));box.addView(label("◷ "+duration(r.seconds())+(r.count>1?" each":""),12,INK,true));}
         TextView state=label(r.status(),12,r.state==UpgradePlanner.State.LOCKED?0xFF44251C:INK,true);state.setMaxLines(2);box.addView(state);
         if(!r.requirements.isEmpty()){TextView req=label(r.requirements,11,INK,false);req.setMaxLines(2);box.addView(req);}return box;}
     private void details(UpgradePlanner.Row r){String text=r.status()+"\n\n";

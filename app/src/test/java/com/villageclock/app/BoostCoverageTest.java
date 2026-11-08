@@ -54,6 +54,14 @@ public class BoostCoverageTest {
         Village.Upgrade u=parse("\"buildings\":[],\"boosts\":{\"lab_boost\":3600},\"units\":[{\"data\":4000000,\"timer\":172800}]").upgrades.get(0);
         assertEquals("Work left: 1d 0h 0m 0s",u.workText(NOW+3600000));assertEquals("Finishes in: 1d 0h 0m 0s",u.etaText(NOW+3600000));assertTrue(u.boostText(NOW+3600000).contains("1×"));
     }
+    @Test public void fractionalWorkIsContinuousAcrossBoostAndHelperChanges(){
+        UpgradeTiming.Plan p=new UpgradeTiming.Plan(200,Collections.singletonList(new UpgradeTiming.Boost("research",23,1)),new UpgradeTiming.Helper(2,2,-1,"Helper"));
+        assertEquals(199,p.remainingWorkAtMillis(40));assertEquals(187,p.remainingWorkAtMillis(500));
+        assertEquals(175,p.remainingWorkAtMillis(999));assertEquals(174,p.remainingWorkAtMillis(1000));
+        assertEquals(173,p.remainingWorkAtMillis(1500));assertEquals(171,p.remainingWorkAtMillis(2000));
+        assertEquals(171,p.remainingWorkAtMillis(2500));assertEquals(170,p.remainingWorkAtMillis(3000));
+        assertEquals(0,p.remainingWorkAtMillis(300000));assertEquals(200,p.remainingWorkAtMillis(-1));
+    }
     @Test public void planMatchesIndependentSecondBySecondSimulation() {
         Random random=new Random(741);
         for(int test=0;test<40;test++){

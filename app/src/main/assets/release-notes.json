@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "version": "1.11",
+      "versionCode": 12,
+      "title": "Smoother Timers and a Cleaner Home",
+      "highlights": [
+        {"title": "More Reliable Update Checks", "body": "If the GitHub API is unavailable, the app checks the public latest-release redirect. Errors now identify connection, DNS or secure-connection failures, with Retry and Open Releases options. Android 8.0 and later remain supported."},
+        {"title": "Smooth Boosted Countdowns", "body": "In the app and Build Menu, boosted work counts down through intermediate seconds instead of jumping once per real second. The home widget shows steady real time remaining with its boost badge."},
+        {"title": "Less Clutter", "body": "Settings starts collapsed, actions use shorter labels, and long explanations have moved to Help & About. Account names, sync status and important timer information stay visible."}
+      ],
+      "steps": ["Tap Check for Updates; if both checks fail, the message shows the reason and offers Retry or Open Releases.", "Sync a fresh export after using a potion to see the fast work countdown in the app. Finishes in remains the estimated real completion time.", "Expand Settings for account and notification controls. Open Help & About for sync instructions, timer details and privacy information."]
+    },
+    {
       "version": "1.10",
       "versionCode": 11,
       "title": "What’s New Guide",

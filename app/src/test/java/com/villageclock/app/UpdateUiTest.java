@@ -12,7 +12,7 @@ import org.robolectric.shadows.ShadowAlertDialog;
 import static org.junit.Assert.*;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricTestRunner.class) @Config(sdk=35)
+@RunWith(RobolectricTestRunner.class) @Config(sdk={26,29,35})
 public class UpdateUiTest {
     private UpdateChecker.Release release(String tag)throws Exception{return UpdateChecker.parse("{\"tag_name\":\""+tag+"\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"app.apk\",\"state\":\"uploaded\"}]}");}
     @Test public void openingShowsInstalledVersionAndBottomUpdateButton(){
@@ -42,5 +42,11 @@ public class UpdateUiTest {
         ActivityController<MainActivity> controller=Robolectric.buildActivity(MainActivity.class).setup();MainActivity activity=controller.get();controller.pause();
         activity.finishUpdateCheck(release("99.0"),null);assertNull(shadowOf(activity).getNextStartedActivity());
         controller.resume();shadowOf(android.os.Looper.getMainLooper()).idle();assertNotNull(shadowOf(activity).getNextStartedActivity());
+    }
+    @Test public void websiteFallbackDoesNotFalselyClaimApkIsMissing()throws Exception{
+        MainActivity activity=Robolectric.buildActivity(MainActivity.class).setup().get();
+        activity.finishUpdateCheck(UpdateChecker.parseReleaseRedirect("/MasteR-NY/CoC-Base-Tracker/releases/tag/v99.0"),null);
+        assertTrue(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("Check Assets"));
+        assertFalse(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("not been uploaded"));
     }
 }

@@ -107,6 +107,9 @@ public final class VillageWidget extends AppWidgetProvider {
         return row(c, u, now, snapshotAt, LiveTimerService.readable(c));
     }
     static RemoteViews row(Context c, Village.Upgrade u, long now, long snapshotAt, boolean readable) {
+        return row(c,u,now,snapshotAt,readable,false);
+    }
+    static RemoteViews row(Context c, Village.Upgrade u, long now, long snapshotAt, boolean readable,boolean activityWork) {
             RemoteViews row = new RemoteViews(c.getPackageName(), R.layout.widget_row);
             row.setImageViewResource(R.id.row_icon, ItemArt.icon(c, u.dataId));
             row.setTextViewText(R.id.row_name, u.name + " → " + u.level);
@@ -118,12 +121,12 @@ public final class VillageWidget extends AppWidgetProvider {
             row.setViewVisibility(R.id.readable_timer, !u.done(now) && readable ? View.VISIBLE : View.GONE);
             boolean boosted = readable && !u.done(now) && u.hasBoosts();
             row.setViewVisibility(R.id.row_boost, boosted ? View.VISIBLE : View.GONE);
-            row.setViewVisibility(R.id.row_eta, boosted ? View.VISIBLE : View.GONE);
+            row.setViewVisibility(R.id.row_eta, boosted && activityWork ? View.VISIBLE : View.GONE);
             if (boosted) { row.setTextViewText(R.id.row_boost, u.boostText(now)); row.setTextViewText(R.id.row_eta, u.etaText(now)); }
             if (u.done(now)) { row.setChronometer(R.id.timer, 0, null, false); row.setViewVisibility(R.id.timer, View.GONE); row.setViewVisibility(R.id.done, View.VISIBLE); }
             else {
                 row.setViewVisibility(R.id.timer, readable ? View.GONE : View.VISIBLE); row.setViewVisibility(R.id.done, View.GONE);
-                row.setTextViewText(R.id.readable_timer, boosted ? u.workText(now) : DurationText.remaining(u.finishAt, now));
+                row.setTextViewText(R.id.readable_timer, boosted && activityWork ? u.workText(now) : DurationText.remaining(u.finishAt, now));
                 // Native Chronometer ticks in the launcher; no second-by-second background task.
                 row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + u.finishAt - now, null, !readable);
                 row.setChronometerCountDown(R.id.timer, true);

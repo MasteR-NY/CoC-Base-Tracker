@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.11 — Smoother Timers and a Cleaner Home
+
+- **More Reliable Update Checks:** If the GitHub API is unavailable, the app checks the public latest-release redirect. Errors now identify connection, DNS or secure-connection failures, with Retry and Open Releases options. Android 8.0 and later remain supported.
+- **Smooth Boosted Countdowns:** In the app and Build Menu, boosted work counts down through intermediate seconds instead of jumping once per real second. The home widget shows steady real time remaining with its boost badge.
+- **Less Clutter:** Settings starts collapsed, actions use shorter labels, and long explanations have moved to Help & About. Account names, sync status and important timer information stay visible.
+
+### How to Use It
+
+1. Tap Check for Updates; if both checks fail, the message shows the reason and offers Retry or Open Releases.
+2. Sync a fresh export after using a potion to see the fast work countdown in the app. Finishes in remains the estimated real completion time.
+3. Expand Settings for account and notification controls. Open Help & About for sync instructions, timer details and privacy information.
+
 ## v1.10 — What’s New Guide
 
 - **Release Highlights on Launch:** A short summary introduces the installed release after an update. Read the guide or tap Got It to dismiss it for that version.

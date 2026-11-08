@@ -32,7 +32,13 @@ public final class Village {
         public String label() { return name + "  → " + level; }
         public long elapsed(long now) { return Math.max(0, (now - snapshotAt) / 1000); }
         public boolean hasBoosts() { return timing != null && timing.boosted(); }
-        public String workText(long now) { return "Work left: " + DurationText.seconds(timing.remainingWork(elapsed(now))); }
+        public String workText(long now) { return "Work left: " + DurationText.seconds(timing.remainingWorkAtMillis(Math.max(0,now-snapshotAt))); }
+        public long nextWorkTickMillis(long now) {
+            long millis=Math.max(0,now-snapshotAt),rate=timing.speed(millis/1000);
+            long remainder=(rate%1000)*(millis%1000)%1000;
+            long next=(999-remainder)/rate+1;
+            return Math.max(16,Math.min(next,1000-millis%1000));
+        }
         public String etaText(long now) { return "Finishes in: " + DurationText.remaining(finishAt, now); }
         public String boostText(long now) {
             if (!hasBoosts()) return "";

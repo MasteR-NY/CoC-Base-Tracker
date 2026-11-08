@@ -43,10 +43,10 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.9; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.10; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
-4. Open CoC Base Tracker and tap Sync from clipboard / add account.
+4. Open CoC Base Tracker and tap Sync / Add Account.
 5. Allow notifications if you want upgrade-finished reminders.
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
 7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Base Tracker and choose a village when prompted.
@@ -57,9 +57,13 @@ After starting a new upgrade, finishing early, using a potion, or changing a hel
 
 PUBLISHING: Commit/push the changed source, README and docs/images. Create the version's GitHub release, attach the signed CoC-Base-Tracker-{VERSION}.apk, and mark it as latest. README's download button follows the latest release page without depending on a fixed APK filename. Users open Assets and choose the APK.
 
-WHAT'S NEW: A release summary appears after installing or updating. Tap Read Release Guide for highlights and instructions, or Got It to dismiss the summary for that version. The What's New button at the bottom reopens the offline guide with expandable earlier releases. CHANGELOG.md is generated from the same bundled notes; copy the matching version section into GitHub's release description when publishing.
+WHAT'S NEW: A release summary appears after installing or updating. Tap Read Guide for highlights and instructions, or Got It to dismiss the summary for that version. The What's New button at the bottom reopens the offline guide with expandable earlier releases. CHANGELOG.md is generated from the same bundled notes; copy the matching version section into GitHub's release description when publishing.
 
 UPDATE CHECKS: The header shows the installed version. Scroll to the bottom and tap Check for Updates. The app compares with GitHub's latest stable release, confirms when current, and opens the Releases page when a newer version is available. If your local build is newer than the published release, it says so. Failures are reported with a manual Releases option. No updates are checked on launch or in the background. Downloading/installing remains a user action.
+
+UPDATE RELIABILITY: If the API fails, a second anonymous HTTPS GET checks the public latest-release redirect, accepting only a stable numeric tag in this exact repository. The fallback does not claim to verify APK availability. Both paths retain normal certificate and hostname validation; errors distinguish DNS, TLS, timeouts and server status with Retry and Open Releases buttons. Android 8.0+ remains supported; Android 8 and 10 framework checks are included, but physical-phone networking still needs validation.
+
+SMOOTHER TIMERS AND HOME: Boosted Work left updates through intermediate work seconds in the app and Build Menu, recalculated from fractional real seconds with a 16 ms minimum display interval. Widgets show steady real time remaining and a boost badge with the existing one-second service refresh. Settings starts collapsed; expand it for account and notification controls. Help & About contains the longer sync, timer, widget, privacy and credit information.
 
 Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Clash. The widget does not switch your actual in-game Supercell account.
 
@@ -81,7 +85,7 @@ EVENTS: Event/Gold Pass reductions already present in the exported work are reta
 
 Explore a sample village is a clearly marked preview. It never schedules real reminders or saves sample data as your village.
 
-PRIVACY: Tracking/planning work offline. Internet permission is used for manual HTTPS update checks to this repository's GitHub API only. Requests include the app version, not village exports, account names, player tags or credentials; GitHub sees normal connection information such as IP address. Browser redirects open the public Releases page. No screen capture, accessibility access, analytics, ads or automatic clipboard monitoring. Village data stays on this phone with backup/transfer exclusions.
+PRIVACY: Tracking/planning work offline. Internet permission is used for manual HTTPS update checks to this repository's GitHub API and its public latest-release redirect as a fallback. Requests include the app version, not village exports, account names, player tags or credentials; GitHub sees normal connection information such as IP address. Browser navigation opens the public Releases page. No screen capture, accessibility access, analytics, ads or automatic clipboard monitoring. Village data stays on this phone with backup/transfer exclusions.
 
 LIMITS: New upgrades cannot be discovered automatically with the currently available official data access. Android battery restrictions can delay inexact alarms. After force-stopping the app, reopen it to restore reminders. The export format is unofficial; compare the first imported timers with the game. Android framework tests verify widget list inflation and adapter contents, migration, and account isolation. This build has not been run on a physical phone or emulator here.
 
@@ -101,10 +105,10 @@ report = {
                   'signing_key': 'Locally generated private RSA-3072 key; not included in APK or source ZIP'},
     'antivirus': {'product': 'Microsoft Defender', 'result': 'found no threats', 'scan_exit_code': 0},
     'permissions': [e.attrib['{http://schemas.android.com/apk/res/android}name'] for e in ET.parse(ROOT / 'app/src/main/AndroidManifest.xml').getroot().findall('uses-permission')],
-    'internet_permission': True, 'network_scope': 'User-initiated HTTPS GitHub latest-release GET only; app version in User-Agent; no village/account data sent; release navigation delegated to browser',
+    'internet_permission': True, 'network_scope': 'User-initiated HTTPS GitHub latest-release API GET and fixed public latest-release redirect fallback; no automatic redirect following; app version in User-Agent; no village/account data sent; release navigation delegated to browser',
     'backup': 'Disabled, with cloud and device transfer exclusions',
     'android_device_test': 'Not run: no attached device or configured emulator available',
-    'android_framework_tests': 'Robolectric API 28 and API 35: widget/account isolation, boost displays, foreground service, version header, update navigation, offline release guide, summary acknowledgement, earlier-release expansion and account preservation',
+    'android_framework_tests': 'Robolectric API 26, 28, 29 and 35: Android 8/10/modern update UI and compact-home checks; widget/account isolation, fractional boost work and focus pause, foreground service, update navigation and fallback metadata, offline release guide and account preservation',
     'live_game_validation': 'Not run: no private user village export supplied',
     'sync': 'Explicit village export import; readable live countdowns afterward (foreground service for widgets)',
     'readable_widget_service': 'User-selected specialUse foreground service; ongoing notification with pause, screen-off/lock suspension, no wake lock',
@@ -112,7 +116,7 @@ report = {
     'planner_catalog': {'items': 223, 'revision': '7afaa0375e5865c04021836a3a4192ffcfea092d', 'coverage': 'standard levels through TH18/BH10; special rules require in-game confirmation'},
     'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }
-report['features'][:0] = ['offline release guide and per-version launch summary', 'expandable earlier release notes', 'shared bundled notes and generated changelog']
+report['features'][:0] = ['public GitHub release redirect fallback with specific connection diagnostics', 'fractional-time accelerated work countdowns in app and planner', 'steady real-time widget countdowns with boost badges', 'collapsed settings and Help & About', 'offline release guide and per-version launch summary', 'expandable earlier release notes', 'shared bundled notes and generated changelog']
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')
 print(json.dumps({'apk': str(APK), 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,

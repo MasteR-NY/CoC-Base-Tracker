@@ -42,7 +42,7 @@ public final class MainActivity extends Activity {
     private final Runnable refresh = this::render;
     private LinearLayout content;
     private Village demo;
-    private boolean pendingClipboard, importing, resumed;
+    private boolean pendingClipboard, importing, resumed, settingsExpanded;
     private String message = "";
     private String syncTarget = "";
     private boolean checkingUpdates, updateResultPending;
@@ -106,22 +106,23 @@ public final class MainActivity extends Activity {
         gap(content, 14);
         if (demo == null && ReleaseNotes.needsSummary(this)) releaseSummary();
         if (demo == null && !Store.all(this).isEmpty()) {
-            button(content, "Accounts (" + Store.all(this).size() + ") · " + (village == null ? "Choose Account" : Store.title(this, village)), false, v -> chooseVillage());
+            button(content, "Accounts (" + Store.all(this).size() + ") ▾", false, v -> chooseVillage());
             gap(content, 10);
         }
         if (demo != null) { content.addView(text("SAMPLE VILLAGE · PREVIEW ONLY", 12, GOLD, true)); gap(content, 8); }
         if (!message.isEmpty()) { gap(content, 14); TextView status = text(message, 13, GOLD, false); status.setPadding(dp(14), dp(12), dp(14), dp(12)); status.setBackground(shape(CARD, 12)); content.addView(status); }
         gap(content, 8);
         if (village == null) emptyState(); else {
-            button(content, "Build Menu · what’s left to upgrade", true, v -> startActivity(new Intent(this, PlannerActivity.class)
+            LinearLayout tools = horizontal();
+            Button planner = button(tools, "Build Menu", true, v -> startActivity(new Intent(this, PlannerActivity.class)
                 .putExtra("tag", village.tag).putExtra("sample", demo != null)));
-            gap(content, 8);
-            button(content, "Boosts & Helpers", false, v -> showBoosts(village));
+            Button boosts = button(tools, "Boosts & Helpers", false, v -> showBoosts(village));
+            equalButtons(planner, boosts);content.addView(tools);
             gap(content, 12);
             villageState(village, now);
         }
         gap(content, 16);
-        button(content, importing ? "Importing…" : "Sync from clipboard / add account", true, v -> { syncTarget = ""; importClipboard(); }).setEnabled(!importing);
+        button(content, importing ? "Importing…" : "Sync / Add Account", true, v -> { syncTarget = ""; importClipboard(); }).setEnabled(!importing);
         gap(content, 8);
         LinearLayout actions = horizontal();
         Button widget = button(actions, "Add widget", false, v -> pinWidget());
@@ -130,20 +131,15 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, dp(50), 1); right.leftMargin = dp(5); game.setLayoutParams(right);
         content.addView(actions);
         if (demo != null) { gap(content, 8); button(content, "Leave sample preview", false, v -> { demo = null; message = ""; render(); }); }
-        else if (village == null) { gap(content, 8); button(content, "Explore a sample village", false, v -> { demo = sample(); message = "Sample only. Import your village to track real upgrades."; render(); }); }
+        else if (village == null) { gap(content, 8); button(content, "Explore a sample village", false, v -> { demo = sample(); message = ""; render(); }); }
         if (demo == null && village != null) settings(village);
-        gap(content, 24);
-        TextView note = text("Countdowns keep ticking when Clash is closed. Sync after new upgrades, early finishes, potions, or helper changes. Green bars show countdown progress since the last sync.", 12, MUTED, false);
-        note.setLineSpacing(dp(3), 1); content.addView(note);
-        gap(content, 16);
-        content.addView(text("Independent fan companion. Not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL. No Supercell login, ads, or analytics.", 11, MUTED, false));
-        gap(content, 20);
+        gap(content, 12);button(content, "Help & About", false, v -> showHelp());gap(content, 8);
         Button whatsNew = button(content, "What’s New", false, v -> openReleaseGuide());
         whatsNew.setId(R.id.whats_new); gap(content, 8);
         Button updates = button(content, checkingUpdates ? "Checking for Updates…" : "Check for Updates", false, v -> checkForUpdates());
         updates.setId(R.id.check_updates); updates.setEnabled(!checkingUpdates);
-        TextView updateNote = text(updateStatus.isEmpty() ? "Checks GitHub when tapped. Your village data stays on this phone." : updateStatus, 12, MUTED, false);
-        updateNote.setId(R.id.update_status); gap(content, 6); content.addView(updateNote);
+        TextView updateNote = text(updateStatus, 12, MUTED, false);
+        updateNote.setId(R.id.update_status);updateNote.setVisibility(updateStatus.isEmpty()?View.GONE:View.VISIBLE);gap(content, 6);content.addView(updateNote);
         if (village != null && resumed) {
             long next = village.nextFinish(now);
             if (next > now) handler.postDelayed(refresh, Math.min(60000, Math.max(1000, next - now + 100)));
@@ -153,11 +149,7 @@ public final class MainActivity extends Activity {
     private void emptyState() {
         LinearLayout card = card(); card.setBackgroundResource(R.drawable.widget_bg);
         card.addView(text("Your village", 24, TEXT, true)); gap(card, 10);
-        card.addView(text("Bring in your village once. Watch the timers tick every second, even after you close the game.", 14, MUTED, false));
-        gap(card, 20);
-        step(card, "01", "Open Clash of Clans", "Go to Settings → More Settings.");
-        step(card, "02", "Copy your village data", "Find Export village data and tap Copy.");
-        step(card, "03", "Come back and paste", "Tap Paste village export below.");
+        card.addView(text("In Clash, copy Settings → More Settings → Export village data, then tap Sync / Add Account here.", 14, MUTED, false));
         content.addView(card);
     }
     private void releaseSummary() {
@@ -165,11 +157,12 @@ public final class MainActivity extends Activity {
             ReleaseNotes.Entry release = ReleaseNotes.load(this).current();
             LinearLayout card = card(); card.setId(R.id.release_summary);
             card.addView(text("What’s New in v" + release.version, 22, GOLD, true)); gap(card, 8);
-            for (ReleaseNotes.Highlight point : release.highlights) { card.addView(text("• " + point.title, 14, TEXT, false)); gap(card, 5); }
+            card.addView(text(release.title, 14, TEXT, false));
             gap(card, 7);
-            Button read = button(card, "Read Release Guide", true, v -> openReleaseGuide()); read.setId(R.id.release_summary_open);
-            gap(card, 7);
-            Button dismiss = button(card, "Got It", false, v -> { ReleaseNotes.markSeen(this); render(); }); dismiss.setId(R.id.release_summary_dismiss);
+            LinearLayout actions=horizontal();
+            Button read = button(actions, "Read Guide", true, v -> openReleaseGuide()); read.setId(R.id.release_summary_open);
+            Button dismiss = button(actions, "Got It", false, v -> { ReleaseNotes.markSeen(this); render(); }); dismiss.setId(R.id.release_summary_dismiss);
+            equalButtons(read,dismiss);card.addView(actions);
             content.addView(card); gap(content, 14);
         } catch (Exception unavailable) { /* The manual guide can still offer the release-page fallback. */ }
     }
@@ -183,7 +176,7 @@ public final class MainActivity extends Activity {
             UpdateChecker.Release release = null; String error = null;
             try { release = UpdateChecker.fetchLatest(BuildConfig.VERSION_NAME); }
             catch (UpdateChecker.CheckException failure) { error = failure.getMessage(); }
-            catch (Exception failure) { error = "Couldn’t check for updates. Check your internet connection and try again, or open Releases."; }
+            catch (Exception failure) { error = UpdateChecker.failureDetail(failure); }
             UpdateChecker.Release result = release; String failure = error;
             handler.post(() -> finishUpdateCheck(result, failure));
         });
@@ -197,16 +190,17 @@ public final class MainActivity extends Activity {
         if (!resumed || !updateResultPending || isDestroyed() || isFinishing()) return;
         updateResultPending = false;
         if (pendingUpdateError != null || pendingRelease == null) {
-            updateStatus = pendingUpdateError == null ? "Couldn’t read the release information." : pendingUpdateError;
+            String reason = pendingUpdateError == null ? "Couldn’t read the release information." : pendingUpdateError;
+            updateStatus = "Update check failed. Retry or open Releases.";
             render();
-            new AlertDialog.Builder(this).setTitle("Update Check Unavailable").setMessage(updateStatus)
-                .setPositiveButton("Close", null).setNeutralButton("Open Releases", (d,w) -> openReleases()).show();
+            new AlertDialog.Builder(this).setTitle("Update Check Unavailable").setMessage(reason)
+                .setPositiveButton("Retry", (d,w) -> checkForUpdates()).setNegativeButton("Close", null).setNeutralButton("Open Releases", (d,w) -> openReleases()).show();
             return;
         }
         try {
             int comparison = UpdateChecker.compare(pendingRelease.version, BuildConfig.VERSION_NAME);
             if (comparison > 0) {
-                updateStatus = "Update available: v" + pendingRelease.version + (pendingRelease.hasApk ? "." : ". The APK has not been uploaded yet.");
+                updateStatus = "Update available: v" + pendingRelease.version + (!pendingRelease.apkStatusKnown ? ". Check Assets for the APK." : pendingRelease.hasApk ? "." : ". The APK has not been uploaded yet.");
                 render(); Toast.makeText(this, updateStatus + " Opening GitHub Releases…", Toast.LENGTH_LONG).show(); openReleases();
             } else {
                 boolean current = comparison == 0;
@@ -267,14 +261,14 @@ public final class MainActivity extends Activity {
             for (Village.Upgrade u : jobs) { panel.addView(upgradeCard(u, now, village.exportedAt)); gap(panel, 3); }
             gap(panel, 8);
         }
-        TextView footer = text("synced " + Store.age(village.exportedAt, now) + " · " + village.tag, 12, 0xFFEFE3CF, true);
+        TextView footer = text("Synced " + Store.age(village.exportedAt, now), 12, 0xFFEFE3CF, true);
         footer.setMaxLines(1); panel.addView(footer); content.addView(panel);
     }
     private LinearLayout upgradeCard(Village.Upgrade u, long now, long snapshotAt) {
-        LinearLayout card = (LinearLayout)VillageWidget.row(this, u, now, snapshotAt, true).apply(this, new android.widget.FrameLayout(this));
+        LinearLayout card = (LinearLayout)VillageWidget.row(this, u, now, snapshotAt, true, true).apply(this, new android.widget.FrameLayout(this));
         if (!u.done(now)) {
             if (u.hasBoosts()) {
-                CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓", System::currentTimeMillis, u::workText);
+                CountdownText.bindWork(card.findViewById(R.id.readable_timer), u, "Done ✓");
                 CountdownText.bind(card.findViewById(R.id.row_boost), u.finishAt, "", System::currentTimeMillis, u::boostText);
                 CountdownText.bind(card.findViewById(R.id.row_eta), u.finishAt, "Sync to confirm completion", System::currentTimeMillis, u::etaText);
             } else CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓");
@@ -286,8 +280,9 @@ public final class MainActivity extends Activity {
         LinearLayout block = vertical(); block.setPadding(0, 0, dp(8), 0); block.addView(text(value, 26, TEXT, true)); block.addView(text(label, 8, MUTED, true)); row.addView(block, new LinearLayout.LayoutParams(0, -2, 1));
     }
     private void settings(Village village) {
-        gap(content, 22); LinearLayout panel = card();
-        panel.addView(text("Settings", 18, GOLD, true)); gap(panel, 12);
+        gap(content, 12);Button settings=button(content,settingsExpanded?"Settings ▴":"Settings ▾",false,v->{settingsExpanded=!settingsExpanded;render();});settings.setId(R.id.settings_toggle);
+        if(!settingsExpanded)return;
+        gap(content,8);LinearLayout panel = card();panel.setId(R.id.settings_panel);
         Switch live = new Switch(this); live.setText("Live readable widget timers"); live.setTextColor(TEXT); live.setTextSize(13); live.setMinHeight(dp(48));
         live.setChecked(LiveTimerService.enabled(this));
         live.setOnCheckedChangeListener((button, checked) -> {
@@ -295,9 +290,7 @@ public final class MainActivity extends Activity {
             VillageWidget.refresh(this);
             if (checked && !Reminders.canNotify(this)) requestNotifications();
         }); panel.addView(live);
-        panel.addView(text("Shows days, hours, minutes and seconds with an ongoing notification. Updates pause while the screen is off or locked. Pause the notification or turn this off to use the native widget timer.", 11, MUTED, false)); gap(panel, 12);
-        panel.addView(text(FastEvents.noteAt(village.exportedAt), 12, MUTED, false)); gap(panel, 8);
-        panel.addView(text("Stacked copies extend boost duration. Known boosts apply only while active, and helpers contribute separately. Sync after using items or changing helper assignments.", 11, MUTED, false)); gap(panel, 10);
+        panel.addView(text("Ongoing notification · pauses while locked or screen off", 11, MUTED, false)); gap(panel, 12);
         button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
         button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
         Switch toggle = new Switch(this); toggle.setText("Notifications for all saved villages"); toggle.setTextColor(TEXT); toggle.setTextSize(13); toggle.setMinHeight(dp(48));
@@ -309,7 +302,7 @@ public final class MainActivity extends Activity {
         if (!Reminders.canNotify(this) && Store.prefs(this).getBoolean("notify", true)) {
             button(panel, "Allow notifications", false, v -> requestNotifications()); gap(panel, 8);
         }
-        panel.addView(text(Reminders.exact(this) ? "Precise timer alerts are enabled." : "Android may delay alerts and finished-widget updates. Allow precise timers for accurate timing.", 11, MUTED, false));
+        panel.addView(text(Reminders.exact(this) ? "Precise alerts enabled" : "Precise alerts disabled", 11, MUTED, false));
         if (Build.VERSION.SDK_INT >= 31 && !Reminders.exact(this)) { gap(panel, 8); button(panel, "Allow precise timers", false, v -> {
             try { startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()))); }
             catch (android.content.ActivityNotFoundException ex) { show("Precise alarm settings are unavailable on this device."); }
@@ -360,7 +353,7 @@ public final class MainActivity extends Activity {
                 handler.post(() -> {
                     if (isDestroyed()) return;
                     importing = false; demo = null;
-                    message = "Synced " + Store.title(this, village) + " · " + village.tag + ". " + village.running(System.currentTimeMillis()) + " upgrades running.";
+                    message = "";Toast.makeText(this,"Synced "+Store.title(this,village),Toast.LENGTH_SHORT).show();
                     render();
                     Runnable next = () -> { if (!Store.prefs(this).getBoolean("asked-notify", false)) requestNotifications(); };
                     if (firstImport && Store.inGameName(this, village).isEmpty()) editInGameName(village, next); else next.run();
@@ -401,7 +394,7 @@ public final class MainActivity extends Activity {
             detail.append('\n');
         }
         if (!any) detail.append("No timed upgrade boosts are recorded for your running upgrades.\n\n");
-        detail.append("Potions and Magic Snacks in storage do not change timers until used. Books, Hammers and gem finishes are reflected after a fresh export. Resource and combat boosts, Alchemist and Prospector do not speed up these upgrade queues. Repeating helpers are forecast only when the export marks that assignment and includes its cooldown.");
+        detail.append(FastEvents.noteAt(village.exportedAt)).append("\n\nPotions and Magic Snacks in storage do not change timers until used. Books, Hammers and gem finishes are reflected after a fresh export. Resource and combat boosts, Alchemist and Prospector do not speed up these upgrade queues. Repeating helpers are forecast only when the export marks that assignment and includes its cooldown.");
         new AlertDialog.Builder(this).setTitle("Boosts & Helpers").setMessage(detail.toString()).setPositiveButton("Close", null)
             .setNeutralButton("Open Clash", (d,w) -> openGame()).show();
     }
@@ -422,7 +415,7 @@ public final class MainActivity extends Activity {
         String[] names = new String[villages.size()];
         for (int i = 0; i < names.length; i++) names[i] = Store.accountLabel(this, villages.get(i));
         new AlertDialog.Builder(this).setTitle("Saved Accounts").setItems(names, (d, which) -> {
-            Store.select(this, villages.get(which).tag); syncTarget = ""; message = "Viewing " + villages.get(which).tag + ". Your widget selections are unchanged."; render();
+            Store.select(this, villages.get(which).tag); syncTarget = ""; message = ""; render();
         }).setNegativeButton("Close", null).show();
     }
     private void pinWidget() {
@@ -444,6 +437,20 @@ public final class MainActivity extends Activity {
         Intent intent = getPackageManager().getLaunchIntentForPackage(VillageWidget.COC);
         if (intent == null) { show("Clash of Clans is not installed in this Android profile."); return; }
         try { startActivity(intent); } catch (android.content.ActivityNotFoundException ex) { show("Could not open Clash of Clans."); }
+    }
+    private void showHelp(){
+        new AlertDialog.Builder(this).setTitle("Help & About").setMessage(
+            "Sync Your Village\nIn Clash: Settings → More Settings → Export village data → Copy. Return here and tap Sync / Add Account. Sync after new upgrades, early finishes, using items or changing helpers. New activity is discovered only after an export.\n\n"
+            +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Review imported effects in Boosts & Helpers. Green bars show progress since export.\n\n"
+            +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
+            +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard data is read only when you sync. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
+            +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL.")
+            .setPositiveButton("Close",null).show();
+    }
+    private void equalButtons(Button left,Button right){
+        LinearLayout.LayoutParams a=new LinearLayout.LayoutParams(0,dp(50),1);a.rightMargin=dp(4);left.setLayoutParams(a);
+        LinearLayout.LayoutParams b=new LinearLayout.LayoutParams(0,dp(50),1);b.leftMargin=dp(4);right.setLayoutParams(b);
+        left.setTextSize(15);right.setTextSize(15);
     }
     private void show(String text) { if (isDestroyed()) return; message = text; Toast.makeText(this, text, Toast.LENGTH_LONG).show(); render(); }
     private Village sample() {

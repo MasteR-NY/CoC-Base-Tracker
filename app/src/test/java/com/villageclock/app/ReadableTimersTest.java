@@ -60,17 +60,19 @@ public class ReadableTimersTest {
         assertFalse(LiveTimerService.enabled(context));assertFalse(LiveTimerService.readable(context));assertFalse(LiveTimerService.wanted(context));
         controller.destroy();assertFalse(LiveTimerService.readable(context));LiveTimerService.forget(id);
     }
-    @Test public void boostedWidgetRowsShowFastWorkAndSeparateRealFinishTime()throws Exception{
+    @Test public void boostedWidgetsShowSteadyRealTimeAndActivityKeepsFastWork()throws Exception{
         long at=now/1000*1000;
         String raw="{\"tag\":\"#BOOST12\",\"timestamp\":"+at/1000+",\"buildings\":[],\"boosts\":{\"lab_boost\":3600},\"units\":[{\"data\":4000000,\"timer\":172800}]}";
         Village.Upgrade upgrade=ExportParser.parse(raw,Store.catalog(context),at).upgrades.get(0);
         View first=VillageWidget.row(context,upgrade,at,at,true).apply(context,new FrameLayout(context));
-        assertEquals("Work left: 2d 0h 0m 0s",((TextView)first.findViewById(R.id.readable_timer)).getText().toString());
-        assertEquals("Finishes in: 1d 1h 0m 0s",((TextView)first.findViewById(R.id.row_eta)).getText().toString());
+        assertEquals("1d 1h 0m 0s",((TextView)first.findViewById(R.id.readable_timer)).getText().toString());
+        assertEquals(View.GONE,first.findViewById(R.id.row_eta).getVisibility());
         assertTrue(((TextView)first.findViewById(R.id.row_boost)).getText().toString().contains("24×"));
         View second=VillageWidget.row(context,upgrade,at+1000,at,true).apply(context,new FrameLayout(context));
-        assertEquals("Work left: 1d 23h 59m 36s",((TextView)second.findViewById(R.id.readable_timer)).getText().toString());
-        assertEquals("Finishes in: 1d 0h 59m 59s",((TextView)second.findViewById(R.id.row_eta)).getText().toString());
+        assertEquals("1d 0h 59m 59s",((TextView)second.findViewById(R.id.readable_timer)).getText().toString());
+        View activity=VillageWidget.row(context,upgrade,at+500,at,true,true).apply(context,new FrameLayout(context));
+        assertEquals("Work left: 1d 23h 59m 48s",((TextView)activity.findViewById(R.id.readable_timer)).getText().toString());
+        assertEquals(View.VISIBLE,activity.findViewById(R.id.row_eta).getVisibility());
     }
     @Test public void activityWorkCountdownReallyAdvances24SecondsPerTick()throws Exception{
         org.robolectric.android.controller.ActivityController<Activity> controller=Robolectric.buildActivity(Activity.class).setup();
@@ -78,8 +80,12 @@ public class ReadableTimersTest {
         long epoch=1700000000000L,initialUptime=SystemClock.elapsedRealtime();
         UpgradeTiming.Plan plan=new UpgradeTiming.Plan(172800,java.util.Collections.singletonList(new UpgradeTiming.Boost("research",23,3600)),null);
         Village.Upgrade upgrade=new Village.Upgrade(4000000,10,"Barbarian",Village.Queue.LAB,epoch+90000000,false,0,epoch,plan);
-        CountdownText.bind(text,upgrade.finishAt,"Done",()->epoch+SystemClock.elapsedRealtime()-initialUptime,upgrade::workText);
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1));assertEquals("Work left: 1d 23h 59m 36s",text.getText().toString());
+        CountdownText.bindWork(text,upgrade,"Done",()->epoch+SystemClock.elapsedRealtime()-initialUptime);
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(50));assertEquals("Work left: 1d 23h 59m 59s",text.getText().toString());
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(450));assertEquals("Work left: 1d 23h 59m 48s",text.getText().toString());
+        controller.windowFocusChanged(false);shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(250));assertEquals("Work left: 1d 23h 59m 48s",text.getText().toString());
+        controller.windowFocusChanged(true);assertEquals("Work left: 1d 23h 59m 42s",text.getText().toString());
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(250));assertEquals("Work left: 1d 23h 59m 36s",text.getText().toString());
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1));assertEquals("Work left: 1d 23h 59m 12s",text.getText().toString());
         controller.pause().stop().destroy();
     }

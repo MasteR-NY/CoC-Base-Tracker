@@ -6,6 +6,8 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /** Explicit, anonymous release checks. No saved account data enters a request. */
@@ -19,24 +21,36 @@ public final class UpdateChecker {
     public static final class Release {
         public final String version;
         public final boolean hasApk;
-        private Release(String version,boolean hasApk){this.version=version;this.hasApk=hasApk;}
+        public final boolean apkStatusKnown;
+        private Release(String version,boolean hasApk){this(version,hasApk,true);}
+        private Release(String version,boolean hasApk,boolean known){this.version=version;this.hasApk=hasApk;this.apkStatusKnown=known;}
     }
     interface ConnectionFactory { HttpsURLConnection open(URL url)throws IOException; }
     public static Release fetchLatest(String installedVersion)throws IOException {
         return fetchLatest(installedVersion,url->(HttpsURLConnection)url.openConnection());
     }
     static Release fetchLatest(String installedVersion,ConnectionFactory factory)throws IOException {
+        try{return fetchApi(installedVersion,factory);}
+        catch(IOException apiFailure){
+            try{return fetchReleaseRedirect(installedVersion,factory);}
+            catch(IOException pageFailure){throw new CheckException("GitHub API: "+failureDetail(apiFailure)+"\n\nGitHub Releases: "+failureDetail(pageFailure)+"\n\nOpen Releases to check in your browser.");}
+        }
+    }
+    private static void configure(HttpsURLConnection connection,String installedVersion)throws IOException{
+        connection.setConnectTimeout(12000);connection.setReadTimeout(12000);
+        connection.setInstanceFollowRedirects(false);connection.setUseCaches(false);
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent","CoC-Base-Tracker/"+installedVersion);
+    }
+    private static Release fetchApi(String installedVersion,ConnectionFactory factory)throws IOException {
         HttpsURLConnection connection=factory.open(new URL(API_URL));
         try {
-            connection.setConnectTimeout(8000);connection.setReadTimeout(8000);
-            connection.setInstanceFollowRedirects(false);connection.setUseCaches(false);
-            connection.setRequestMethod("GET");
+            configure(connection,installedVersion);
             connection.setRequestProperty("Accept","application/vnd.github+json");
-            connection.setRequestProperty("User-Agent","CoC-Base-Tracker/"+installedVersion);
             int status=connection.getResponseCode();
             if(status==404)throw new CheckException("No public release was found. You can check the Releases page manually.");
-            if(status==403||status==429)throw new CheckException("GitHub could not accept this update check. Try again later or open Releases.");
-            if(status!=200)throw new CheckException("GitHub is unavailable for this update check. Try again later or open Releases.");
+            if(status==403||status==429)throw new CheckException("GitHub denied or limited the request (HTTP "+status+"). Try again later.");
+            if(status!=200)throw new CheckException("The server returned HTTP "+status+".");
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();
             try(InputStream input=connection.getInputStream()){
                 byte[] buffer=new byte[8192];int count;
@@ -47,6 +61,36 @@ public final class UpdateChecker {
             }
             return parse(bytes.toString(StandardCharsets.UTF_8.name()));
         }finally{connection.disconnect();}
+    }
+    /** The public latest-release redirect is independent of the API's anonymous request limit. */
+    private static Release fetchReleaseRedirect(String installedVersion,ConnectionFactory factory)throws IOException{
+        HttpsURLConnection connection=factory.open(new URL(RELEASES_URL));
+        try{
+            configure(connection,installedVersion);connection.setRequestProperty("Accept","text/html");
+            int status=connection.getResponseCode();
+            if(status!=301&&status!=302&&status!=303&&status!=307&&status!=308)throw new CheckException("No latest-release redirect was returned (HTTP "+status+").");
+            return parseReleaseRedirect(connection.getHeaderField("Location"));
+        }finally{connection.disconnect();}
+    }
+    static Release parseReleaseRedirect(String location)throws CheckException{
+        try{
+            if(location==null||location.length()>1024)throw new IllegalArgumentException();
+            URI uri=new URI(RELEASES_URL).resolve(location);
+            String prefix="/MasteR-NY/CoC-Base-Tracker/releases/tag/";
+            if(!"https".equalsIgnoreCase(uri.getScheme())||!"github.com".equalsIgnoreCase(uri.getHost())
+                ||uri.getUserInfo()!=null||(uri.getPort()!=-1&&uri.getPort()!=443)||uri.getRawQuery()!=null||uri.getRawFragment()!=null
+                ||!uri.getRawPath().startsWith(prefix))throw new IllegalArgumentException();
+            String version=URLDecoder.decode(uri.getRawPath().substring(prefix.length()),"UTF-8");parts(version);
+            return new Release(version.replaceFirst("^[vV]",""),false,false);
+        }catch(Exception invalid){throw new CheckException("The release redirect could not be verified for this repository.");}
+    }
+    public static String failureDetail(Exception failure){
+        if(failure instanceof CheckException)return failure.getMessage();
+        if(failure instanceof javax.net.ssl.SSLException)return "Secure connection failed ("+failure.getClass().getSimpleName()+"). Check the phone’s date/time, Android security updates, or network filtering.";
+        if(failure instanceof java.net.UnknownHostException)return "GitHub’s address could not be resolved. Check Private DNS, VPN or network filtering.";
+        if(failure instanceof java.net.SocketTimeoutException)return "The connection timed out. Retry or try another network.";
+        if(failure instanceof java.net.ConnectException)return "GitHub could not be reached. Check VPN, firewall or network filtering.";
+        return "The check failed ("+failure.getClass().getSimpleName()+"). Try another network or open Releases.";
     }
     public static Release parse(String json)throws CheckException {
         if(json==null||json.length()>MAX_BYTES)throw new CheckException("The release response could not be read. Open Releases to check manually.");

@@ -83,6 +83,14 @@ public final class UpgradeTiming {
             return work;
         }
         public long remainingWork(long elapsed) {return Math.max(0,workSeconds-Math.min(workSeconds,workDone(elapsed)));}
+        /** Ceil whole seconds of work, including progress inside the current real second. */
+        public long remainingWorkAtMillis(long elapsedMillis) {
+            elapsedMillis=Math.max(0,elapsedMillis);long second=elapsedMillis/1000,part=elapsedMillis%1000;
+            long remaining=remainingWork(second),rate=speed(second);
+            // Split the product to avoid overflow when rates are unusually large.
+            long partial=add(multiply(rate/1000,part),(rate%1000)*part/1000);
+            return remaining-Math.min(remaining,partial);
+        }
         public long speed(long elapsed) {
             elapsed=Math.max(0,elapsed);long speed=1;
             for(List<Boost> group:groups.values()){long extra=0;for(Boost b:group)if(elapsed<b.remainingSeconds)extra=Math.max(extra,b.extraSpeed);speed=add(speed,extra);}
