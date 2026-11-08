@@ -54,7 +54,7 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.15**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.16**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
 
@@ -119,7 +119,26 @@ If Android stops background updates or you force-stop the app, reopen it to rest
 | Village Base | Buildings & Heroes, Army Upgrades, Hero Equipment, Hero Pets |
 | Builder Base | Buildings & Heroes, Army Upgrades |
 
-Tap an upgrade card to view its next level, listed requirements, baseline cost, and duration. Buildings and walls at the same level are grouped together; prices and durations are shown per item. Resource, type, and hero filters help narrow the list.
+The menu opens with **Current Hall Only** enabled. It shows running upgrades first, remaining upgrades reachable within your current Town Hall or Builder Hall, and the next hall upgrade. A required Laboratory, Hero Hall, or other facility upgrade stays listed when it can be completed at the current hall. Future hall requirements are hidden by default. Turn off Current Hall Only in the sliders menu to inspect next steps beyond that hall.
+
+Upgrade rows show the target level’s artwork, the exported current level on the badge, and costs with resource or ore icons on the right. Buildings and walls at the same level are grouped; prices and times are per item. Active countdowns stay in days, hours, minutes, and seconds. The app and widgets also use destination-level artwork for running upgrades.
+
+The sliders menu has **Resource** and **Type** buttons, **Cost Max** and **Cost Min**, and hero portraits for equipment. Builder Base army upgrades use the simpler cost-sorting panel. Filters stay separate for each base/category, survive screen recreation, and are applied only when you tap Apply. Cancel discards edits; Reset restores current-hall defaults. An empty match does not silently reset your choices.
+
+The default order offers up to three owned, requirement-met upgrades with the shortest baseline durations, followed by the other remaining upgrades. These are local suggestions. Equipment is grouped as Owned Equipment and Not in Export; equipped status is not inferred. Missing army items appear separately as unlock checks.
+
+<details>
+<summary>Build Menu Previews</summary>
+
+| Resource and Type Filters | Army Upgrades |
+| --- | --- |
+| <img src="docs/images/build-menu-filter-design.png" width="270" alt="Brown filter panel with resource icons, type buttons and Cost Max and Cost Min"> | <img src="docs/images/build-menu-army-design.png" width="270" alt="Army upgrades with level artwork and resource costs on the right"> |
+
+| Builder Base | Hero Equipment |
+| --- | --- |
+| <img src="docs/images/build-menu-builder-design.png" width="270" alt="Builder Base upgrades limited to the current Builder Hall"> | <img src="docs/images/build-menu-equipment-design.png" width="270" alt="Equipment rows with hero portraits and multiple ore costs"> |
+
+</details>
 
 Planning costs and durations are baseline values. Event discounts, Gold Pass benefits, potions, and helpers may change the in-game quote. Listed requirements do not account for your available resources or free builders.
 

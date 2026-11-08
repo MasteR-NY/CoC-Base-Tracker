@@ -111,7 +111,7 @@ public final class VillageWidget extends AppWidgetProvider {
     }
     static RemoteViews row(Context c, Village.Upgrade u, long now, long snapshotAt, boolean readable,boolean activityWork) {
             RemoteViews row = new RemoteViews(c.getPackageName(), R.layout.widget_row);
-            row.setImageViewResource(R.id.row_icon, ItemArt.icon(c, u.dataId));
+            row.setImageViewResource(R.id.row_icon, ItemArt.icon(c, u.dataId,u.level));
             row.setTextViewText(R.id.row_name, u.name + " → " + u.level);
             row.setViewVisibility(R.id.goblin_tag, u.extraBuilder ? View.VISIBLE : View.GONE);
             row.setViewVisibility(R.id.row_bar, u.done(now) ? View.GONE : View.VISIBLE);

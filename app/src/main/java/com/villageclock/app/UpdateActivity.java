@@ -36,7 +36,7 @@ public final class UpdateActivity extends Activity {
         try{
             String json=getIntent().getStringExtra("release");
             if(json!=null){release=UpdateChecker.parse(json);if(getIntent().getBooleanExtra("redirect",false))release=UpdateChecker.parseReleaseRedirect("/MasteR-NY/CoC-Base-Tracker/releases/tag/"+release.tag);}
-            if(getIntent().getBooleanExtra("preview",false)){showReady("1.16");return;}
+            if(getIntent().getBooleanExtra("preview",false)){showReady("1.17");return;}
             if(release!=null&&(UpdateDownloads.id(this)==-1||!release.version.equals(UpdateDownloads.version(this))))startDownload();
         }catch(Exception error){showError(error);}
     }

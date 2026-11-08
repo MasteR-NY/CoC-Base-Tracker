@@ -19,7 +19,7 @@ APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
 assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
-for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design'):
+for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design', 'build-menu-filter-design', 'build-menu-army-design', 'build-menu-builder-design', 'build-menu-equipment-design'):
     assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -30,7 +30,7 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py')]
+files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py')]
 source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
@@ -57,6 +57,8 @@ After starting a new upgrade, finishing early, using a potion, or changing a hel
 
 PUBLISHING: Commit/push the changed source, README and docs/images. Create the version's GitHub release, attach the signed CoC-Base-Tracker-{VERSION}.apk, and mark it as latest. README's download button follows the latest release page without depending on a fixed APK filename. Users open Assets and choose the APK.
 
+LEVEL ARTWORK: 1,376 level mappings across 142 items use 1,143 deduplicated model thumbnails and nine currency icons. Running app/widget upgrades and Build Menu cards preview the target level, with the current level retained on the badge. Unsupported level variants keep a generic portrait. All art is bundled offline; fresh exports refresh levels, and expired timers never promote saved levels. See docs/LEVEL-ART.md.
+
 WHAT'S NEW: A release summary appears after installing or updating. Tap Read Guide for highlights and instructions, or Got It to dismiss the summary for that version. The What's New button at the bottom reopens the offline guide with expandable earlier releases. CHANGELOG.md is generated from the same bundled notes; copy the matching version section into GitHub's release description when publishing.
 
 UPDATE CHECKS: The header shows the installed version. Scroll to the bottom and tap Check for Updates. The app compares with GitHub's latest stable release, confirms when current, and offers Download Update when a newer APK is available. Android Downloads shows progress; tap Install Update after verification. If Android requests permission, allow installs from CoC Base Tracker, return and tap Install Update again. Android confirms installation. Update Download and the ready notification reopen a retained download. If your local build is newer than the published release, it says so. Failures are reported with a manual Releases option. No automatic release checks run on launch or on a background schedule. A requested check or approved download may finish after leaving the screen. Downloads start only after your confirmation; installation always requires Android confirmation.
@@ -81,7 +83,7 @@ IN-GAME NAMES: Names appear in account lists, app/Build Menu headers, widget sel
 
 CLASH-STYLE DESIGN: Gray headers, brown upgrade cards and bottom category tabs adapt Supercell's October 2026 Build Menu. Timers retain the reference repository's wooden panel, Lilita One font, gold controls, item art and green/gold countdown rows. Bars show progress since export. README includes actual framework-rendered app, planner and widget previews, refreshed by normal builds.
 
-BUILD MENU: Tap Build Menu above the timers. Switch Village Base / Builder Base. Village has Buildings & Heroes, Army Upgrades, Hero Equipment and Hero Pets; Builder Base has the first two. Cards show remaining standard upgrades, grouped levels/counts, baseline per-item costs/times and prerequisites. Tap for details. Use the filter button for resource/type/hero filters and Cost Min/Max sorting. Extra status/time/name options are available. Different active timers remain separate.
+BUILD MENU: Current Hall Only is enabled by default: current upgrades stay first, reachable remaining upgrades are capped to the exported hall, and the next hall upgrade is shown separately. Facility upgrades possible at this hall remain included. Tap Build Menu above the timers. Switch Village Base / Builder Base. Village has Buildings & Heroes, Army Upgrades, Hero Equipment and Hero Pets; Builder Base has the first two. Cards show remaining standard upgrades, grouped levels/counts, baseline per-item costs/times and prerequisites. Tap for details. Use the sliders button for resource/type/hero button filters and Cost Max/Min sorting. Costs and material icons appear on the right. Turn off Current Hall Only for future next steps; More Options contains status and Suggested Order. Cancel discards staged changes; Apply commits them per base/category, and empty matches do not clear choices. Different active timers remain separate.
 
 PLANNER LIMITS: The pinned community catalog contains 223 items, checked 8 Nov 2026, through TH18 / BH10. Planning costs/times are baseline values, without future event, Gold Pass, potion or helper reductions. Running timers still use exported boost-adjusted countdowns. Requirements met does not promise resources or a free builder. Supercharges, some crafted modules, merges and special hall/unlock conditions require confirmation in game. Sync to confirm ended levels. See docs/UPGRADE-PLANNER.md.
 
@@ -133,6 +135,9 @@ report['official_references'] = 'Reviewed 2026-11-08; Supercell blog, crafted de
 report['identity_catalog'] = {'identities': 880, 'artwork_files': 871, 'sample_cosmetic_names_and_art': '93 of 95 distinct IDs', 'unresolved_sample_ids': [52000268, 52000337], 'runtime_downloads': False, 'provenance': 'docs/ITEM-IDENTITIES.md'}
 report['features'][:0] = ['offline crafting, helper and cosmetic identity catalog', 'verified module caps and semantic stat symbols', 'corrected Alchemist/Prospector IDs', 'bundled cosmetic portraits and thumbnails with shared-variant details']
 report['android_framework_tests'] += '; Overview tab/base navigation, sample safety, availability one-shot delivery, replacement deadlines, Clock Tower alarm scheduling and account removal on API 26/29/35'
+report['level_artwork'] = {'mapped_items': 142, 'mapped_levels': 1376, 'model_files': 1143, 'currency_files': 9, 'runtime_downloads': False, 'sources': 'docs/level-art-sources.json'}
+report['features'][:0] = ['current-hall Build Menu default with next hall upgrade', 'destination-level artwork in planner and app/widget timers', 'resource/type/hero button filters and Cost Max/Min', 'side-aligned resource and multi-ore costs', 'staged filters with empty-match retention']
+report['android_framework_tests'] += '; current-hall caps and reachable facilities, hero gates, unknown timers, filter Apply/Cancel and isolation, recreation, exact-level artwork and currency rendering'
 report['app_updates'] = {'metadata_fallback': 'Android Download Manager after app HTTPS failures', 'apk_validation': 'repository URL, size, optional GitHub SHA-256, package, newer version code/name and matching installed signing key', 'install': 'explicit button, source permission and Android confirmation', 'device_socket_exception': 'Not reproduced on a physical phone; diagnostics and alternative system network path added'}
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')

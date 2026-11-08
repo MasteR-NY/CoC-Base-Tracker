@@ -25,3 +25,9 @@ Artwork is resized for offline app use; animated previews use a static frame. No
 ## Decoration Artwork Added in Version 1.15
 
 Amber Hot Streak and Sour Elixir Fountain names are verified against explicit IDs and English TIDs in Supercell’s public 18.647.6 asset tables. Their game-art portraits are provided by [ClashPerk’s decoration catalog](https://wiki.clashperk.com/decorations?group=Home+village), with exact URLs and hashes in `tools/identity-overrides.json`. Credit to ClashPerk for publishing these extracted previews; original artwork remains © Supercell under its Fan Content Policy. Only the two game-art images are reused; no site UI, extraction code or prose is bundled.
+
+## Level Artwork Added in Version 1.16
+
+Building models and nine resource icons use the same pinned ClashKingAssets manifest, with source SHA-256 verification. Additional level-specific models use images explicitly referenced by the pinned Christopher Pezza catalog. Original game artwork remains © Supercell; existing ClashKing and factual catalog notices continue to apply. Artwork is cropped, resized and deduplicated for offline use. Exact source URLs, original hashes and transformed-file hashes are retained in `docs/level-art-sources.json`. No upstream extraction code is executed or shipped. The sliders vector is original app artwork.
+
+The revised Build Menu follows the user-supplied game screenshots dated November 8, 2026. The README previews render the actual app with synthetic village data; personal screenshots are not included in the release source archive.

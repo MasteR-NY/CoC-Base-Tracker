@@ -22,11 +22,12 @@ public final class UpgradePlanner {
         public boolean seasonal(){return category.equals("crafted-defense");}
         public String type(){if(category.equals("hero")||category.equals("guardian"))return "Hero"; if(category.equals("army")||category.equals("research"))return "Army";
             if(category.equals("resource"))return "Resource"; if(Arrays.asList("defense","trap","wall","crafted-defense").contains(category))return "Defense";
-            if(tab==Tab.ARMY)return title(category); return "Other";}
+            if(tab==Tab.ARMY)return category.equals("troop")?"Troops":category.equals("spell")?"Spells":"Siege"; return "Other";}
     }
     public static final class Row {
         public final Item item; public final int level, count; public final JSONObject next; public final State state; public final long finishAt;
         public final String requirements, missing; public final boolean fresh;
+        public int hall, hallCap; public boolean withinCurrentHall=true;
         Row(Item item,int level,int count,State state,long finishAt,String requirements,String missing,boolean fresh){this.item=item;this.level=level;this.count=count;
             this.next=item.next(level);this.state=state;this.finishAt=finishAt;this.requirements=requirements;this.missing=missing;this.fresh=fresh;}
         public long seconds(){if(next==null)return 0;for(String k:new String[]{"buildTime","researchTime","upgradeTime"}){JSONObject t=next.optJSONObject(k);if(t!=null)return t.optLong("days")*86400+t.optLong("hours")*3600+t.optLong("minutes")*60+t.optLong("seconds");}return 0;}
@@ -40,13 +41,20 @@ public final class UpgradePlanner {
             case MAXED:return "Catalog max level";case UNOWNED:return "Not in export · check unlock in game";case UNKNOWN:return "Check requirements in game";
             default:return fresh?"New · requirements listed below":"Next upgrade";}}
         public int levelsLeft(){return Math.max(0,item.max()-level);}
+        public boolean active(){return state==State.RUNNING||state==State.SYNC;}
+        public int targetLevel(){return next==null?(active()?level+1:level):next.optInt("level",level);}
     }
     public static final class Filter {
         public final Set<String> resources=new HashSet<>(),types=new HashSet<>(),heroes=new HashSet<>();
-        public String status="Remaining"; public Sort sort=Sort.DEFAULT;
-        public void clear(){resources.clear();types.clear();heroes.clear();status="Remaining";sort=Sort.DEFAULT;}
-        public boolean accepts(Row r){if(!resources.isEmpty()&&r.costs().keySet().stream().noneMatch(k->matchesResource(k,resources)))return false;
-            if(!types.isEmpty()&&!types.contains(r.item.type())&&!(types.contains("New")&&r.fresh)&&!(types.contains("Non-Seasonal")&&!r.item.seasonal()))return false;
+        public String status="Remaining"; public Sort sort=Sort.DEFAULT;public boolean currentHallOnly=true;
+        public void clear(){resources.clear();types.clear();heroes.clear();status="Remaining";sort=Sort.DEFAULT;currentHallOnly=true;}
+        public Filter copy(){Filter out=new Filter();out.resources.addAll(resources);out.types.addAll(types);out.heroes.addAll(heroes);out.status=status;out.sort=sort;out.currentHallOnly=currentHallOnly;return out;}
+        public boolean accepts(Row r){if(currentHallOnly&&!r.withinCurrentHall)return false;
+            if(!resources.isEmpty()&&r.costs().keySet().stream().noneMatch(k->matchesResource(k,resources)))return false;
+            Set<String> categories=new HashSet<>(types);categories.removeAll(Arrays.asList("New","Permanent","Non-Seasonal"));
+            if(!categories.isEmpty()&&!categories.contains(r.item.type()))return false;
+            if(types.contains("New")&&!r.fresh)return false;
+            if((types.contains("Permanent")||types.contains("Non-Seasonal"))&&r.item.seasonal())return false;
             if(!heroes.isEmpty()&&!heroes.contains(r.item.hero))return false;
             switch(status){case "All":return true;case "Requirements met":return r.state==State.AVAILABLE;case "In progress":return r.state==State.RUNNING||r.state==State.SYNC;
                 case "Locked / unowned":return r.state==State.LOCKED||r.state==State.UNOWNED||r.state==State.UNKNOWN;case "Maxed":return r.state==State.MAXED;default:return r.state!=State.MAXED;}}
@@ -64,6 +72,10 @@ public final class UpgradePlanner {
         if(!visiting.add(item.id))return 0;
         try{
             if(item.category.equals("town-hall")||item.category.equals("builder-hall"))return Math.min(hall,item.max());
+            if(allowed(item,hall,item.base.equals("builder"))==0)return 0;
+            if(item.tab==Tab.EQUIPMENT&&!item.hero.isEmpty()){
+                for(Item owner:items)if(owner.category.equals("hero")&&owner.name.equals(item.hero)&&capAtHall(owner,hall,visiting)==0)return 0;
+            }
             int cap=0;JSONArray levels=item.data.optJSONArray("levels");if(levels==null)return 0;
             for(int i=0;i<levels.length();i++){JSONObject level=levels.optJSONObject(i);if(level==null||level.optBoolean("supercharge"))continue;boolean allowed=true;
                 for(Map.Entry<String,Integer> gate:reqMap(item,level).entrySet()){
@@ -109,15 +121,28 @@ public final class UpgradePlanner {
         // A new data ID remains visible rather than silently disappearing from the planner.
         for(Map.Entry<Integer,List<JSONObject>> e:owned.entrySet())if(!byId.containsKey(e.getKey())){
             JSONObject meta=new JSONObject();meta.put("dataId",e.getKey());meta.put("name",displayNames.getOrDefault(e.getKey(),"Unknown item #"+e.getKey()));meta.put("base",base);meta.put("category","other");meta.put("levels",new JSONArray());
-            Item unknown=new Item(meta);if(tab!=Tab.BUILDINGS)continue;for(JSONObject entry:e.getValue())result.add(new Row(unknown,entry.optInt("lvl"),Math.max(1,entry.optInt("cnt",1)),State.UNKNOWN,0,"Catalog update needed","",false));}
-        return group(result);
+            Item unknown=new Item(meta);if(tab!=Tab.BUILDINGS)continue;for(JSONObject entry:e.getValue()){
+                int level=entry.optInt("lvl");long finish=0;
+                if(entry.optLong("timer")>0){String key=unknown.id+":"+level;int skip=timerOffsets.getOrDefault(key,0),seen=0;for(Village.Upgrade upgrade:exportOrder)if(upgrade.dataId==unknown.id&&upgrade.level==level+1){if(seen++==skip){finish=upgrade.finishAt;break;}}timerOffsets.put(key,skip+Math.max(1,entry.optInt("cnt",1)));
+                    if(finish==0)finish=village.exportedAt+Math.min(10L*366*86400,entry.optLong("timer"))*1000;}
+                result.add(new Row(unknown,level,Math.max(1,entry.optInt("cnt",1)),finish==0?State.UNKNOWN:finish>now?State.RUNNING:State.SYNC,finish,"Catalog update needed","",false));}}
+        List<Row> grouped=group(result);
+        for(Row row:grouped){row.hall=hall;row.hallCap=capAtHall(row.item,hall);
+            boolean hallItem=row.item.category.equals("town-hall")||row.item.category.equals("builder-hall");
+            if(hallItem)row.hallCap=Math.min(row.item.max(),hall+1);
+            row.withinCurrentHall=row.active()||row.state==State.UNKNOWN&&!row.fresh&&row.item.max()==0
+                ||row.next!=null&&row.targetLevel()<=row.hallCap||row.next==null&&row.level>0;
+        }
+        return grouped;
     }
     public static List<Row> select(List<Row> rows,Filter f){List<Row> out=new ArrayList<>();for(Row r:rows)if(f.accepts(r))out.add(r);
         Comparator<Row> name=Comparator.comparing(r->r.item.name);Comparator<Row> c;
         switch(f.sort){case COST_MIN:c=Comparator.comparingLong(r->r.price(f.resources));break;case COST_MAX:c=Comparator.<Row>comparingLong(r->r.price(f.resources)).reversed();break;
             case TIME_MIN:c=Comparator.comparingLong(Row::seconds);break;case NAME:c=name;break;default:c=Comparator.<Row>comparingInt(r->r.state==State.RUNNING?0:r.state==State.SYNC?1:r.state==State.AVAILABLE?2:3)
                 .thenComparingLong(r->r.state==State.RUNNING?r.finishAt:0);}
-        out.sort(c.thenComparing(name).thenComparingInt(r->r.level));return out;}
+        Comparator<Row> active=Comparator.<Row>comparingInt(r->r.state==State.RUNNING?0:r.state==State.SYNC?1:2)
+            .thenComparingLong(r->r.active()?r.finishAt:0);
+        out.sort(active.thenComparing(c).thenComparing(name).thenComparingInt(r->r.level));return out;}
     private static List<Row> group(List<Row> rows){LinkedHashMap<String,Row> grouped=new LinkedHashMap<>();for(Row r:rows){String key=r.item.id+":"+r.level+":"+r.state+":"+r.finishAt+":"+r.fresh;
         Row prev=grouped.get(key);grouped.put(key,prev==null?r:new Row(r.item,r.level,prev.count+r.count,r.state,r.finishAt,r.requirements,r.missing,r.fresh));}return new ArrayList<>(grouped.values());}
     private static void addOwned(JSONObject e,Map<Integer,List<JSONObject>> owned,Map<Integer,Integer> levels){int id=e.optInt("data",-1);if(id<0)return;owned.computeIfAbsent(id,k->new ArrayList<>()).add(e);

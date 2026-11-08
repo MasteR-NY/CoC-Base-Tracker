@@ -42,4 +42,40 @@ public class UpgradePlannerTest {
         assertEquals(UpgradePlanner.State.UNOWNED,find(rows(raw,"home",UpgradePlanner.Tab.EQUIPMENT),90000000,0).state);}
     @Test public void builderTroopUnlockStartsAtItsActualInitialLevel()throws Exception{String raw=snapshot("\"buildings\":[],\"buildings2\":[{\"data\":1000034,\"lvl\":10}]");
         assertEquals(17,find(rows(raw,"builder",UpgradePlanner.Tab.ARMY),4000106,0).next.optInt("level"));}
+    @Test public void defaultScopeStopsAtCurrentHallButIncludesNextHall()throws Exception{
+        int cap=planner.capAtHall(planner.item(1000008),12);assertTrue(cap>1);assertTrue(cap<planner.item(1000008).max());
+        String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1000008,\"lvl\":"+cap+"},{\"data\":1000008,\"lvl\":"+(cap-1)+"}]");
+        List<UpgradePlanner.Row> all=rows(raw,"home",UpgradePlanner.Tab.BUILDINGS);UpgradePlanner.Filter filter=new UpgradePlanner.Filter();List<UpgradePlanner.Row> current=UpgradePlanner.select(all,filter);
+        assertFalse(current.contains(find(all,1000008,cap)));assertTrue(current.contains(find(all,1000008,cap-1)));assertEquals(13,find(current,1000001,12).targetLevel());
+        filter.currentHallOnly=false;assertTrue(UpgradePlanner.select(all,filter).contains(find(all,1000008,cap)));
+    }
+    @Test public void currentHallAllowsFacilityUpgradesThatAreStillNeeded()throws Exception{
+        int cap=planner.capAtHall(planner.item(4000000),12);String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1000007,\"lvl\":1}],\"units\":[{\"data\":4000000,\"lvl\":"+(cap-1)+"}]");
+        UpgradePlanner.Row row=find(rows(raw,"home",UpgradePlanner.Tab.ARMY),4000000,cap-1);assertEquals(UpgradePlanner.State.LOCKED,row.state);assertTrue(row.withinCurrentHall);assertTrue(new UpgradePlanner.Filter().accepts(row));assertTrue(row.missing.contains("Laboratory"));
+    }
+    @Test public void builderHallScopeUsesBuilderLevelsAndKeepsNextBuilderHall()throws Exception{
+        String raw=snapshot("\"buildings2\":[{\"data\":1000034,\"lvl\":8},{\"data\":1000044,\"lvl\":9}]");
+        List<UpgradePlanner.Row> selected=UpgradePlanner.select(rows(raw,"builder",UpgradePlanner.Tab.BUILDINGS),new UpgradePlanner.Filter());assertEquals(9,find(selected,1000034,8).targetLevel());for(UpgradePlanner.Row row:selected)assertEquals("builder",row.item.base);
+    }
+    @Test public void activeUpgradesStayFirstForEitherCostSortEvenBeyondHallCap()throws Exception{
+        int cap=planner.capAtHall(planner.item(1000008),12);String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1000008,\"lvl\":"+cap+",\"timer\":5000}]");
+        List<UpgradePlanner.Row> all=rows(raw,"home",UpgradePlanner.Tab.BUILDINGS);UpgradePlanner.Filter filter=new UpgradePlanner.Filter();
+        for(UpgradePlanner.Sort sort:new UpgradePlanner.Sort[]{UpgradePlanner.Sort.COST_MIN,UpgradePlanner.Sort.COST_MAX}){filter.sort=sort;List<UpgradePlanner.Row> selected=UpgradePlanner.select(all,filter);assertEquals(UpgradePlanner.State.RUNNING,selected.get(0).state);assertEquals(cap+1,selected.get(0).targetLevel());}
+    }
+    @Test public void unknownActiveIdsKeepTheirTimersAndTargetLevel()throws Exception{
+        String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1999999,\"lvl\":3,\"timer\":100}]");UpgradePlanner.Row row=find(UpgradePlanner.select(rows(raw,"home",UpgradePlanner.Tab.BUILDINGS),new UpgradePlanner.Filter()),1999999,3);assertEquals(UpgradePlanner.State.RUNNING,row.state);assertEquals(now+100000,row.finishAt);assertEquals(4,row.targetLevel());
+    }
+    @Test public void newAndPermanentModifyTypeRatherThanMatchingUnrelatedItems()throws Exception{
+        String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1000008,\"lvl\":8}]");UpgradePlanner.Filter f=new UpgradePlanner.Filter();f.types.addAll(Arrays.asList("Defense","New","Permanent"));List<UpgradePlanner.Row> selected=UpgradePlanner.select(rows(raw,"home",UpgradePlanner.Tab.BUILDINGS),f);assertFalse(selected.isEmpty());for(UpgradePlanner.Row row:selected){assertEquals("Defense",row.item.type());assertTrue(row.fresh);assertFalse(row.item.seasonal());}
+    }
+    @Test public void equipmentForAnUnavailableHeroIsOutsideCurrentHall()throws Exception{
+        assertEquals(0,planner.capAtHall(planner.item(90000013),12));assertTrue(planner.capAtHall(planner.item(90000013),15)>0);
+    }
+    @Test public void upgradingHallDoesNotUnlockItsFutureCapsBeforeSync()throws Exception{
+        int cap=planner.capAtHall(planner.item(1000008),12);String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12,\"timer\":100},{\"data\":1000008,\"lvl\":"+cap+"}]");List<UpgradePlanner.Row> all=rows(raw,"home",UpgradePlanner.Tab.BUILDINGS);assertFalse(new UpgradePlanner.Filter().accepts(find(all,1000008,cap)));assertTrue(new UpgradePlanner.Filter().accepts(find(all,1000001,12)));
+    }
+    @Test public void unknownTimersStaySeparateAndLevelZeroModulesRemainVisible()throws Exception{
+        String raw=snapshot("\"buildings\":[{\"data\":1000001,\"lvl\":12},{\"data\":1999999,\"lvl\":3,\"timer\":100},{\"data\":1999999,\"lvl\":3,\"timer\":200},{\"data\":102999999,\"lvl\":0}]");
+        List<UpgradePlanner.Row> selected=UpgradePlanner.select(rows(raw,"home",UpgradePlanner.Tab.BUILDINGS),new UpgradePlanner.Filter());List<UpgradePlanner.Row> timers=new ArrayList<>();for(UpgradePlanner.Row row:selected)if(row.item.id==1999999)timers.add(row);assertEquals(2,timers.size());assertEquals(100000,timers.get(1).finishAt-timers.get(0).finishAt);assertNotNull(find(selected,102999999,0));
+    }
 }

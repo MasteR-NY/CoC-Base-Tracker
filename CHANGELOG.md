@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.16 — A Build Menu for Your Hall
+
+- **Plan Your Current Hall:** The Build Menu defaults to upgrades reachable within your current Town Hall or Builder Hall, with active upgrades first and the next hall upgrade shown separately. Turn off Current Hall Only in the filter menu to see Catalog Max.
+- **Level-Specific Artwork:** Upgrade rows, app timers and widgets preview the destination level using bundled artwork. The current level stays on the badge. Buildings, walls, traps and troops use exact level mappings where art is available; fixed portraits remain for items without level variants.
+- **Game-Style Filters and Costs:** Resource icons and Type buttons match the supplied game examples, with Cost Max and Cost Min sorting. Costs and ore requirements sit beside each upgrade. Filters stay separate per base and category; Cancel leaves the current selection unchanged.
+
+### How to Use It
+
+1. Open Build Menu and select Village Base or Builder Base. The default scope follows the hall level in your last export.
+2. Tap the sliders button to choose resources, types or heroes, then Cost Max or Cost Min and Apply. Reset returns to the current-hall default.
+3. Current upgrades keep their exported countdowns in days, hours, minutes and seconds. Costs and future durations are baseline catalog values before event or Gold Pass discounts. Sync after an upgrade finishes to refresh levels.
+
 ## v1.15 — Updates Without the Browser
 
 - **Download and Install in the App:** Download a published APK directly from the update prompt. Follow progress, leave the screen while Android downloads, and tap Install Update when ready. Android asks you to allow this install source and confirm installation.

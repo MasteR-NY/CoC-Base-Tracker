@@ -96,3 +96,9 @@ Village exports have an unofficial schema. Check imported timers against the gam
 The optional identity pipeline uses Python with Pillow: `python tools/build_identity_catalog.py --fetch-art`. It vendors pinned metadata, verifies manifest image hashes, and generates compact offline thumbnails plus `item-identities.json`. Normal Android builds use the committed output and do not fetch artwork. Review [Item Names and Artwork](ITEM-IDENTITIES.md) before changing the pinned source revisions, especially unresolved IDs and shared-image variants.
 
 Original application code is MIT-licensed. Third-party presentation resources, the Lilita One font, game artwork, and factual catalog have separate attribution and terms. See [Credits and Third-Party Resources](DESIGN-CREDITS.md).
+
+## Level Artwork Maintenance
+
+After fetching the planner tables and identity manifest, run `python tools/build_level_art.py` with Pillow installed. The optional tool downloads pinned images, validates available manifest hashes, rejects oversized/empty sources, and bundles 128-pixel thumbnails. Exact source and output hashes are written to `docs/level-art-sources.json`. The app’s `level-art.json` contains only resource mappings. Normal builds use committed resources and do not fetch artwork.
+
+Planner model tests cover hall caps, reachable facility prerequisites, hero equipment gates, next-hall visibility, running-job retention and unknown IDs. API 26/29/35 UI checks cover button filters, per-base/category isolation, Cancel/Apply, explicit Catalog Max, empty results, recreation and target artwork. Native render checks include the main list, filter dialog, Army, Builder Base and equipment, plus compact and landscape QA images. The normal build refreshes the README previews.

@@ -59,6 +59,15 @@ public class DesignPreviewTest {
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));
     }
+    @Test public void rendersBuildFiltersArmyEquipmentAndBuilderLayouts()throws Exception{
+        Context context=RuntimeEnvironment.getApplication();PlannerActivity planner=Robolectric.buildActivity(PlannerActivity.class,new android.content.Intent(context,PlannerActivity.class).putExtra("sample",true)).setup().get();
+        planner.findViewById(R.id.planner_filters).performClick();android.app.AlertDialog filters=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
+        render(filters.getWindow().getDecorView(),411,670,"build-menu-filter-design.png");filters.dismiss();
+        PlannerUiTest.find(planner.getWindow().getDecorView(),"Army Upgrades").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-army-design.png");
+        PlannerUiTest.find(planner.getWindow().getDecorView(),"Hero Equipment").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-equipment-design.png");
+        PlannerUiTest.find(planner.getWindow().getDecorView(),"Builder Base").performClick();render(planner.getWindow().getDecorView(),411,891,"build-menu-builder-design.png");
+        render(planner.getWindow().getDecorView(),320,740,"build-menu-compact-qa.png");render(planner.getWindow().getDecorView(),800,480,"build-menu-landscape-qa.png");
+    }
     private void render(View view, int width, int height, String name) throws Exception {
         view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
         view.layout(0, 0, width, height);

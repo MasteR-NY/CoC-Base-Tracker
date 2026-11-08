@@ -1,4 +1,9 @@
 <resources>
+    <item name="planner_list" type="id" />
+    <item name="planner_filters" type="id" />
+    <item name="planner_scope" type="id" />
+    <item name="planner_item_icon" type="id" />
+    <item name="planner_current_hall" type="id" />
     <item name="download_status" type="id" />
     <item name="download_detail" type="id" />
     <item name="install_update" type="id" />

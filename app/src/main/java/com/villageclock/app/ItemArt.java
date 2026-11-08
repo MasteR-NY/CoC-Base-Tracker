@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ItemArt {
+    public static int icon(Context c,int dataId,int level){int exact=LevelArt.icon(c,dataId,level);return exact!=0?exact:icon(c,dataId);}
     private static final ConcurrentHashMap<Integer,Integer> icons = new ConcurrentHashMap<>();
     @SuppressLint("DiscouragedApi")
     public static int icon(Context c, int dataId) {

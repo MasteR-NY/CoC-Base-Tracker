@@ -87,7 +87,7 @@ public final class OverviewActivity extends Activity {
         int selected=Arrays.asList(keys).indexOf(collection);if(selected<0){selected=0;collection=keys[0];}Spinner select=new Spinner(this);select.setId(R.id.collection_selector);select.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,labels));select.setSelection(selected);header.addView(select);
         select.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){public void onNothingSelected(android.widget.AdapterView<?> p){}public void onItemSelected(android.widget.AdapterView<?> p,View v,int n,long id){if(!collection.equals(keys[n])){collection=keys[n];render();list.setSelection(0);}}});
         List<VillageOverview.CollectionItem> items=overview.collection(collection);long count=0;for(VillageOverview.CollectionItem i:items)count+=i.count;header.addView(label(count+" owned · "+items.size()+" distinct entries",13,MUTED,false));
-        for(VillageOverview.CollectionItem i:items){LinearLayout card=card();portraitTitle(card,i.id,itemName(i.id,collection.equals("equipment")?"Equipment":"Collectible"));
+        for(VillageOverview.CollectionItem i:items){LinearLayout card=card();portraitTitle(card,i.id,itemName(i.id,collection.equals("equipment")?"Equipment":"Collectible"),i.level);
             if(i.level>=0){UpgradePlanner.Item meta=planner.item(i.id);int cap=meta==null?0:meta.max();card.addView(label("Level "+i.level+(cap>0?" / "+cap:""),16,GOLD,true));
                 if(meta!=null&&!meta.hero.isEmpty())card.addView(label(meta.hero+" · "+UpgradePlanner.title(meta.data.optString("rarity")),12,MUTED,false));
                 card.setOnClickListener(v->new AlertDialog.Builder(this).setTitle(itemName(i.id,"Equipment")).setMessage("Exported level: "+i.level+"\n"+(cap>0?"Catalog max: "+cap:"Maximum level unavailable")+"\n\nEquipment costs and requirements are available in Build Menu → Hero Equipment. Ore balances are not included in the export.").setPositiveButton("Close",null).show());
@@ -95,7 +95,8 @@ public final class OverviewActivity extends Activity {
         }if(items.isEmpty())empty("No entries in this collection were included in the export.");
     }
     private String itemName(int id,String fallback){String name=Store.catalog(this).name(id);return name==null||name.isEmpty()?fallback+" #"+id:name;}
-    private void portraitTitle(LinearLayout card,int id,String name){LinearLayout line=row();int icon=ItemArt.icon(this,id);if(icon!=R.drawable.ic_village){ImageView image=new ImageView(this);image.setImageResource(icon);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setContentDescription(name);line.addView(image,new LinearLayout.LayoutParams(dp(52),dp(52)));}
+    private void portraitTitle(LinearLayout card,int id,String name){portraitTitle(card,id,name,-1);}
+    private void portraitTitle(LinearLayout card,int id,String name,int level){LinearLayout line=row();int icon=level>=0?ItemArt.icon(this,id,level):ItemArt.icon(this,id);if(icon!=R.drawable.ic_village){ImageView image=new ImageView(this);image.setImageResource(icon);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setContentDescription(name);line.addView(image,new LinearLayout.LayoutParams(dp(52),dp(52)));}
         TextView title=label(name,18,TEXT,true);title.setPadding(dp(8),0,0,0);line.addView(title,new LinearLayout.LayoutParams(0,-2,1));card.addView(line);}
     private void showCards(){list.setAdapter(new BaseAdapter(){public int getCount(){return cards.size();}public Object getItem(int n){return cards.get(n);}public long getItemId(int n){return n;}public View getView(int n,View old,ViewGroup p){return cards.get(n);}});}
     private void empty(String text){cards.add(label(text,16,MUTED,false));}
