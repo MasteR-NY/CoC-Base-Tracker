@@ -6,6 +6,7 @@
     <item name="open_overview" type="id" />
     <item name="overview_list" type="id" />
     <item name="overview_heading" type="id" />
+    <item name="collection_selector" type="id" />
     <item name="availability_alerts" type="id" />
     <item name="settings_panel" type="id" />
     <item name="update_status" type="id" />

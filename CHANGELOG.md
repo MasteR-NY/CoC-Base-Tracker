@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.14 — Names and Artwork
+
+- **Named Crafting Modules:** Hot Candle, Hero Hunter and Cake-A-Pult modules now show their stat names, verified catalog caps and defense portraits with stat symbols.
+- **Recognizable Helpers:** Alchemist and Prospector are identified correctly in helper cards and availability reminders. Helper portraits make each one easier to recognize.
+- **Cosmetic Names and Icons:** The collection uses a bundled identity catalog and compact offline artwork for known skins, sceneries, decorations, obstacles and house parts. Entries missing from the source data keep their IDs.
+
+### How to Use It
+
+1. Open Overview → Crafting to see named modules and their current levels.
+2. Open Helpers for corrected helper names and portraits, or Collection for cosmetic names and artwork.
+3. Tap a crafting module to inspect its identity and cap. Unresolved entries remain visible for later data updates.
+
 ## v1.13 — Your Village at a Glance
 
 - **Progress for Both Bases:** Overview shows building, wall, trap, army and hero level progress. Choose targets for your Current Hall or the full offline Catalog Max.

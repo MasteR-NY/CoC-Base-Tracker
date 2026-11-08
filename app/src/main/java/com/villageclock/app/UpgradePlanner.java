@@ -56,6 +56,8 @@ public final class UpgradePlanner {
         for(int i=0;i<a.length();i++){Item item=new Item(a.getJSONObject(i));items.add(item);byId.put(item.id,item);}}
     public List<Item> items(){return Collections.unmodifiableList(items);}
     public Item item(int id){return byId.get(id);}
+    private final Map<Integer,String> displayNames=new HashMap<>();
+    public void setDisplayName(int id,String name){if(name!=null&&!name.isEmpty())displayNames.put(id,name);}
     public int capAtHall(Item item,int hall){return capAtHall(item,hall,new HashSet<>());}
     private int capAtHall(Item item,int hall,Set<Integer> visiting){
         String cacheKey=item.id+":"+hall;Integer known=hallCaps.get(cacheKey);if(known!=null)return known;
@@ -106,7 +108,7 @@ public final class UpgradePlanner {
         }
         // A new data ID remains visible rather than silently disappearing from the planner.
         for(Map.Entry<Integer,List<JSONObject>> e:owned.entrySet())if(!byId.containsKey(e.getKey())){
-            JSONObject meta=new JSONObject();meta.put("dataId",e.getKey());meta.put("name","Unknown item #"+e.getKey());meta.put("base",base);meta.put("category","other");meta.put("levels",new JSONArray());
+            JSONObject meta=new JSONObject();meta.put("dataId",e.getKey());meta.put("name",displayNames.getOrDefault(e.getKey(),"Unknown item #"+e.getKey()));meta.put("base",base);meta.put("category","other");meta.put("levels",new JSONArray());
             Item unknown=new Item(meta);if(tab!=Tab.BUILDINGS)continue;for(JSONObject entry:e.getValue())result.add(new Row(unknown,entry.optInt("lvl"),Math.max(1,entry.optInt("cnt",1)),State.UNKNOWN,0,"Catalog update needed","",false));}
         return group(result);
     }

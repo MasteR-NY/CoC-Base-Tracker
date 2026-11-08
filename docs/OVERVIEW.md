@@ -16,7 +16,7 @@ Progress covers buildings, walls, traps, army upgrades, heroes and pets where th
 
 Crafting reads all exported `buildings[].types[].modules[]` records. The supplied sample has three types and nine modules; other export sizes are supported. Cards show exported levels and any active module timer.
 
-Defense names use the existing name catalog when available. Unmapped modules retain their IDs; missing caps read **Maximum level not verified**. The tracker does not guess a module’s stat, a phase deadline/reset, future cost or unlock gate.
+The nine current modules have verified names and catalog caps, with a defense portrait and stat symbol. Other unmapped modules retain their IDs; missing caps read **Maximum level not verified**. The tracker does not guess a phase deadline/reset, future cost or unlock gate. See [Item Names and Artwork](ITEM-IDENTITIES.md) for mappings and source revisions.
 
 Supercell’s seasonal announcement opened the current defenses from TH11, whereas general support still describes a highest-hall condition. The tracker follows actual exported inventory, including the supplied TH12 sample. See [Official Game Data References](GAME-DATA.md).
 
@@ -32,7 +32,7 @@ Sync after using a helper or Clock Tower. Old data cannot know it has been used 
 
 Collection includes Home Village equipment, skins, sceneries, decorations, obstacles and house parts. Builder Base has separate skins, scenery, decorations and obstacles. Grouped `cnt` values contribute to owned quantities.
 
-Equipment shows exported levels, catalog caps, hero association and rarity where available. Tap for details; prices and requirements remain in Build Menu → Hero Equipment. Other collectibles show owned entries and quantities. No percentage of all obtainable cosmetics is claimed because the export supplies owned IDs rather than a complete catalog. Unmapped names remain visible as IDs.
+Equipment shows exported levels, catalog caps, hero association and rarity where available. Tap for details; prices and requirements remain in Build Menu → Hero Equipment. Other collectibles show names, offline artwork, owned entries and quantities. Tap a cosmetic for its ID and any shared-artwork note. No percentage of all obtainable cosmetics is claimed because the export supplies owned IDs rather than a complete catalog. Unmapped names remain visible as IDs.
 
 Resource balances, ore balances, unused Magic Items and chest inventory are not inferred from the sample.
 

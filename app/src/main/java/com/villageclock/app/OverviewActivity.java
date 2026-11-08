@@ -61,10 +61,12 @@ public final class OverviewActivity extends Activity {
         List<VillageOverview.Craft> modules=overview.crafts();if(modules.isEmpty()){empty("No crafting modules were included in this export.");return;}
         Set<Integer> types=new HashSet<>();for(VillageOverview.Craft c:modules)types.add(c.type);header.addView(label(types.size()+" defense types · "+modules.size()+" modules",13,MUTED,false));
         int last=-1,ordinal=0;for(VillageOverview.Craft c:modules){if(c.type!=last){last=c.type;ordinal=0;cards.add(label(itemName(c.type,"Defense"),20,GOLD,true));}ordinal++;
-            LinearLayout card=card();card.addView(label(itemName(c.id,"Module "+ordinal),18,TEXT,true));card.addView(label("Level "+c.level,21,GOLD,true));
-            UpgradePlanner.Item meta=planner.item(c.id);int cap=meta==null?0:meta.max();card.addView(label(cap>0?Math.max(0,cap-c.level)+" levels to catalog max":"Maximum level not verified",12,MUTED,false));
+            LinearLayout card=card();ItemIdentities.Entry identity=ItemIdentities.load(this).item(c.id);String title=identity==null?itemName(c.id,"Module "+ordinal):identity.shortName;
+            portraitTitle(card,c.id,title);LinearLayout levelLine=row();if(identity!=null){ImageView stat=new ImageView(this);stat.setImageResource(ItemIdentities.moduleSymbol(identity.shortName));stat.setContentDescription(identity.shortName);levelLine.addView(stat,new LinearLayout.LayoutParams(dp(22),dp(22)));}
+            levelLine.addView(label("Level "+c.level+(identity!=null&&identity.cap>0?" / "+identity.cap:""),21,GOLD,true));card.addView(levelLine);
+            UpgradePlanner.Item meta=planner.item(c.id);int cap=identity!=null?identity.cap:meta==null?0:meta.max();card.addView(label(cap>0?Math.max(0,cap-c.level)+" levels to catalog max":"Maximum level not verified",12,MUTED,false));
             for(Village.Upgrade u:village.upgrades)if(u.dataId==c.id){TextView timer=label("",14,TEXT,true);CountdownText.bind(timer,u.finishAt,"Timer ended · sync to confirm");card.addView(timer);}
-            card.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Crafting Module").setMessage("Defense: "+itemName(c.type,"Defense")+"\nModule ID: "+c.id+"\nExported level: "+c.level+"\n\nOnly modules present in the export are shown. A verified module name or cap will appear when catalog data is available. Phase resets and future prices are not guessed.").setPositiveButton("Close",null).show());cards.add(card);
+            card.setOnClickListener(v->new AlertDialog.Builder(this).setTitle(itemName(c.id,"Crafting Module")).setMessage("Defense: "+itemName(c.type,"Defense")+"\nModule ID: "+c.id+"\nExported level: "+c.level+(cap>0?"\nCatalog max: "+cap:"")+"\n\nOnly modules present in the export are shown. Portraits identify the defense, with a symbol for the module’s stat. Phase resets and future prices are not guessed.").setPositiveButton("Close",null).show());cards.add(card);
         }
     }
     private void renderHelpers(){
@@ -72,7 +74,7 @@ public final class OverviewActivity extends Activity {
             if(!Reminders.canNotify(this)||!Store.prefs(this).getBoolean("notify",true))header.addView(label("Notifications are off · enable in Settings",12,GOLD,false));}
         List<Availability.Entry> entries;try{entries=Availability.parse(overview.root.toString(),village.exportedAt);}catch(Exception invalid){entries=Collections.emptyList();}
         for(Availability.Entry e:entries){if(builder&&!e.key.equals("clock-tower")||!builder&&e.key.equals("clock-tower"))continue;
-            LinearLayout card=card();card.addView(label(e.name,20,TEXT,true));if(e.level>=0)card.addView(label("Level "+e.level,13,MUTED,false));TextView status=label(e.status(System.currentTimeMillis()),17,GOLD,true);
+            LinearLayout card=card();portraitTitle(card,e.id,e.name);if(e.level>=0)card.addView(label("Level "+e.level,13,MUTED,false));TextView status=label(e.status(System.currentTimeMillis()),17,GOLD,true);
             if(e.readyAt>System.currentTimeMillis())CountdownText.bind(status,e.readyAt,"Ready · sync to confirm",System::currentTimeMillis,e::status);card.addView(status);
             if(e.readyAt>0)card.addView(label(java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,java.text.DateFormat.SHORT).format(new Date(e.readyAt)),12,MUTED,false));cards.add(card);
         }
@@ -82,17 +84,19 @@ public final class OverviewActivity extends Activity {
     private void renderCollection(){
         final String[] keys=builder?new String[]{"skins2","sceneries2","decos2","obstacles2"}:new String[]{"equipment","skins","sceneries","decos","obstacles","house_parts"};
         String[] labels=builder?new String[]{"Hero Skins","Sceneries","Decorations","Obstacles"}:new String[]{"Hero Equipment","Hero Skins","Sceneries","Decorations","Obstacles","House Parts"};
-        int selected=Arrays.asList(keys).indexOf(collection);if(selected<0){selected=0;collection=keys[0];}Spinner select=new Spinner(this);select.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,labels));select.setSelection(selected);header.addView(select);
+        int selected=Arrays.asList(keys).indexOf(collection);if(selected<0){selected=0;collection=keys[0];}Spinner select=new Spinner(this);select.setId(R.id.collection_selector);select.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,labels));select.setSelection(selected);header.addView(select);
         select.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){public void onNothingSelected(android.widget.AdapterView<?> p){}public void onItemSelected(android.widget.AdapterView<?> p,View v,int n,long id){if(!collection.equals(keys[n])){collection=keys[n];render();list.setSelection(0);}}});
         List<VillageOverview.CollectionItem> items=overview.collection(collection);long count=0;for(VillageOverview.CollectionItem i:items)count+=i.count;header.addView(label(count+" owned · "+items.size()+" distinct entries",13,MUTED,false));
-        for(VillageOverview.CollectionItem i:items){LinearLayout card=card();card.addView(label(itemName(i.id,collection.equals("equipment")?"Equipment":"Collectible"),18,TEXT,true));
+        for(VillageOverview.CollectionItem i:items){LinearLayout card=card();portraitTitle(card,i.id,itemName(i.id,collection.equals("equipment")?"Equipment":"Collectible"));
             if(i.level>=0){UpgradePlanner.Item meta=planner.item(i.id);int cap=meta==null?0:meta.max();card.addView(label("Level "+i.level+(cap>0?" / "+cap:""),16,GOLD,true));
                 if(meta!=null&&!meta.hero.isEmpty())card.addView(label(meta.hero+" · "+UpgradePlanner.title(meta.data.optString("rarity")),12,MUTED,false));
                 card.setOnClickListener(v->new AlertDialog.Builder(this).setTitle(itemName(i.id,"Equipment")).setMessage("Exported level: "+i.level+"\n"+(cap>0?"Catalog max: "+cap:"Maximum level unavailable")+"\n\nEquipment costs and requirements are available in Build Menu → Hero Equipment. Ore balances are not included in the export.").setPositiveButton("Close",null).show());
-            }else card.addView(label("Owned"+(i.count>1?" × "+i.count:""),15,GOLD,true));cards.add(card);
+            }else{card.addView(label("Owned"+(i.count>1?" × "+i.count:""),15,GOLD,true));card.setOnClickListener(v->{ItemIdentities.Entry identity=ItemIdentities.load(this).item(i.id);new AlertDialog.Builder(this).setTitle(itemName(i.id,"Collectible")).setMessage("Data ID: "+i.id+"\nOwned quantity: "+i.count+"\n\n"+(identity==null?"A verified name and artwork are not yet included for this ID.":identity.sharedArtwork?"The source uses a shared name or artwork for these variants. The data ID identifies this exported record.":"Name and artwork are included with the app for offline use.")).setPositiveButton("Close",null).show();});}cards.add(card);
         }if(items.isEmpty())empty("No entries in this collection were included in the export.");
     }
     private String itemName(int id,String fallback){String name=Store.catalog(this).name(id);return name==null||name.isEmpty()?fallback+" #"+id:name;}
+    private void portraitTitle(LinearLayout card,int id,String name){LinearLayout line=row();int icon=ItemArt.icon(this,id);if(icon!=R.drawable.ic_village){ImageView image=new ImageView(this);image.setImageResource(icon);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setContentDescription(name);line.addView(image,new LinearLayout.LayoutParams(dp(52),dp(52)));}
+        TextView title=label(name,18,TEXT,true);title.setPadding(dp(8),0,0,0);line.addView(title,new LinearLayout.LayoutParams(0,-2,1));card.addView(line);}
     private void showCards(){list.setAdapter(new BaseAdapter(){public int getCount(){return cards.size();}public Object getItem(int n){return cards.get(n);}public long getItemId(int n){return n;}public View getView(int n,View old,ViewGroup p){return cards.get(n);}});}
     private void empty(String text){cards.add(label(text,16,MUTED,false));}
     private LinearLayout card(){LinearLayout c=column();c.setPadding(dp(14),dp(13),dp(14),dp(13));c.setBackgroundResource(R.drawable.card_bg);return c;}
@@ -104,7 +108,7 @@ public final class OverviewActivity extends Activity {
     private int dp(float n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
     public static String sampleExport(){try{
         JSONObject root=new JSONObject(PlannerActivity.sampleExport());JSONArray types=new JSONArray();for(int type=0;type<3;type++){JSONArray modules=new JSONArray();for(int m=0;m<3;m++)modules.put(new JSONObject().put("data",102000033+type*3+m).put("lvl",m+1));types.put(new JSONObject().put("data",103000011+type).put("modules",modules));}
-        root.getJSONArray("buildings").put(new JSONObject().put("data",1000097).put("types",types));root.put("helpers",new JSONArray().put(new JSONObject().put("data",93000001).put("lvl",3).put("helper_cooldown",7200)));
+        root.getJSONArray("buildings").put(new JSONObject().put("data",1000097).put("types",types));JSONArray helpers=new JSONArray().put(new JSONObject().put("data",93000001).put("lvl",3).put("helper_cooldown",7200));helpers.put(new JSONObject().put("data",93000002).put("lvl",1).put("helper_cooldown",7200));helpers.put(new JSONObject().put("data",93000003).put("lvl",1).put("helper_cooldown",7200));root.put("helpers",helpers);
         root.put("boosts",new JSONObject().put("clocktower_cooldown",3600));root.put("skins",new JSONArray().put(52000136).put(52000226));
         JSONArray equipment=new JSONArray();int[] ids={90000000,90000001,90000002,90000003,90000008,90000016};for(int i=0;i<ids.length;i++)equipment.put(new JSONObject().put("data",ids[i]).put("lvl",9+i));root.put("equipment",equipment);return root.toString();
     }catch(JSONException impossible){throw new IllegalStateException(impossible);}}

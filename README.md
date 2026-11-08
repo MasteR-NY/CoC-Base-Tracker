@@ -23,9 +23,9 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 | --- | --- |
 | <img src="docs/images/overview-design.png" width="270" alt="Base progress with hall targets and grouped level counts"> | <img src="docs/images/crafting-design.png" width="270" alt="Crafting modules grouped by defense with exported levels"> |
 
-| Helper Availability | Equipment Collection |
-| --- | --- |
-| <img src="docs/images/helpers-design.png" width="270" alt="Exported helper cooldown and estimated availability"> | <img src="docs/images/collection-design.png" width="270" alt="Equipment collection with levels and catalog maximums"> |
+| Helper Availability | Equipment Collection | Cosmetics |
+| --- | --- | --- |
+| <img src="docs/images/helpers-design.png" width="240" alt="Named helpers with portraits and cooldown estimates"> | <img src="docs/images/collection-design.png" width="240" alt="Equipment portraits with levels and catalog maximums"> | <img src="docs/images/cosmetics-design.png" width="240" alt="Named cosmetic collection with offline skin icons"> |
 
 </details>
 
@@ -40,6 +40,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 - An offline What’s New guide with release highlights and usage instructions.
 - Base progress, crafting modules, equipment and cosmetic collection views.
 - Helper and Clock Tower availability alerts with account-specific deadlines.
+- Bundled names and artwork for crafting modules, helpers and cosmetic collections.
 
 ## Getting Started
 
@@ -53,7 +54,7 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.13**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.14**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. When a newer release is available, it notifies you and opens the GitHub release page, where you can download the APK under **Assets**. If the API check fails, the app tries GitHub’s public latest-release redirect. If both checks fail, the dialog explains the connection, DNS, TLS or server error and offers **Retry** or **Open Releases**. Update checks run only when requested; installing an update remains your choice.
 
@@ -135,6 +136,7 @@ There is no advertising or analytics. Clipboard text is read when you tap Sync o
 - [Village Export Data and Feature Possibilities](docs/EXPORT-DATA.md)
 - [Village Overview](docs/OVERVIEW.md)
 - [Official Game Data References](docs/GAME-DATA.md)
+- [Item Names and Artwork](docs/ITEM-IDENTITIES.md)
 - [Timer Rules](docs/TIMING.md)
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)

@@ -489,7 +489,7 @@ public final class MainActivity extends Activity {
             +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
             +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
             +"Overview\nProgress compares exported levels and counts with Current Hall or Catalog Max targets. Crafting shows all exported modules. Helpers shows cooldown estimates and availability alerts; sync after use. Collection contains equipment and cosmetic records, using stable IDs when names are unavailable.\n\n"
-            +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL.")
+            +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell, with additional offline artwork and identity data via ClashKing. Lilita One font: SIL OFL.")
             .setPositiveButton("Close",null).show();
     }
     private void equalButtons(Button left,Button right){

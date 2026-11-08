@@ -31,3 +31,5 @@ The app’s Official Channels button opens that directory. It does not collect p
 6. Update `app/src/main/assets/official-updates.json`, references and release notes, then rebuild previews and distribute a signed app update.
 
 Bundled News notes are reviewed snapshots. Update checks fetch app-release metadata only. Timer rules are never silently replaced by a downloaded data file or social post. See [Upgrade Planner Reference](UPGRADE-PLANNER.md) and [Timer Rules](TIMING.md).
+
+Version 1.14 adds a separate pinned identity/artwork layer, documented in [Item Names and Artwork](ITEM-IDENTITIES.md). Official posts explain the module roles and helper behavior; community game-file metadata supplies exact numeric ID mappings and the corresponding art. Identity imports do not overwrite active work or apply new timer multipliers.

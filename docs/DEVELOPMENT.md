@@ -85,4 +85,6 @@ Village exports have an unofficial schema. Check imported timers against the gam
 
 ## Attribution
 
+The optional identity pipeline uses Python with Pillow: `python tools/build_identity_catalog.py --fetch-art`. It vendors pinned metadata, verifies manifest image hashes, and generates compact offline thumbnails plus `item-identities.json`. Normal Android builds use the committed output and do not fetch artwork. Review [Item Names and Artwork](ITEM-IDENTITIES.md) before changing the pinned source revisions, especially unresolved IDs and shared-image variants.
+
 Original application code is MIT-licensed. Third-party presentation resources, the Lilita One font, game artwork, and factual catalog have separate attribution and terms. See [Credits and Third-Party Resources](DESIGN-CREDITS.md).

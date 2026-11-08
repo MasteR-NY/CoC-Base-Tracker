@@ -13,3 +13,11 @@ The reference repository did not include a project-wide license at the reviewed 
 - Factual item names/durations dataset: Christopher Pezza, MIT; retained in `app/src/main/assets/data-license.txt`.
 
 Green bars represent countdown progress since the last export; they are not a guessed percentage of the entire upgrade's original duration. Completed countdowns use the reference's gold row treatment.
+
+## Identity Artwork Added in Version 1.14
+
+Additional helper portraits, skins, scenery thumbnails, decorations, obstacles and house-part images are vendored from [ClashKingAssets](https://github.com/ClashKingInc/ClashKingAssets) at revision `fdac291ae7fbc2901221ff945834be534d0344ae`. Credit to ClashKing for extracting, organizing and publishing these resources. Original game artwork remains © Supercell. Its upstream [GPL-3.0 notice](licenses/ClashKingAssets-GPL-3.0.txt) is retained; this project's MIT license does not relicense third-party artwork or upstream material.
+
+Identity metadata is derived from the pinned [Clashy game-data file](https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json). Its [MIT notice](licenses/Clashy-MIT.txt) is retained. Crafted defense portraits and cross-checked module metadata use the existing pinned chiefpansancolt source. Stat symbols are original Android vector resources; module cards combine these symbols with a defense portrait.
+
+Artwork is resized for offline app use; animated previews use a static frame. No source publisher's extraction code is executed or included as app code. Source IDs, name coverage and reproducible import steps are documented in [Item Names and Artwork](ITEM-IDENTITIES.md).

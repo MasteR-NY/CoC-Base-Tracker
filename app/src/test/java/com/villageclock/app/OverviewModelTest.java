@@ -28,7 +28,8 @@ public class OverviewModelTest {
     }
     @Test public void cooldownMissingAndZeroAreDistinctAndUnknownHelpersStayIdentifiable()throws Exception{
         List<Availability.Entry> entries=Availability.parse("{\"helpers\":[{\"data\":93000001,\"lvl\":1,\"helper_cooldown\":60},{\"data\":93000003,\"lvl\":1}],\"boosts\":{\"clocktower_cooldown\":0}}",100000);
-        assertEquals(3,entries.size());assertEquals(160000,entries.get(0).readyAt);assertEquals(-1,entries.get(1).readyAt);assertTrue(entries.get(1).name.contains("93000003"));assertEquals(100000,entries.get(2).readyAt);
+        assertEquals(3,entries.size());assertEquals(160000,entries.get(0).readyAt);assertEquals(-1,entries.get(1).readyAt);assertEquals("Prospector",entries.get(1).name);assertEquals(100000,entries.get(2).readyAt);
+        assertEquals("Alchemist",ItemIdentities.helperName(93000002));assertTrue(ItemIdentities.helperName(93000999).contains("93000999"));
         assertTrue(Availability.parse("{\"buildings2\":[{\"data\":1000039,\"lvl\":7}],\"boosts\":{\"clocktower_boost\":600}}",100000).get(0).status(100000).contains("not supplied"));
     }
     private VillageOverview.Progress find(List<VillageOverview.Progress> list,String name){return list.stream().filter(p->p.name.equals(name)).findFirst().orElseThrow();}

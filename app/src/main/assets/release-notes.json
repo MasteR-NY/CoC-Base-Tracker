@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "version": "1.14",
+      "versionCode": 15,
+      "title": "Names and Artwork",
+      "highlights": [
+        {"title": "Named Crafting Modules", "body": "Hot Candle, Hero Hunter and Cake-A-Pult modules now show their stat names, verified catalog caps and defense portraits with stat symbols."},
+        {"title": "Recognizable Helpers", "body": "Alchemist and Prospector are identified correctly in helper cards and availability reminders. Helper portraits make each one easier to recognize."},
+        {"title": "Cosmetic Names and Icons", "body": "The collection uses a bundled identity catalog and compact offline artwork for known skins, sceneries, decorations, obstacles and house parts. Entries missing from the source data keep their IDs."}
+      ],
+      "steps": ["Open Overview → Crafting to see named modules and their current levels.", "Open Helpers for corrected helper names and portraits, or Collection for cosmetic names and artwork.", "Tap a crafting module to inspect its identity and cap. Unresolved entries remain visible for later data updates."]
+    },
+    {
       "version": "1.13",
       "versionCode": 14,
       "title": "Your Village at a Glance",

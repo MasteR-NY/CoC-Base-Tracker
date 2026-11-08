@@ -19,7 +19,7 @@ APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
 assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
-for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design'):
+for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design'):
     assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -30,7 +30,7 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json')]
+files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'build_identity_catalog.py')]
 source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
@@ -43,7 +43,7 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.12; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.13; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
 4. Return to CoC Base Tracker. Auto-sync on return imports a fresh export automatically; Sync / Add Account remains available for manual import.
@@ -68,6 +68,8 @@ AUTO-SYNC: Enabled by default in Settings and available before your first accoun
 EXPORT FIELD REFERENCE: docs/EXPORT-DATA.md contains a non-identifying review of the supplied snapshot, supported fields, missing information, the potion calculation example and potential features. The original personal export is excluded from this source ZIP. Helper repeat flags support helper_recurrent and recurrent_helper; idle preferences do not fabricate active jobs, and helper cooldowns are kept separate.
 
 VILLAGE OVERVIEW: Tap Overview beside Build Menu. Progress compares building, wall, trap, army and hero level/count data for each base with Current Hall or Catalog Max targets. Percentages are level steps, not costs or time. Crafting includes every exported module, with unknown caps/names clearly marked. Collection includes equipment levels and cosmetic quantities; it does not invent unowned collectibles or ore balances. Helpers shows exported availability estimates, with Clock Tower under Builder Base. Enable Helper & Clock Tower alerts and Android notifications for a one-time reminder per exported deadline. Fresh sync replaces deadlines; no recurring uses are invented. News opens bundled official references and optional browser links. See docs/OVERVIEW.md and docs/GAME-DATA.md.
+
+NAMES AND ARTWORK: The offline overlay has 878 identities and 869 artwork thumbnails. The nine current crafting modules have names, caps, defense portraits and stat symbols. Alchemist is helper 93000002 and Prospector is 93000003. The sample's helpers, nine modules and 91 of 95 cosmetic IDs are resolved. Skins 52000268/52000337 and decorations 18000244/18000248 remain unverified. Shared-art variants retain their data ID in the cosmetic details dialog. No artwork or identity requests run in the installed app. See docs/ITEM-IDENTITIES.md for pinned sources, credits, reproduction and limits.
 
 SMOOTHER TIMERS AND HOME: Boosted Work left updates through intermediate work seconds in the app and Build Menu, recalculated from fractional real seconds with a 16 ms minimum display interval. Widgets show steady real time remaining and a boost badge with the existing one-second service refresh. Settings starts collapsed; expand it for account and notification controls. Help & About contains the longer sync, timer, widget, privacy and credit information.
 
@@ -128,6 +130,8 @@ report['clipboard'] = 'User-selected foreground auto-sync (default enabled), or 
 report['features'][:0] = ['per-base Current Hall and Catalog Max level progress', 'nested crafting module inventory', 'per-account helper and Clock Tower availability alerts', 'equipment and cosmetic collection views', 'bundled dated official game references with browser links']
 report['availability_alerts'] = 'Exported deadlines only; one-time per account cursor; shared alarm receiver, separate notification ID 8; missing cooldowns unknown; fresh import resets cursor; settings and notification permissions respected'
 report['official_references'] = 'Reviewed 2026-11-08; Supercell blog, crafted defense and helper support, official channel directory; bundled notes, no background feed or automatic rule downloads'
+report['identity_catalog'] = {'identities': 878, 'artwork_files': 869, 'sample_cosmetic_names_and_art': '91 of 95 distinct IDs', 'unresolved_sample_ids': [52000268, 52000337, 18000244, 18000248], 'runtime_downloads': False, 'provenance': 'docs/ITEM-IDENTITIES.md'}
+report['features'][:0] = ['offline crafting, helper and cosmetic identity catalog', 'verified module caps and semantic stat symbols', 'corrected Alchemist/Prospector IDs', 'bundled cosmetic portraits and thumbnails with shared-variant details']
 report['android_framework_tests'] += '; Overview tab/base navigation, sample safety, availability one-shot delivery, replacement deadlines, Clock Tower alarm scheduling and account removal on API 26/29/35'
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')

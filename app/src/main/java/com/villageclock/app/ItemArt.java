@@ -11,6 +11,8 @@ public final class ItemArt {
         Integer known = icons.get(dataId);
         if (known != null) return known;
         int id = c.getResources().getIdentifier("item_" + dataId, "drawable", c.getPackageName());
+        ItemIdentities.Entry identity=ItemIdentities.load(c).item(dataId);
+        if(identity!=null&&!identity.icon.isEmpty()){int resolved=c.getResources().getIdentifier(identity.icon,"drawable",c.getPackageName());if(resolved!=0)id=resolved;}
         if (id == 0) id = R.drawable.ic_village;
         icons.put(dataId, id); return id;
     }

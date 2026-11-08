@@ -51,6 +51,9 @@ public class DesignPreviewTest {
         OverviewUiTest.find(overview.getWindow().getDecorView(),"Crafting").performClick();render(overview.getWindow().getDecorView(),411,1000,"crafting-design.png");
         OverviewUiTest.find(overview.getWindow().getDecorView(),"Helpers").performClick();render(overview.getWindow().getDecorView(),411,1000,"helpers-design.png");
         OverviewUiTest.find(overview.getWindow().getDecorView(),"Collection").performClick();render(overview.getWindow().getDecorView(),411,1000,"collection-design.png");
+        ((android.widget.Spinner)overview.findViewById(R.id.collection_selector)).setSelection(1);
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
+        render(overview.getWindow().getDecorView(),411,1000,"cosmetics-design.png");
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));
     }

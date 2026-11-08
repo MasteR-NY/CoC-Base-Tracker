@@ -17,7 +17,9 @@ public final class Store {
             if (planner == null) try (java.io.InputStream in = c.getAssets().open("planner-catalog.json")) {
                 java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(); byte[] buffer = new byte[8192]; int n;
                 while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n);
-                planner = new UpgradePlanner(out.toString(StandardCharsets.UTF_8.name()));
+                UpgradePlanner loaded = new UpgradePlanner(out.toString(StandardCharsets.UTF_8.name()));
+                for(ItemIdentities.Entry entry:ItemIdentities.load(c).items())loaded.setDisplayName(entry.id,entry.name);
+                planner = loaded;
             }
         }
         return planner;
