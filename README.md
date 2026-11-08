@@ -6,6 +6,8 @@ Upgrade timers, village planning, and account-specific home screen widgets for C
 
 **Android 8.0+ · Kotlin App · Offline Tracking · Multiple Accounts**
 
+An **iPhone and iPad source preview** is available in [`apple/CoCBaseTracker.xcodeproj`](apple/CoCBaseTracker.xcodeproj) for iOS/iPadOS 17+. It includes village import, multiple accounts, upgrade timers, optional finish reminders, and account-specific Home Screen widgets. It requires a Mac/Xcode build and App Group signing setup; no signed Apple download is available yet. See the [Apple setup and verification guide](docs/APPLE.md). The features and APK instructions below describe the Android app.
+
 Download the `.apk` file under **Assets** on the latest release page. When updating, install over your existing version to keep your saved accounts and widgets.
 
 ## Design Previews

@@ -1,0 +1,172 @@
+[
+  {
+    "expectedFinishSeconds": [],
+    "label": "No timers",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted buildings",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted traps",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"traps\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted heroes",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"heroes\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted guardians",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"guardians\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted units",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted spells",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"spells\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted siege_machines",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"siege_machines\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted pets",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"pets\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted buildings2",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"buildings2\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted traps2",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"traps2\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted heroes2",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"heroes2\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Unboosted units2",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units2\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [2700],
+    "label": "Partial builder potion",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":3600}],\"boosts\":{\"builder_boost\":100}}"
+  },
+  {
+    "expectedFinishSeconds": [7200],
+    "label": "Stacked builder doses",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":72000}],\"boosts\":{\"builder_boost\":7200}}"
+  },
+  {
+    "expectedFinishSeconds": [1400],
+    "label": "Potion overrides bite then bite continues",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":3300}],\"boosts\":{\"builder_boost\":200,\"builder_consumable\":300}}"
+  },
+  {
+    "expectedFinishSeconds": [3600],
+    "label": "Research potion and soup additive",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"spells\":[{\"data\":1000008,\"lvl\":5,\"timer\":97200}],\"boosts\":{\"lab_boost\":3600,\"lab_consumable\":3600}}"
+  },
+  {
+    "expectedFinishSeconds": [3600],
+    "label": "Pet potion and soup additive",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"pets\":[{\"data\":1000008,\"lvl\":5,\"timer\":97200}],\"boosts\":{\"pet_boost\":3600,\"lab_consumable\":3600}}"
+  },
+  {
+    "expectedFinishSeconds": [
+      2400,
+      2400,
+      18600
+    ],
+    "label": "Clock tower expiry independent of laboratory",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"buildings2\":[{\"data\":1000008,\"lvl\":5,\"timer\":18600}],\"units2\":[{\"data\":1000008,\"lvl\":5,\"timer\":18600}],\"units\":[{\"data\":1000008,\"lvl\":5,\"timer\":18600}],\"boosts\":{\"clocktower_boost\":1800}}"
+  },
+  {
+    "expectedFinishSeconds": [1000],
+    "label": "Clock tower cooldown is not active boost",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units2\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000}],\"boosts\":{\"clocktower_cooldown\":5000}}"
+  },
+  {
+    "expectedFinishSeconds": [361],
+    "label": "Round fractional finish up",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":3601}],\"boosts\":{\"builder_boost\":7200}}"
+  },
+  {
+    "expectedFinishSeconds": [3600],
+    "label": "Apprentice is additive with potion",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":64800,\"helper_timer\":3600}],\"boosts\":{\"builder_boost\":3600},\"helpers\":[{\"data\":93000000,\"lvl\":8}]}"
+  },
+  {
+    "expectedFinishSeconds": [3600],
+    "label": "Soup potion assistant combined",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units\":[{\"data\":1000008,\"lvl\":5,\"timer\":140400,\"helper_timer\":3600}],\"boosts\":{\"lab_boost\":3600,\"lab_consumable\":3600},\"helpers\":[{\"data\":93000001,\"lvl\":12}]}"
+  },
+  {
+    "expectedFinishSeconds": [212000],
+    "label": "Current and recurring apprentice",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":300000,\"helper_timer\":200,\"helper_recurrent\":true}],\"helpers\":[{\"data\":93000000,\"lvl\":8,\"helper_cooldown\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [170400],
+    "label": "Legacy repeat spelling and cooldown",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"spells\":[{\"data\":1000008,\"lvl\":5,\"timer\":300000,\"recurrent_helper\":true}],\"boosts\":{\"helper_cooldown\":1000},\"helpers\":[{\"data\":93000001,\"lvl\":12}]}"
+  },
+  {
+    "expectedFinishSeconds": [300000],
+    "label": "Another helper cooldown is not borrowed",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units\":[{\"data\":1000008,\"lvl\":5,\"timer\":300000,\"helper_recurrent\":true}],\"helpers\":[{\"data\":93000000,\"lvl\":8,\"helper_cooldown\":1000},{\"data\":93000001,\"lvl\":12}]}"
+  },
+  {
+    "expectedFinishSeconds": [10000],
+    "label": "Idle helper preference does not transfer",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[],\"units\":[{\"data\":4000000,\"lvl\":1,\"helper_recurrent\":true}],\"spells\":[{\"data\":1000008,\"lvl\":5,\"timer\":10000}],\"helpers\":[{\"data\":93000001,\"lvl\":12,\"helper_cooldown\":1000}]}"
+  },
+  {
+    "expectedFinishSeconds": [
+      1000,
+      1000,
+      1000,
+      2000
+    ],
+    "label": "Hired worker counted separately and grouped timers expanded",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":1000,\"cnt\":3},{\"data\":1000008,\"lvl\":5,\"timer\":2000,\"extra\":true}]}"
+  },
+  {
+    "expectedFinishSeconds": [2700],
+    "label": "Nested crafted module follows builder boost",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000000,\"types\":[{\"modules\":[{\"data\":1000008,\"lvl\":5,\"timer\":3600}]}]}],\"boosts\":{\"builder_boost\":100}}"
+  },
+  {
+    "expectedFinishSeconds": [
+      31000,
+      54000,
+      64000,
+      64000,
+      91000
+    ],
+    "label": "All queue boost eligibility",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":100000}],\"units\":[{\"data\":1000008,\"lvl\":5,\"timer\":100000}],\"pets\":[{\"data\":1000008,\"lvl\":5,\"timer\":100000}],\"buildings2\":[{\"data\":1000008,\"lvl\":5,\"timer\":100000}],\"units2\":[{\"data\":1000008,\"lvl\":5,\"timer\":100000}],\"boosts\":{\"builder_boost\":1000,\"lab_boost\":2000,\"pet_boost\":3000,\"clocktower_boost\":4000}}"
+  },
+  {
+    "expectedFinishSeconds": [172800],
+    "label": "No second event discount",
+    "exportJSON": "{\"tag\":\"#SYNTH01\",\"timestamp\":1793491200,\"buildings\":[{\"data\":1000008,\"lvl\":5,\"timer\":172800}]}"
+  }
+]

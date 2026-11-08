@@ -10,6 +10,19 @@ apk-review/
 **/build/
 local.properties
 
+# Apple / Xcode / SwiftPM build state and signing material
+.build/
+.swiftpm/
+.derivedData/
+DerivedData/
+xcuserdata/
+/apple/CoCBaseTracker.xcodeproj/project.xcworkspace/
+*.xcuserstate
+*.ipa
+*.xcarchive/
+*.dSYM/
+*.mobileprovision
+
 # Release artifacts belong in GitHub Releases, not the source tree
 outputs/
 *.apk

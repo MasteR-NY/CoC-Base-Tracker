@@ -1,0 +1,5 @@
+// Change these once for your Apple development team. Both targets inherit them.
+// The App Group must be registered for both bundle IDs in that team.
+TRACKER_BUNDLE_ID = com.villageclock.tracker
+TRACKER_APP_GROUP = group.com.villageclock.tracker
+// DEVELOPMENT_TEAM = YOUR_TEAM_ID

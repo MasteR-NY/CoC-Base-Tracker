@@ -7,6 +7,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import zipfile
 from update_release_notes import update_changelog
+from prepare_apple import public_source_files
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'outputs'
@@ -30,6 +31,9 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
+files += list(public_source_files())
+files += [ROOT / 'tools' / name for name in ('prepare_apple.py', 'verify_apple.py', 'build_apple_icon.py', 'AppleTimingParity.java')]
+files += [ROOT / '.github/workflows/apple.yml']
 files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'compile_crafting_catalog.py', 'planner-sources.json', 'planner-corrections.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py', 'build_effect_icons.py', 'build_hired_icon.py')]
 source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -42,6 +46,8 @@ with zipfile.ZipFile(source) as z:
     assert z.testzip() is None
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
+
+APPLE SOURCE PREVIEW: The source package also contains apple/CoCBaseTracker.xcodeproj for iPhone and iPad (iOS/iPadOS 17+). See docs/APPLE.md for Mac/Xcode builds, App Group signing setup and verification limits. The Android APK cannot be installed on Apple devices; this package does not contain a signed Apple app.
 
 1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over earlier versions; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
@@ -109,6 +115,11 @@ Keep the local .private folder secret and backed up for future updates. It is no
 '''
 (OUT / 'Setup.txt').write_text(guide, encoding='utf-8')
 report = {
+    'apple_source_preview': {'version': '0.1.0', 'minimum_os': 'iOS/iPadOS 17',
+                             'project': 'apple/CoCBaseTracker.xcodeproj',
+                             'guide': 'docs/APPLE.md',
+                             'validation': 'Project/catalog preflight and Android golden fixture replay only; Swift tests, Xcode build and Apple device checks must be run on a Mac',
+                             'signed_apple_app_included': False},
     'app': 'CoC Base Tracker', 'version': VERSION, 'version_code': VERSION_CODE, 'package': 'com.villageclock.app',
     'review_date': '2026-11-09', 'timezone': 'Asia/Manila',
     'apk_file': APK.name, 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,

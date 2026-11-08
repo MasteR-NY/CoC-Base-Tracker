@@ -1,0 +1,28 @@
+name: Apple app
+
+on:
+  push:
+    paths: ['apple/**', 'tools/prepare_apple.py', 'tools/verify_apple.py', 'app/src/main/assets/**', '.github/workflows/apple.yml']
+  pull_request:
+    paths: ['apple/**', 'tools/prepare_apple.py', 'tools/verify_apple.py', 'app/src/main/assets/**', '.github/workflows/apple.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apple:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check generated project and catalog
+        run: python3 tools/verify_apple.py
+      - name: Test parser, timings and account archive
+        working-directory: apple
+        run: swift test
+      - name: Build universal app and embedded widget for Simulator
+        run: >-
+          xcodebuild -project apple/CoCBaseTracker.xcodeproj
+          -scheme CoCBaseTracker -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath apple/.derivedData CODE_SIGNING_ALLOWED=NO build

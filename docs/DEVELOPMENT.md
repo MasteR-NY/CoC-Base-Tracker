@@ -1,5 +1,7 @@
 # Build and Release Guide
 
+The Android build remains below. The new iPhone/iPad source preview has its own checked-in Xcode project, shared Swift core and WidgetKit extension under `apple/`; see [Apple setup and verification](APPLE.md). Run `python tools/verify_apple.py` on any platform, then use the documented Mac commands for Swift tests and simulator builds. Android builds do not compile Apple code.
+
 ## Requirements
 
 - JDK 21 or later
