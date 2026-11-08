@@ -148,8 +148,8 @@ public final class MainActivity extends Activity {
         TextView updateNote = text(updateStatus, 12, MUTED, false);
         updateNote.setId(R.id.update_status);updateNote.setVisibility(updateStatus.isEmpty()?View.GONE:View.VISIBLE);gap(content, 6);content.addView(updateNote);
         if (village != null && resumed) {
-            long next = village.nextFinish(now);
-            if (next > now) handler.postDelayed(refresh, Math.min(60000, Math.max(1000, next - now + 100)));
+            long next = Math.min(village.nextFinish(now)==0?Long.MAX_VALUE:village.nextFinish(now),ActiveEffects.nextChange(village,now));
+            if (next != Long.MAX_VALUE && next > now) handler.postDelayed(refresh, Math.min(60000, Math.max(1000, next - now + 100)));
         }
         if (scrollY > 0) content.post(() -> ((ScrollView)content.getParent()).scrollTo(0, scrollY));
     }
@@ -263,6 +263,8 @@ public final class MainActivity extends Activity {
         if (village.upgrades.isEmpty()) {
             panel.addView(text("No upgrades in this export. Start an upgrade in Clash, then sync again.", 14, TEXT, false));
         }
+        java.util.List<ActiveEffects.Effect> effects=ActiveEffects.active(village,now);
+        if(!effects.isEmpty()){panel.addView(text("ACTIVE BOOSTS",16,GOLD,true));gap(panel,4);for(ActiveEffects.Effect effect:effects){panel.addView(TimerPanels.effect(this,effect));gap(panel,3);}gap(panel,7);}
         for (Village.Queue queue : Village.Queue.values()) {
             ArrayList<Village.Upgrade> jobs = new ArrayList<>();
             for (Village.Upgrade u : village.upgrades) if (u.queue == queue) jobs.add(u);
@@ -272,6 +274,7 @@ public final class MainActivity extends Activity {
                 TextView idle = text(village.freeBuilders(now) + " builders idle", 14, GREEN, true);
                 idle.setBackgroundResource(R.drawable.row_idle); idle.setPadding(dp(9), dp(5), dp(9), dp(5)); panel.addView(idle); gap(panel, 3);
             }
+            View nextFree=TimerPanels.nextFree(this,village,queue,now);if(nextFree!=null){panel.addView(nextFree);gap(panel,3);}
             for (Village.Upgrade u : jobs) { panel.addView(upgradeCard(u, now, village.exportedAt)); gap(panel, 3); }
             gap(panel, 8);
         }
@@ -283,10 +286,11 @@ public final class MainActivity extends Activity {
         if (!u.done(now)) {
             if (u.hasBoosts()) {
                 CountdownText.bindWork(card.findViewById(R.id.readable_timer), u, "Done ✓");
-                CountdownText.bind(card.findViewById(R.id.row_boost), u.finishAt, "", System::currentTimeMillis, u::boostText);
+
                 CountdownText.bind(card.findViewById(R.id.row_eta), u.finishAt, "Sync to confirm completion", System::currentTimeMillis, u::etaText);
             } else CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓");
         }
+        TextView clock=card.findViewById(R.id.row_finish_at);if(!u.done(now))CountdownText.bind(clock,u.finishAt,"Ended at\n"+ClockText.at(this,u.finishAt,now),System::currentTimeMillis,time->"Finishes at\n"+ClockText.at(this,u.finishAt,time));
         card.setOnClickListener(v -> openGame());
         return card;
     }
@@ -308,6 +312,7 @@ public final class MainActivity extends Activity {
             if (checked && !Reminders.canNotify(this)) requestNotifications();
         }); panel.addView(live);
         panel.addView(text("Ongoing notification · pauses while locked or screen off", 11, MUTED, false)); gap(panel, 12);
+        Button format=button(panel,"Time Format: "+ClockText.settingLabel(this),false,v->{String[] labels={"Device Default","12-Hour (1:15 PM)","24-Hour (13:15)"};String[] modes={"device","12","24"};new AlertDialog.Builder(this).setTitle("Finish Time Format").setSingleChoiceItems(labels,java.util.Arrays.asList(modes).indexOf(ClockText.mode(this)),(dialog,index)->{Store.prefs(this).edit().putString(ClockText.PREF,modes[index]).apply();VillageWidget.refresh(this);dialog.dismiss();render();}).setNegativeButton("Cancel",null).show();});format.setId(R.id.time_format_setting);gap(panel,10);
         if(village!=null){
             button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
             button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
@@ -494,7 +499,7 @@ public final class MainActivity extends Activity {
     private void showHelp(){
         new AlertDialog.Builder(this).setTitle("Help & About").setMessage(
             "Sync Your Village\nIn Clash: Settings → More Settings → Export village data → Copy. Return here; Auto-sync on return imports fresh exports automatically while this app has focus. Turn it off in Settings for manual Sync / Add Account. Android does not let the tracker watch Clash’s Copy button in the background or redirect from it. Sync after upgrades, items or helper changes.\n\n"
-            +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Review imported effects in Boosts & Helpers. Green bars show progress since export.\n\n"
+            +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Active Boosts groups their names, rates, time left and local end times above the upgrades. Finish clocks appear beside each upgrade. Settings → Time Format selects device default, 12-hour or 24-hour time. Next free estimates regular slots and excludes Goblin jobs. Boosts & Helpers keeps the per-job calculation details. Green bars show progress since export.\n\n"
             +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
             +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub only when tapped, with Android Downloads as another network path if app connections fail. APK downloads start after you choose Download Update. Install Update opens Android’s installer after package, version and signing-key checks. No village or account data is sent.\n\n"
             +"Overview\nProgress compares exported levels and counts with Current Hall or Catalog Max targets. Crafting shows all exported modules. Helpers shows cooldown estimates and availability alerts; sync after use. Collection contains equipment and cosmetic records, using stable IDs when names are unavailable.\n\n"

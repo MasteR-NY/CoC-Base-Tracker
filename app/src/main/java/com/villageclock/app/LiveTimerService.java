@@ -55,7 +55,7 @@ public final class LiveTimerService extends Service {
         long now = System.currentTimeMillis();
         for (int id : widgetIds(c)) {
             Village village = snapshot(c, id);
-            if (village != null && village.running(now) > 0) return true;
+            if (village != null && (village.running(now) > 0 || !ActiveEffects.active(village,now).isEmpty())) return true;
         }
         return false;
     }

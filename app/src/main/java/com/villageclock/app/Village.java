@@ -51,15 +51,20 @@ public final class Village {
     public final long exportedAt;
     public final int townHall, builders, baseBuilders;
     public final List<Upgrade> upgrades;
+    final List<ActiveEffects.Effect> effects;
     Village(String tag, long exportedAt, int townHall, int builders, int baseBuilders, List<Upgrade> upgrades) {
         this(tag, "", exportedAt, townHall, builders, baseBuilders, upgrades);
     }
     Village(String tag, String playerName, long exportedAt, int townHall, int builders, int baseBuilders, List<Upgrade> upgrades) {
+        this(tag,playerName,exportedAt,townHall,builders,baseBuilders,upgrades,ActiveEffects.fromJobs(upgrades));
+    }
+    Village(String tag,String playerName,long exportedAt,int townHall,int builders,int baseBuilders,List<Upgrade> upgrades,List<ActiveEffects.Effect> effects){
         this.tag = tag; this.playerName = AccountNames.clean(playerName); this.exportedAt = exportedAt; this.townHall = townHall;
         this.builders = builders; this.baseBuilders = baseBuilders;
         ArrayList<Upgrade> ordered = new ArrayList<>(upgrades);
         ordered.sort(java.util.Comparator.comparingLong(u -> u.finishAt));
         this.upgrades = Collections.unmodifiableList(ordered);
+        this.effects=Collections.unmodifiableList(new ArrayList<>(effects));
     }
     public int running(Queue queue, long now) {
         int count = 0;
@@ -79,6 +84,13 @@ public final class Village {
     public long nextFinish(long now) {
         for (Upgrade u : upgrades) if (u.finishAt > now) return u.finishAt;
         return 0;
+    }
+    /** A Goblin finish does not release a regular slot; Star Laboratory is separate from builders. */
+    public long nextFree(Queue queue,long now){
+        int capacity=queue==Queue.BUILDERS?builders:queue==Queue.BASE?baseBuilders:1;
+        if(capacity<=0)return 0;int busy=0;long first=Long.MAX_VALUE;
+        for(Upgrade upgrade:upgrades)if(upgrade.queue==queue&&!upgrade.extraBuilder&&!upgrade.done(now)){busy++;first=Math.min(first,upgrade.finishAt);}
+        return busy>=capacity?first:0;
     }
     public List<Upgrade> forWidget(long now) {
         ArrayList<Upgrade> result = new ArrayList<>();

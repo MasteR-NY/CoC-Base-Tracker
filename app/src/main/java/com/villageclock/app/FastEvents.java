@@ -5,7 +5,8 @@ import java.time.Instant;
 /** Event discounts are already in the remaining work exported by the game. Never discount twice. */
 public final class FastEvents {
     private static final long JAM_START = Instant.parse("2026-11-01T08:00:00Z").toEpochMilli();
-    private static final long JAM_END = Instant.parse("2026-11-16T08:00:00Z").toEpochMilli();
+    static final long JAM_END = Instant.parse("2026-11-16T08:00:00Z").toEpochMilli();
+    static boolean hammerJam(long now){return now>=JAM_START&&now<JAM_END;}
     public static String noteAt(long snapshotTime) {
         return snapshotTime >= JAM_START && snapshotTime < JAM_END
             ? "Hammer Jam snapshot: keep the game’s reduced upgrade times. No second 50% discount is applied."

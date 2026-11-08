@@ -19,7 +19,7 @@ APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
 assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
-for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design', 'build-menu-filter-design', 'build-menu-army-design', 'build-menu-builder-design', 'build-menu-equipment-design'):
+for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design', 'build-menu-filter-design', 'build-menu-army-design', 'build-menu-builder-design', 'build-menu-equipment-design', 'busy-builders-design', 'time-format-design'):
     assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -30,7 +30,7 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py')]
+files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py', 'build_effect_icons.py')]
 source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
@@ -51,13 +51,15 @@ guide = f'''COC BASE TRACKER — ANDROID SETUP
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
 7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Base Tracker and choose a village when prompted.
 
-READABLE TIMERS: App, Build Menu and live widgets show days, hours, minutes and seconds (for example 1d 12h 18m 56s). Live readable widget timers are enabled by default and use an ongoing foreground-service notification. Updates pause with the screen off or locked and recalculate on unlock. No wake lock is used. Pause live updates in the notification or turn the setting off to use native clock-style widget timers. Re-enable in Settings to resume. If Android prevents a background start, open the app. The service stops when no widget has a running upgrade. Finish reminders remain independent.
+READABLE TIMERS: App, Build Menu and live widgets show days, hours, minutes and seconds (for example 1d 12h 18m 56s). Live readable widget timers are enabled by default and use an ongoing foreground-service notification. Updates pause with the screen off or locked and recalculate on unlock. No wake lock is used. Pause live updates in the notification or turn the setting off to use native clock-style widget timers. Re-enable in Settings to resume. If Android prevents a background start, open the app. The service stops when no bound widget has a running upgrade or active displayed boost/event countdown. Finish reminders remain independent.
 
 After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
 
 PUBLISHING: Commit/push the changed source, README and docs/images. Create the version's GitHub release, attach the signed CoC-Base-Tracker-{VERSION}.apk, and mark it as latest. README's download button follows the latest release page without depending on a fixed APK filename. Users open Assets and choose the APK.
 
 LEVEL ARTWORK: 1,376 level mappings across 142 items use 1,143 deduplicated model thumbnails and nine currency icons. Running app/widget upgrades and Build Menu cards preview the target level, with the current level retained on the badge. Unsupported level variants keep a generic portrait. All art is bundled offline; fresh exports refresh levels, and expired timers never promote saved levels. See docs/LEVEL-ART.md.
+
+FINISH CLOCKS AND BOOSTS: Current upgrades show a local finish clock beside their countdown. Settings > Time Format selects Device Default, 12-Hour or 24-Hour for app, planner and widgets, with future dates labeled. Active Boosts groups icons, names, rates, time left and end clocks before the upgrade sections. Builder Potion priority and Study Soup additive speed remain unchanged. Next free in reports fully occupied regular queues, excluding Goblin jobs and keeping laboratories separate from builders. Widgets scroll boosts and upgrades together. The bundled Hammer Jam event shows its official November 16, 2026 08:00 UTC end, with no second discount. Fresh sync is required after changing upgrades or effects. See docs/TIMING.md.
 
 WHAT'S NEW: A release summary appears after installing or updating. Tap Read Guide for highlights and instructions, or Got It to dismiss the summary for that version. The What's New button at the bottom reopens the offline guide with expandable earlier releases. CHANGELOG.md is generated from the same bundled notes; copy the matching version section into GitHub's release description when publishing.
 
@@ -135,6 +137,9 @@ report['official_references'] = 'Reviewed 2026-11-08; Supercell blog, crafted de
 report['identity_catalog'] = {'identities': 880, 'artwork_files': 871, 'sample_cosmetic_names_and_art': '93 of 95 distinct IDs', 'unresolved_sample_ids': [52000268, 52000337], 'runtime_downloads': False, 'provenance': 'docs/ITEM-IDENTITIES.md'}
 report['features'][:0] = ['offline crafting, helper and cosmetic identity catalog', 'verified module caps and semantic stat symbols', 'corrected Alchemist/Prospector IDs', 'bundled cosmetic portraits and thumbnails with shared-variant details']
 report['android_framework_tests'] += '; Overview tab/base navigation, sample safety, availability one-shot delivery, replacement deadlines, Clock Tower alarm scheduling and account removal on API 26/29/35'
+report['finish_clocks'] = {'modes': ['device default', '12-hour', '24-hour'], 'timezone': 'device-local with destination DST', 'boosts': 'one shared panel, including idle active effects and bundled verified event', 'availability': 'regular fully occupied queues; excludes Goblin and separates labs', 'runtime_event_feed': False}
+report['features'][:0] = ['local finish clocks with global time-format settings', 'shared active potion/snack/event panel with expiry clocks', 'regular-slot Next free countdown and local availability time', 'scrollable boost and upgrade widget collection']
+report['android_framework_tests'] += '; 12/24/device clocks, DST and future days, idle/stacked/deduplicated effects, regular-slot/Goblin separation, widget expiry and stable rows, boost-only service lifetime'
 report['level_artwork'] = {'mapped_items': 142, 'mapped_levels': 1376, 'model_files': 1143, 'currency_files': 9, 'runtime_downloads': False, 'sources': 'docs/level-art-sources.json'}
 report['features'][:0] = ['current-hall Build Menu default with next hall upgrade', 'destination-level artwork in planner and app/widget timers', 'resource/type/hero button filters and Cost Max/Min', 'side-aligned resource and multi-ore costs', 'staged filters with empty-match retention']
 report['android_framework_tests'] += '; current-hall caps and reachable facilities, hero gates, unknown timers, filter Apply/Cancel and isolation, recreation, exact-level artwork and currency rendering'

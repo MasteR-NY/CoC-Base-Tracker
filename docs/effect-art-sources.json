@@ -1,0 +1,30 @@
+{
+  "builder_potion": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_items/builder_potion.webp",
+    "sha256": "355956654cddad260382e34cbf1c98d91d8422fac9f1976f10653d4d7c2a6cc0"
+  },
+  "research_potion": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_items/research_potion.webp",
+    "sha256": "8f958d3de0115239f90bea8048996a3f706972e030bf1e89d6dfc742410d4592"
+  },
+  "pet_potion": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_items/pet_potion.webp",
+    "sha256": "7f3b3087b641ef3dc91430f1630f9f5190191823e71b7f3d7f98aeefb687a7cf"
+  },
+  "builder_bite": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_snacks/builder_bite.webp",
+    "sha256": "03ec767edc9198da7ba58c79ffdaf2783871244f725939bfc14131db4364b1ed"
+  },
+  "study_soup": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_snacks/study_soup.webp",
+    "sha256": "1299108059f95b36bc838c5646fc8e1f0ba735ffb05b4c9e335157d465bd7494"
+  },
+  "clock_tower": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/buildings/builder-base/clock_tower/level_10.webp",
+    "sha256": "35e65b26d06d7a1bb94abc0cfe03a41c0dee93ac89779a19b76182b4b1eadea0"
+  },
+  "hammer_jam": {
+    "url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/magic_items/hammer_of_building.webp",
+    "sha256": "86de61fa7b6a543dc01965da86aba9cce4fafc636f0539f7a87e0f68a0c746aa"
+  }
+}

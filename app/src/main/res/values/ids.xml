@@ -1,4 +1,7 @@
 <resources>
+    <item name="active_effect_row" type="id" />
+    <item name="next_free_row" type="id" />
+    <item name="time_format_setting" type="id" />
     <item name="planner_list" type="id" />
     <item name="planner_filters" type="id" />
     <item name="planner_scope" type="id" />

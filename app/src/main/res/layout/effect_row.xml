@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <TextView android:id="@+id/effect_heading" android:layout_width="match_parent" android:layout_height="28dp" android:gravity="center_vertical" android:text="ACTIVE BOOSTS" android:fontFamily="@font/lilita_one" android:textSize="16sp" android:textColor="#FFC531" android:visibility="gone" />
+    <LinearLayout android:id="@+id/effect_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="54dp" android:gravity="center_vertical" android:padding="6dp" android:background="@drawable/row_bg">
+        <ImageView android:id="@+id/effect_icon" android:layout_width="32dp" android:layout_height="36dp" android:scaleType="fitCenter" android:contentDescription="Active boost" />
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="6dp" android:paddingEnd="3dp">
+            <TextView android:id="@+id/effect_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/lilita_one" android:textColor="#FFFFFF" android:textSize="14sp" />
+            <TextView android:id="@+id/effect_remaining" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFF1DB" android:textSize="12sp" />
+            <Chronometer android:id="@+id/effect_timer" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFF1DB" android:textSize="12sp" android:visibility="gone" />
+        </LinearLayout>
+        <TextView android:id="@+id/effect_end" android:layout_width="96dp" android:layout_height="wrap_content" android:gravity="end" android:textColor="#FFF1DB" android:textSize="11sp" />
+    </LinearLayout>
+</LinearLayout>

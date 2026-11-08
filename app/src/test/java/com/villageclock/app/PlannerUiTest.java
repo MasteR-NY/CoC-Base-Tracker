@@ -41,7 +41,7 @@ public class PlannerUiTest {
         dialog=filters(activity);((Switch)dialog.findViewById(R.id.planner_current_hall)).setChecked(false);apply(dialog);assertTrue(rows(activity).size()>before);assertTrue(((TextView)activity.findViewById(R.id.planner_scope)).getText().toString().contains("Catalog Max"));
     }
     @Test public void emptyFilterIsNotSilentlyCleared(){
-        PlannerActivity activity=sample();AlertDialog dialog=filters(activity);click(dialog,"Dark Elixir");click(dialog,"Resource");apply(dialog);assertTrue(rows(activity).isEmpty());assertNotNull(find(activity.getWindow().getDecorView(),"Reset Filters"));
+        PlannerActivity activity=sample();AlertDialog dialog=filters(activity);click(dialog,"Dark Elixir");click(dialog,"Resource");apply(dialog);assertTrue(rows(activity).isEmpty());ListView emptyList=activity.findViewById(R.id.planner_list);boolean reset=false;for(int n=0;n<emptyList.getAdapter().getCount();n++)if(emptyList.getAdapter().getItem(n)==null)reset=find(emptyList.getAdapter().getView(n,null,emptyList),"Reset Filters")!=null;assertTrue(reset);
         AlertDialog again=filters(activity);assertTrue(find(again.getWindow().getDecorView(),"Dark Elixir selected").isSelected());
     }
     @Test public void filterScopeSurvivesActivityRecreation(){
@@ -55,7 +55,7 @@ public class PlannerUiTest {
     @Test public void lowHallPetsShowUnlockPanelInsteadOfFutureList()throws Exception{
         Context context=RuntimeEnvironment.getApplication();String raw="{\"tag\":\"#LOW\",\"timestamp\":"+System.currentTimeMillis()/1000+",\"buildings\":[{\"data\":1000001,\"lvl\":12}]}";Village village=ExportParser.parse(raw,Store.catalog(context),System.currentTimeMillis());Store.save(context,raw,village);
         PlannerActivity activity=Robolectric.buildActivity(PlannerActivity.class,new Intent(context,PlannerActivity.class).putExtra("tag",village.tag)).setup().get();find(activity.getWindow().getDecorView(),"Hero Pets").performClick();assertTrue(rows(activity).isEmpty());
-        ListView list=activity.findViewById(R.id.planner_list);View empty=list.getAdapter().getView(0,null,list);assertTrue(text(empty).contains("Town Hall 14"));
+        ListView list=activity.findViewById(R.id.planner_list);View empty=null;for(int n=0;n<list.getAdapter().getCount();n++)if(list.getAdapter().getItem(n)==null)empty=list.getAdapter().getView(n,null,list);assertNotNull(empty);assertTrue(text(empty).contains("Town Hall 14"));
     }
     @Test public void missingArmyItemsAreUnlockChecksInsteadOfFreeResearchQuotes(){
         PlannerActivity activity=sample();find(activity.getWindow().getDecorView(),"Army Upgrades").performClick();ListView list=activity.findViewById(R.id.planner_list);ListAdapter adapter=list.getAdapter();boolean section=false;

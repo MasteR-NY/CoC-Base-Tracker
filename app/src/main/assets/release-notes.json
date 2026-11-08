@@ -1,6 +1,30 @@
 {
   "releases": [
     {
+      "version": "1.17",
+      "versionCode": 18,
+      "title": "Know When It Finishes",
+      "highlights": [
+        {
+          "title": "Finish Clocks Beside Upgrades",
+          "body": "Current upgrades show their estimated local finish date/time beside the countdown. Settings → Time Format offers Device Default, 12-Hour and 24-Hour. Dates identify tomorrow and later finishes."
+        },
+        {
+          "title": "One Shared Boost Panel",
+          "body": "Active potions, snacks, Clock Tower boosts and the bundled Hammer Jam event appear above the upgrades, with an icon, name, multiplier or discount, time left and local end time. Names are no longer repeated on every upgrade. Boost calculations are unchanged."
+        },
+        {
+          "title": "Next Slot Availability",
+          "body": "When every regular builder slot is busy, Next free in shows the estimated wait and local availability time. Goblin jobs are kept separate. Laboratory, Pet House and Builder Base queues have their own estimates. The widget scrolls through boosts and upgrades together."
+        }
+      ],
+      "steps": [
+        "Open Settings → Time Format and select your preferred clock style. The choice applies to the app, Build Menu and widgets.",
+        "Check Active Boosts above the upgrade sections. Tap an app boost row for stacking or event details. Sync after using another item.",
+        "Finish clocks and Next free estimates use the last export and modeled boost expiry. Copy a new export after changing upgrades, potions or helpers."
+      ]
+    },
+    {
       "version": "1.16",
       "versionCode": 17,
       "title": "A Build Menu for Your Hall",

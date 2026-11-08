@@ -54,7 +54,7 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.16**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.17**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
 
@@ -90,9 +90,28 @@ Timers run from your most recent village export and continue counting down when 
 
 With **Auto-sync on return** enabled, copy the export in Clash and switch back to the tracker. A new valid export imports without tapping Sync. Duplicate and older snapshots are ignored, and each widget keeps its account selection. Turn the option off in **Settings** to use manual import. Android does not allow the tracker to watch Clash’s Copy button in the background or automatically redirect you from it; returning to the app gives it clipboard access. See [Village Export Data](docs/EXPORT-DATA.md) for the field reference and platform limits.
 
-Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. In the app and Build Menu, boosted upgrades show their work rate, a smooth accelerated **Work left** countdown, and estimated real **Finishes in** time. A 24× boost advances work through intermediate seconds instead of subtracting 24 seconds in one jump. Widgets show the estimated real time remaining in steady seconds, alongside a boost badge. Open **Boosts** to review the effects recorded in your export.
+Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. In the app and Build Menu, boosted upgrades show their work rate, a smooth accelerated **Work left** countdown, and estimated real **Finishes in** time. A 24× boost advances work through intermediate seconds instead of subtracting 24 seconds in one jump. Widgets show estimated real time remaining in steady seconds, with boosts grouped above the upgrades. Open **Boosts** to review the effects recorded in your export.
 
 Additional doses extend boost duration. Known repeating helper assignments are forecast when their assignment and cooldown are included in the export. Books, Hammers and other instant finishes appear after a fresh sync; unused chest rewards and combat/resource boosts do not accelerate upgrade timers. See [Timer Rules](docs/TIMING.md) for supported effects and examples.
+
+### Finish Times and Active Boosts
+
+Current upgrades show an estimated **Finishes at** clock beside their countdown. Tomorrow and later dates are labeled, and times use your phone’s timezone. Choose **Settings → Time Format → Device Default, 12-Hour, or 24-Hour**. This applies to the app, Build Menu and home widgets.
+
+**Active Boosts** appears above the upgrade sections. Each active potion, snack or Clock Tower boost has its icon, name, rate, remaining duration and local **Ends at** time. A bundled, dated event can appear with its published deadline; Hammer Jam is labeled **50% off**, with no second discount applied to exported work. Study Soup shows **+3×** because it adds speed to compatible potion effects. Both Builder Bite and Builder Potion remain listed when active; the potion’s priority is preserved in the timer calculation. Individual upgrade rows no longer repeat potion/snack names.
+
+When all regular slots in a queue are busy, **Next free in** shows the wait and local availability clock. Regular builders, Laboratory, Pet House, Builder Base builders and Star Laboratory are evaluated separately. Goblin jobs do not count as regular builder availability. Times are estimates from the last export; sync after changing an upgrade, potion or helper assignment.
+
+The widget scrolls boosts and upgrades together. Active boost/event timers can keep the existing live-timer notification running after the last upgrade finishes; updates still pause while the screen is off or locked.
+
+<details>
+<summary>Finish Clock and Availability Previews</summary>
+
+| All Builders Busy | Time Format Settings |
+| --- | --- |
+| <img src="docs/images/busy-builders-design.png" width="270" alt="Shared active boost panel and Next free countdown with local finish clocks"> | <img src="docs/images/time-format-design.png" width="270" alt="Device Default, 12-Hour and 24-Hour clock choices"> |
+
+</details>
 
 ### Settings and Help
 

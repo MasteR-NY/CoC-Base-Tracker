@@ -76,7 +76,11 @@ public final class ExportParser {
                     }
                 }
             }
-            return new Village(tag, AccountNames.clean(root.opt("name")), exportedAt, townHall, Math.min(builders, 7), baseBuilders, jobs);
+            List<ActiveEffects.Effect> effects=new ArrayList<>();
+            if(boosts!=null)for(String key:new String[]{"builder_boost","builder_consumable","lab_boost","pet_boost","lab_consumable","clocktower_boost"}){
+                long duration=bounded(boosts,key,MAX_SECONDS);if(duration>0)effects.add(ActiveEffects.effect(key,exportedAt+duration*1000));
+            }
+            return new Village(tag, AccountNames.clean(root.opt("name")), exportedAt, townHall, Math.min(builders, 7), baseBuilders, jobs,effects);
         } catch (JSONException | StackOverflowError ex) {
             throw new InvalidExport("The copied text is not valid village JSON." );
         }

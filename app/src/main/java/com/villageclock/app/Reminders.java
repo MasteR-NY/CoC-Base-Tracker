@@ -31,6 +31,7 @@ public final class Reminders {
         long next = Long.MAX_VALUE;
         for (Village village : Store.all(c)) {
             long cursor = Store.notifiedThrough(c, village.tag);
+            next=Math.min(next,ActiveEffects.nextChange(village,now));
             for (Village.Upgrade u : village.upgrades) if (u.finishAt > cursor) next = Math.min(next, u.finishAt);
             if(Store.prefs(c).getBoolean("notify",true)&&Store.prefs(c).getBoolean(Availability.PREF,true)){
                 long readyCursor=Availability.cursor(c,village.tag);

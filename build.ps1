@@ -26,7 +26,7 @@ if (!$SkipTests) { $tasks = @(':app:testDebugUnitTest') + $tasks }
 if ($LASTEXITCODE -ne 0) { throw "Android build failed ($LASTEXITCODE)." }
 if (!$SkipTests) {
     New-Item -ItemType Directory -Path 'docs/images' -Force | Out-Null
-    foreach ($preview in @('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design', 'build-menu-filter-design', 'build-menu-army-design', 'build-menu-builder-design', 'build-menu-equipment-design')) {
+    foreach ($preview in @('app-design', 'build-menu-design', 'widget-design', 'whats-new-design', 'overview-design', 'crafting-design', 'helpers-design', 'collection-design', 'cosmetics-design', 'update-design', 'build-menu-filter-design', 'build-menu-army-design', 'build-menu-builder-design', 'build-menu-equipment-design', 'busy-builders-design', 'time-format-design')) {
         $previewPath = "outputs/previews/$preview.png"
         if (!(Test-Path -LiteralPath $previewPath)) { throw "Missing rendered preview: $previewPath" }
         Copy-Item -LiteralPath $previewPath -Destination "docs/images/$preview.png" -Force

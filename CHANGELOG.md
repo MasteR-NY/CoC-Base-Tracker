@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.17 — Know When It Finishes
+
+- **Finish Clocks Beside Upgrades:** Current upgrades show their estimated local finish date/time beside the countdown. Settings → Time Format offers Device Default, 12-Hour and 24-Hour. Dates identify tomorrow and later finishes.
+- **One Shared Boost Panel:** Active potions, snacks, Clock Tower boosts and the bundled Hammer Jam event appear above the upgrades, with an icon, name, multiplier or discount, time left and local end time. Names are no longer repeated on every upgrade. Boost calculations are unchanged.
+- **Next Slot Availability:** When every regular builder slot is busy, Next free in shows the estimated wait and local availability time. Goblin jobs are kept separate. Laboratory, Pet House and Builder Base queues have their own estimates. The widget scrolls through boosts and upgrades together.
+
+### How to Use It
+
+1. Open Settings → Time Format and select your preferred clock style. The choice applies to the app, Build Menu and widgets.
+2. Check Active Boosts above the upgrade sections. Tap an app boost row for stacking or event details. Sync after using another item.
+3. Finish clocks and Next free estimates use the last export and modeled boost expiry. Copy a new export after changing upgrades, potions or helpers.
+
 ## v1.16 — A Build Menu for Your Hall
 
 - **Plan Your Current Hall:** The Build Menu defaults to upgrades reachable within your current Town Hall or Builder Hall, with active upgrades first and the next hall upgrade shown separately. Turn off Current Hall Only in the filter menu to see Catalog Max.

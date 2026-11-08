@@ -97,3 +97,15 @@ The item rates and helper schedule have official references below. Export fields
 - [ClashKing: export field model](https://github.com/ClashKingInc/clashy.py/blob/main/coc/game_data.py)
 - [Coc-Widget: export parser](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget/blob/68626b688116ff19a535ec5be630f8b9bd85d759/app/src/main/java/com/cocwidget/app/model/ExportParser.kt)
 - [Clash Ledger: current boost-group implementation](https://github.com/chitti-a7r4/coc-tracker/blob/main/app/src/main/java/org/clashledger/app/BoostState.java)
+
+## Finish Clocks and Queue Availability
+
+Version 1.17 displays local finish/expiry clocks separately from elapsed d/h/m/s countdowns. Settings supports device default, 12-hour and 24-hour time. All absolute instants remain epoch milliseconds; formatting uses the device’s current timezone, including DST at the destination instant. Tomorrow and later dates disambiguate multi-day upgrades. A format change refreshes all bound widgets without changing account data or deadlines.
+
+`ActiveEffects` retains one finite deadline per recognized exported boost key, including when its affected queue is idle. Potion/snack names are consolidated above upgrades. Builder Bite/Potion are both listed while active, but the existing maximum-speed-group rule continues to select the potion for work calculations. Study Soup is labeled +3×: 4× alone or 27× with Research/Pet Potion. Per-job helper and speed details remain in Boosts & Helpers.
+
+`Village.nextFree` requires a known queue capacity and all regular slots occupied. Home builders use the exported builder count; Builder Base uses its recognized builder count; lab, pets and Star Laboratory are independent single-slot queues. Completed jobs and Goblin/extra jobs are excluded. A Star Laboratory deadline never releases a Builder Base builder. A Goblin finish never frees a permanent builder slot.
+
+The widget collection contains boost rows followed by existing grouped upgrade rows, with stable IDs and two view types. Live mode refreshes the same adapter while scrolling. Native fallback uses chronometers. Boost/event expiry participates in the existing refresh alarm without adding completion notifications or applying another speed multiplier. The foreground widget service remains needed while a bound widget has an upgrade or active displayed boost/event timer, and still holds no wake lock.
+
+The bundled Hammer Jam schedule is verified against [Supercell’s dedicated announcement](https://supercell.com/en/games/clashofclans/blog/news/hammer-jam-is-here-backup-has-arrived/): November 1, 2026 at 08:00 UTC through November 16 at 08:00 UTC, for eligible TH3+ Home Village upgrades. Its card says 50% off, not a speed multiplier. The published exclusions include Supercharges and Crafted Defenses. Other events are not inferred from dates or inventory, and new schedules need a reviewed app data update. No runtime event feed or account requests were added.

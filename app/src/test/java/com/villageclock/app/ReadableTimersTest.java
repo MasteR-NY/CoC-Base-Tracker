@@ -67,7 +67,7 @@ public class ReadableTimersTest {
         View first=VillageWidget.row(context,upgrade,at,at,true).apply(context,new FrameLayout(context));
         assertEquals("1d 1h 0m 0s",((TextView)first.findViewById(R.id.readable_timer)).getText().toString());
         assertEquals(View.GONE,first.findViewById(R.id.row_eta).getVisibility());
-        assertTrue(((TextView)first.findViewById(R.id.row_boost)).getText().toString().contains("24×"));
+        assertEquals(View.GONE,first.findViewById(R.id.row_boost).getVisibility());assertTrue(((TextView)first.findViewById(R.id.row_finish_at)).getText().toString().contains("Finishes at"));
         View second=VillageWidget.row(context,upgrade,at+1000,at,true).apply(context,new FrameLayout(context));
         assertEquals("1d 0h 59m 59s",((TextView)second.findViewById(R.id.readable_timer)).getText().toString());
         View activity=VillageWidget.row(context,upgrade,at+500,at,true,true).apply(context,new FrameLayout(context));

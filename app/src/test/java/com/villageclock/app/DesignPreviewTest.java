@@ -36,6 +36,12 @@ public class DesignPreviewTest {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         View app = activity.getWindow().getDecorView();
         render(app, 411, 1000, "app-design.png");
+        org.json.JSONObject busyRoot=new org.json.JSONObject(export);busyRoot.put("timestamp",System.currentTimeMillis()/1000);busyRoot.getJSONObject("boosts").put("builder_boost",2700);
+        for(int n=0;n<busyRoot.getJSONArray("buildings").length();n++){org.json.JSONObject item=busyRoot.getJSONArray("buildings").getJSONObject(n);if(item.optInt("data")==1000015)item.put("cnt",2);}
+        String busyRaw=busyRoot.toString();Village busyVillage=ExportParser.parse(busyRaw,Store.catalog(context),System.currentTimeMillis());Store.save(context,busyRaw,busyVillage);
+        MainActivity busy=Robolectric.buildActivity(MainActivity.class).setup().get();render(busy.getWindow().getDecorView(),411,1000,"busy-builders-design.png");
+        busy.findViewById(R.id.settings_toggle).performClick();busy.findViewById(R.id.time_format_setting).performClick();android.app.AlertDialog clockDialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();render(clockDialog.getWindow().getDecorView(),411,320,"time-format-design.png");clockDialog.dismiss();
+
         PlannerActivity planner = Robolectric.buildActivity(PlannerActivity.class,
             new android.content.Intent(context, PlannerActivity.class).putExtra("sample", true)).setup().get();
         render(planner.getWindow().getDecorView(), 411, 891, "build-menu-design.png");

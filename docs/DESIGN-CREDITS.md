@@ -31,3 +31,7 @@ Amber Hot Streak and Sour Elixir Fountain names are verified against explicit ID
 Building models and nine resource icons use the same pinned ClashKingAssets manifest, with source SHA-256 verification. Additional level-specific models use images explicitly referenced by the pinned Christopher Pezza catalog. Original game artwork remains © Supercell; existing ClashKing and factual catalog notices continue to apply. Artwork is cropped, resized and deduplicated for offline use. Exact source URLs, original hashes and transformed-file hashes are retained in `docs/level-art-sources.json`. No upstream extraction code is executed or shipped. The sliders vector is original app artwork.
 
 The revised Build Menu follows the user-supplied game screenshots dated November 8, 2026. The README previews render the actual app with synthetic village data; personal screenshots are not included in the release source archive.
+
+## Shared Boost Artwork Added in Version 1.17
+
+Builder Potion, Research Potion, Pet Potion, Builder Bite, Study Soup, Clock Tower and the hammer symbol use the existing pinned ClashKingAssets game-art source. Its retained license/attribution applies; original artwork remains © Supercell. Source hashes are recorded in `effect-art-sources.json`. The hammer is a representative game-item symbol for Hammer Jam, not a claimed copy of the event’s promotional logo. No new app-runtime artwork requests are made.
