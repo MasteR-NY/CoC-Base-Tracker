@@ -4,7 +4,7 @@ Upgrade timers, village planning, and account-specific home screen widgets for C
 
 [![Download Latest APK](docs/images/download-apk.svg)](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest)
 
-**Android 8.0+ · Kotlin Core · Offline Tracking · Multiple Accounts**
+**Android 8.0+ · Kotlin App · Offline Tracking · Multiple Accounts**
 
 Download the `.apk` file under **Assets** on the latest release page. When updating, install over your existing version to keep your saved accounts and widgets.
 
@@ -76,9 +76,13 @@ Menu names vary by manufacturer. After force-stopping the app, open it again to 
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.19**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.20**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
+
+Certificate checks read both modern and legacy Android signing records. An unavailable certificate is reported separately from a different key; neither is accepted without verification. A blocked download offers **Certificate Details**, with installed/downloaded SHA-256 fingerprints and an explicit Copy Details action.
+
+If an older app version incorrectly blocks this update, download the APK from Releases and open it through your file manager once. Install over the existing app; keep its data intact. If Android itself rejects the signature, use an APK signed with the installed app’s original key. See [Signing Checks](docs/SIGNING-CHECKS.md).
 
 Downloads continue when you leave the screen. Use **Update Download** or the ready notification to return. Notifications are optional. You can cancel a download or delete a completed one.
 
@@ -259,7 +263,7 @@ No. It is a fan companion that reads exported data. It does not log into or modi
 
 ## Building From Source
 
-Most production classes are Kotlin. Import validation, timing, planning, account storage, artwork lookup, widgets, notifications and update handling use Kotlin; MainActivity, PlannerActivity and OverviewActivity remain Java. The Android Gradle plugin provides built-in Kotlin support. Both languages use JVM 17 bytecode, with Android 8.0 as the minimum supported platform.
+All 37 maintained production app source files are Kotlin, including Main, Build Menu and Overview. Existing Java regression tests remain to check behavior and interoperability. The Android Gradle plugin provides built-in Kotlin support. The app targets JVM 17 bytecode, with Android 8.0 as the minimum supported platform.
 
 Install **JDK 21+**, **Gradle 9.7.1**, Android **SDK Platform 37** and **Build Tools 36.0.0+**. Set `JAVA_HOME` and `ANDROID_HOME`, then run from the project folder:
 
@@ -274,8 +278,7 @@ The first local release build creates a signing key under `.private/`. Keep it b
 
 | Path | Contents |
 | --- | --- |
-| `app/src/main/java/com/villageclock/app/*.kt` | Kotlin tracking, storage, planning, widget, service and update code |
-| `app/src/main/java/com/villageclock/app/*.java` | The three retained main screen classes |
+| `app/src/main/java/com/villageclock/app/*.kt` | All production app code: screens, tracking, storage, planning, widgets, services and updates |
 | `app/src/main/assets/` | Offline game catalogs, release notes and source notices |
 | `app/src/main/res/` | Native layouts, fonts, artwork and icons |
 | `app/src/test/` | Timing, import, account, update and Android framework regression tests |
@@ -293,6 +296,7 @@ The first local release build creates a signing key under `.private/`. Keep it b
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)
 - [Kotlin Migration](docs/KOTLIN-MIGRATION.md)
+- [Signing Checks and Release Certificates](docs/SIGNING-CHECKS.md)
 - [Preview Maintenance](docs/DESIGN-PREVIEWS.md)
 - [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md)
 

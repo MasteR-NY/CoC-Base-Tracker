@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.20 — Fully Kotlin and Clearer Signing Checks
+
+- **All App Screens in Kotlin:** Main, Build Menu and Overview complete the Kotlin migration. Every production app source file is now Kotlin. Existing compact layouts, account storage, widget selections, timers and filters are retained.
+- **Compatible Certificate Reading:** The updater requests modern and legacy signing records and retries the legacy query when certificate metadata is missing. An empty modern record no longer hides available legacy certificates. Missing certificate data is reported separately from a genuine mismatch; different or unavailable signers remain blocked.
+- **Certificate Details When Needed:** A blocked download has Certificate Details with installed and downloaded SHA-256 fingerprints. You can copy the diagnostics explicitly. No account or village data is included.
+
+### How to Use It
+
+1. Install this APK over your existing app. If an older updater blocks the download, open the APK from the release page or file manager once; do not uninstall first.
+2. If an update remains blocked, open Certificate Details and compare the two fingerprints. A genuine signing-key mismatch still requires an APK signed with the installed app’s key.
+3. Saved accounts, widgets, clock preferences and filter behavior are preserved.
+
 ## v1.19 — Kotlin Core and Clearer Widget Markers
 
 - **Built Mostly in Kotlin:** Tracking, import validation, upgrade planning, account storage, widget rendering, reminders, live updates and APK update handling now use Kotlin. The three main screen classes remain in Java, with their compact layouts retained. Saved accounts and widget selections use the same package and data format.

@@ -1,6 +1,30 @@
 {
   "releases": [
     {
+      "version": "1.20",
+      "versionCode": 21,
+      "title": "Fully Kotlin and Clearer Signing Checks",
+      "highlights": [
+        {
+          "title": "All App Screens in Kotlin",
+          "body": "Main, Build Menu and Overview complete the Kotlin migration. Every production app source file is now Kotlin. Existing compact layouts, account storage, widget selections, timers and filters are retained."
+        },
+        {
+          "title": "Compatible Certificate Reading",
+          "body": "The updater requests modern and legacy signing records and retries the legacy query when certificate metadata is missing. An empty modern record no longer hides available legacy certificates. Missing certificate data is reported separately from a genuine mismatch; different or unavailable signers remain blocked."
+        },
+        {
+          "title": "Certificate Details When Needed",
+          "body": "A blocked download has Certificate Details with installed and downloaded SHA-256 fingerprints. You can copy the diagnostics explicitly. No account or village data is included."
+        }
+      ],
+      "steps": [
+        "Install this APK over your existing app. If an older updater blocks the download, open the APK from the release page or file manager once; do not uninstall first.",
+        "If an update remains blocked, open Certificate Details and compare the two fingerprints. A genuine signing-key mismatch still requires an APK signed with the installed app’s key.",
+        "Saved accounts, widgets, clock preferences and filter behavior are preserved."
+      ]
+    },
+    {
       "version": "1.19",
       "versionCode": 20,
       "title": "Kotlin Core and Clearer Widget Markers",

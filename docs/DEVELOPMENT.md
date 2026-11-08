@@ -10,9 +10,9 @@
 
 Set `JAVA_HOME` and `ANDROID_HOME`, or use `local.properties` for the SDK location. The build script also accepts `-JavaHome` and `-GradlePath`.
 
-## Kotlin and Java Sources
+## Kotlin Sources and Test Interoperability
 
-Version 1.19 uses AGP’s built-in Kotlin support for 34 production Kotlin files. MainActivity, PlannerActivity and OverviewActivity remain Java. Kotlin and Java sources share `app/src/main/java/com/villageclock/app/` and target JVM 17. Java regression tests are retained; Kotlin framework tests cover the hired-worker markers. See [Kotlin Migration](KOTLIN-MIGRATION.md) for compatibility boundaries and checks.
+Version 1.20 uses AGP’s built-in Kotlin support for all 37 production Kotlin files, including MainActivity, PlannerActivity and OverviewActivity. Sources remain under `app/src/main/java/com/villageclock/app/` and target JVM 17. Java regression tests are retained; Kotlin framework tests cover hired-worker markers and certificate compatibility. See [Kotlin Migration](KOTLIN-MIGRATION.md) for compatibility boundaries and checks.
 
 ## Build the APK
 
@@ -122,3 +122,7 @@ Planner model tests cover hall caps, reachable facility prerequisites, hero equi
 `ReleasePageFallbackTest` covers strict public-page parsing, rejected metadata, simulated newer releases, HTML-before-API ordering, 403 no-retry behavior, a single 504 retry and the collapsed error UI on Android 8, 10 and modern framework versions. Real phone networking and Android Downloads still require device validation. Native previews cover compact and landscape planner layouts.
 
 `python tools/build_hired_icon.py` optionally rebuilds the Goblin head marker from the pinned official support portrait, validating the source hash before the recorded crop. The runtime app uses the bundled resource. Normal previews use Anonymous and include hired-worker rows.
+
+## Certificate Compatibility Regression Checks
+
+`CertificateCompatibilityTest` runs on API 26/29/35. It checks dual metadata flags, empty modern records with valid legacy data, nonempty modern mismatches, unavailable certificates, unordered multi-signer sets and the diagnostics panel’s explicit copy action. Package/version/checksum tests remain in place. `UpdateDownloads.verify` retries the legacy query only if no signer was read; an unavailable or conflicting signer never reaches the installer. Published v1.19 was downloaded and independently verified with the Android SDK signer tool. This does not establish the actual certificate on a user’s phone; retain that distinction in support responses.

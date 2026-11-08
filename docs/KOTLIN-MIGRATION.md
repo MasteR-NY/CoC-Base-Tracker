@@ -1,11 +1,12 @@
 # Kotlin Migration
 
-Version 1.19 moves the tracking engine and Android integration to Kotlin. There are **34 Kotlin production files** and **three Java production files**. Java remains in MainActivity, PlannerActivity and OverviewActivity. This is a migration of the existing implementation, not a replacement with another tracker.
+Version 1.20 completes the migration begun in 1.19. All **37 maintained production app source files are Kotlin**, including MainActivity, PlannerActivity and OverviewActivity. No production Java source files remain. Existing Java regression tests are retained as independent callers of the Kotlin implementation.
 
 ## Migrated Components
 
 | Area | Kotlin Implementation |
 | --- | --- |
+| Main screens | MainActivity, PlannerActivity, OverviewActivity |
 | Village import | ExportParser, ClipboardSync, AccountNames |
 | Timer calculations | UpgradeTiming, Village, ActiveEffects, FastEvents, DurationText, ClockText, CountdownText |
 | Account storage | Store, VillageArchive |
@@ -16,13 +17,13 @@ Version 1.19 moves the tracking engine and Android integration to Kotlin. There 
 | Update checks and installation | UpdateChecker, UpdateDownloads, UpdateDownloadReceiver, UpdateActivity |
 | Release guidance | ReleaseNotes, WhatsNewActivity, OfficialUpdates, TimerPanels |
 
-The Android Gradle plugin's built-in Kotlin support compiles the source alongside the remaining Java classes. No separate Kotlin Android plugin is applied. Both languages target JVM 17. The minimum Android version remains 8.0 (API 26).
+The Android Gradle plugin's built-in Kotlin support compiles the app. No separate Kotlin Android plugin is applied. App code and existing test callers target JVM 17. The minimum Android version remains 8.0 (API 26).
 
 ## Upgrade Compatibility
 
 The application ID, manifest component names, signing identity, archive paths, preference names and saved JSON format remain unchanged. Existing accounts and launcher widget selections are read directly. Notification IDs, pending-intent identities and account-specific reminder cursors are retained.
 
-Kotlin models expose the fields and static methods used by the Java screens and regression tests through `@JvmField`, `@JvmStatic` and explicit checked-exception declarations. Nullable records remain nullable: a missing account, unknown artwork or unavailable item is not replaced with invented data.
+Kotlin models retain the fields and static methods used by regression tests through `@JvmField`, `@JvmStatic` and explicit checked-exception declarations. Nullable records remain nullable: a missing account, unknown artwork or unavailable item is not replaced with invented data.
 
 ## Behavior Checks
 
@@ -33,3 +34,7 @@ Normal builds render the same Android preview screens with **Anonymous** as the 
 ## Hired Worker Artwork
 
 The word badge is replaced by a head cropped from Supercell's official Goblin Builder portrait. It appears on extra-work rows and beside headings while hired work is running, with an accessible description. The Build Menu matches markers to the imported timer; it does not infer a hire from the number of jobs alone. Original art, crop and hashes are documented in `hired-worker-art.json` and [Presentation Credits](DESIGN-CREDITS.md).
+
+## Signing Compatibility
+
+Version 1.20 requests modern and legacy certificate records, retries legacy queries when no signer was supplied, and uses legacy certificates if the modern record is empty. A nonempty modern signer set takes precedence; a conflicting legacy record cannot hide a real mismatch. Missing metadata remains blocked with a distinct explanation and copyable fingerprints. See [Signing Checks](SIGNING-CHECKS.md).

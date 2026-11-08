@@ -129,8 +129,16 @@ object UpdateDownloads {
         if (size <= 0 || size > MAX_APK || expected > 0 && expected != size) throw IOException("The APK size does not match. Cancel this download and retry.")
         FileInputStream(file).use { checkDigest(it, prefs(c).getString("sha256", "").orEmpty()) }
         val pm = c.packageManager
-        val flags = if (Build.VERSION.SDK_INT >= 28) PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES
-        checkPackage(pm.getPackageArchiveInfo(file.absolutePath, flags), pm.getPackageInfo(c.packageName, flags), version(c))
+        val flags = packageInfoFlags()
+        var archive = pm.getPackageArchiveInfo(file.absolutePath, flags)
+        var installed = pm.getPackageInfo(c.packageName, flags)
+        // Some Android package parsers leave SigningInfo empty for an archive.
+        // Ask for both records and retry the legacy query only when no signer was read.
+        if (archive != null && signatures(archive).isEmpty()) {
+            pm.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_SIGNATURES)?.takeIf { signatures(it).isNotEmpty() }?.let { archive = it }
+        }
+        if (signatures(installed).isEmpty()) installed = pm.getPackageInfo(c.packageName, PackageManager.GET_SIGNATURES)
+        checkPackage(archive, installed, version(c))
         val uri = manager(c).getUriForDownloadedFile(download)
         if (uri == null || uri.scheme != "content") throw IOException("Android could not share the verified APK with its installer.")
         return uri
@@ -150,7 +158,16 @@ object UpdateDownloads {
         if (incoming <= current || UpdateChecker.compare(archive.versionName, version) != 0) throw IOException("The APK version does not match the newer release.")
         val actual = signatures(archive)
         val expected = signatures(installed)
-        if (expected.isEmpty() || actual != expected) throw IOException("The APK signing key does not match your installed app. Installation has been blocked.")
+        if (expected.isEmpty() || actual.isEmpty()) throw SigningFailure("Android could not read " + (if (expected.isEmpty()) "the installed app’s" else "the downloaded APK’s") + " signing certificate. Installation is blocked until it can be verified. This is not a confirmed key mismatch.", expected, actual)
+        if (actual != expected) throw SigningFailure("The APK uses a different signing key. Installation is blocked. Keep your existing app and use a release signed with the same key.", expected, actual)
     }
-    private fun signatures(info: PackageInfo): Set<String> = (if (Build.VERSION.SDK_INT >= 28 && info.signingInfo != null) info.signingInfo!!.apkContentsSigners else info.signatures).orEmpty().map { it.toCharsString() }.toSet()
+    class SigningFailure(message: String, @JvmField val installed: Set<String>, @JvmField val downloaded: Set<String>) : IOException(message) {
+        fun diagnostics(): String = "Android API: ${Build.VERSION.SDK_INT}\nInstalled certificate SHA-256:\n${installed.sorted().joinToString("\n").ifEmpty { "Unavailable" }}\n\nDownloaded certificate SHA-256:\n${downloaded.sorted().joinToString("\n").ifEmpty { "Unavailable" }}\n\nMatching certificates are required; missing or different certificates never bypass verification."
+    }
+    @JvmStatic fun packageInfoFlags(): Int = PackageManager.GET_SIGNATURES or if (Build.VERSION.SDK_INT >= 28) PackageManager.GET_SIGNING_CERTIFICATES else 0
+    private fun signatures(info: PackageInfo): Set<String> {
+        val modern = if (Build.VERSION.SDK_INT >= 28) info.signingInfo?.apkContentsSigners.orEmpty() else emptyArray()
+        val records = modern.takeIf { it.isNotEmpty() } ?: info.signatures.orEmpty()
+        return records.map { certificate -> MessageDigest.getInstance("SHA-256").digest(certificate.toByteArray()).joinToString("") { String.format(Locale.ROOT, "%02x", it.toInt() and 255) } }.toSet()
+    }
 }

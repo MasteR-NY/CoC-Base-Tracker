@@ -24,6 +24,7 @@ class UpdateActivity : Activity() {
     private lateinit var install: Button
     private lateinit var retry: Button
     private lateinit var cancel: Button
+    private lateinit var certificateDetails: Button
     private var resumed = false; private var busy = false; private var ready = false
     private var verifiedId = -1L
     private var release: UpdateChecker.Release? = null
@@ -35,7 +36,7 @@ class UpdateActivity : Activity() {
                 val parsed = UpdateChecker.parse(json)
                 release = if (intent.getBooleanExtra("redirect", false)) UpdateChecker.parseReleaseRedirect("/MasteR-NY/CoC-Base-Tracker/releases/tag/${parsed.tag}") else parsed
             }
-            if (intent.getBooleanExtra("preview", false)) { showReady("1.20"); return }
+            if (intent.getBooleanExtra("preview", false)) { showReady("1.21"); return }
             release?.let { if (UpdateDownloads.id(this) == -1L || it.version != UpdateDownloads.version(this)) startDownload() }
         } catch (error: Exception) { showError(error) }
     }
@@ -57,6 +58,7 @@ class UpdateActivity : Activity() {
         install = button(card, "Install Update", true) { install() }.apply { id = R.id.install_update; visibility = View.GONE }
         retry = button(card, "Retry Download", true) { startDownload() }.apply { visibility = View.GONE }; space(card, 8)
         cancel = button(card, "Cancel Download", false) { try { UpdateDownloads.cancel(this); finish() } catch (error: Exception) { showError(error) } }
+        certificateDetails = button(card, "Certificate Details", false) { }.apply { id = R.id.certificate_details; visibility = View.GONE }
         space(content, 20); content.addView(text("Android asks you to confirm installation. Your saved accounts and widgets stay in place when you update.", 14, 0xFFCDBDA5.toInt(), false))
         space(content, 16); button(content, "Open Releases", false) { try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_URL))) } catch (_: ActivityNotFoundException) { Toast.makeText(this, "No browser is available.", Toast.LENGTH_LONG).show() } }
     }
@@ -65,7 +67,7 @@ class UpdateActivity : Activity() {
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdownNow(); super.onDestroy() }
     private fun startDownload() {
         if (busy) return
-        ready = false; verifiedId = -1
+        ready = false; verifiedId = -1; certificateDetails.visibility = View.GONE
         try {
             val release = release ?: throw IOException("Return to Check for Updates to find the latest release.")
             UpdateDownloads.cancel(this); UpdateDownloads.start(this, release); retry.visibility = View.GONE; cancel.text = "Cancel Download"; refresh()
@@ -102,9 +104,18 @@ class UpdateActivity : Activity() {
     fun showReady(version: String) {
         ready = true; status.text = "v$version Ready to Install"; progress.visibility = View.GONE
         detail.text = "Download complete. Package, version and signing key checks passed.\n\nTap Install Update to continue with Android’s installer."
-        install.visibility = View.VISIBLE; retry.visibility = View.GONE; cancel.text = "Delete Download"
+        install.visibility = View.VISIBLE; retry.visibility = View.GONE; cancel.text = "Delete Download"; certificateDetails.visibility = View.GONE
     }
-    private fun showError(error: Exception) { ready = false; status.text = "Update Unavailable"; progress.visibility = View.GONE; detail.text = error.message ?: error.javaClass.simpleName; install.visibility = View.GONE; retry.visibility = if (release == null) View.GONE else View.VISIBLE }
+    private fun showError(error: Exception) {
+        ready = false; status.text = "Update Unavailable"; progress.visibility = View.GONE; detail.text = error.message ?: error.javaClass.simpleName; install.visibility = View.GONE; retry.visibility = if (release == null) View.GONE else View.VISIBLE
+        certificateDetails.visibility = if (error is UpdateDownloads.SigningFailure) View.VISIBLE else View.GONE
+        if (error is UpdateDownloads.SigningFailure) certificateDetails.setOnClickListener {
+            val diagnostic = error.diagnostics()
+            val text = TextView(this).apply { this.text = diagnostic; textSize = 12f; setPadding(dp(20), dp(10), dp(20), dp(10)); setTextIsSelectable(true) }
+            val scroll = ScrollView(this).apply { addView(text) }
+            AlertDialog.Builder(this).setTitle("Signing Certificates").setView(scroll).setPositiveButton("Close", null).setNeutralButton("Copy Details") { _, _ -> getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("APK signing diagnostics", diagnostic)); Toast.makeText(this, "Certificate details copied", Toast.LENGTH_SHORT).show() }.show()
+        }
+    }
     private fun install() {
         if (!ready || busy || intent.getBooleanExtra("preview", false)) return
         if (!packageManager.canRequestPackageInstalls()) {
