@@ -1,6 +1,6 @@
 # Item Names and Artwork
 
-Version 1.15 bundles **880 identity records** and **871 compact artwork files**. Nine crafting module records share their parent defense portraits and add a stat symbol. Names and pictures work offline; no image service is contacted by the app.
+Version 1.18 bundles **882 identity records** and **873 compact artwork files**. Nine crafting module records share their parent defense portraits and add a stat symbol. Names and pictures work offline; no image service is contacted by the app.
 
 ## Crafting Modules
 
@@ -45,6 +45,10 @@ Some other source records share a display name or picture across variants. Tappi
 Run `python tools/check_cosmetic_ids.py`. It downloads only three pinned data files, verifies their recorded SHA-256 hashes, decodes the tables without executing game code, and prints the four records above. No account data is needed. The current public package was inspected only through bounded ZIP-directory/fingerprint reads; it was never installed or executed.
 
 `tools/identity-overrides.json` records the official fingerprint, English TIDs, source hashes and the two artwork URLs. Official files: [decoration index](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/decos_logic.scindex), [English text table](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/localization/texts.csv), [skin table](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/skins.csv). Artwork is linked from [ClashPerk’s decoration catalog](https://wiki.clashperk.com/decorations?group=Home+village).
+
+## Equipment Identity Corrections
+
+Monolith Arrow is `90000016` (Archer Queen); Electro Fangs is `90000059` (Dragon Duke). Version 1.18 corrects the reversed IDs in the planner snapshot and adds the matching pinned portraits to the identity overlay. Their hero gates now follow the correct equipment. See [Catalog Corrections](CATALOG-CORRECTIONS.md) for evidence and validation.
 
 ## Sources and Reproduction
 

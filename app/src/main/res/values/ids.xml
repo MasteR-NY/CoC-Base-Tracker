@@ -1,4 +1,5 @@
 <resources>
+    <item name="update_error_summary" type="id" />
     <item name="active_effect_row" type="id" />
     <item name="next_free_row" type="id" />
     <item name="time_format_setting" type="id" />

@@ -13,7 +13,7 @@ python tools/fetch_planner_data.py
 python tools/compile_planner_catalog.py
 ```
 
-The first command downloads JSON from the pinned public revision in `tools/planner-sources.json` into ignored `.tools/planner-data/`. Downloaded code is never executed. The second retains costs, durations, requirements, unlock notes and hall count limits. Runtime use is entirely offline. Updating the revision is a deliberate developer change: review the data diff, update coverage/date in README and this document, and run tests and previews.
+The first command downloads JSON from the pinned public revision in `tools/planner-sources.json` into ignored `.tools/planner-data/`. Downloaded code is never executed. The second retains costs, durations, requirements, unlock notes and hall count limits, then applies the explicit reviewed entries in `tools/planner-corrections.json`. Each correction checks the expected upstream value and fails for review if that value changes. Corrected IDs must remain unique. See [Catalog Corrections](CATALOG-CORRECTIONS.md) for the equipment-ID swap and TH12 Stone Slammer gates. Runtime use is entirely offline. Updating the revision is a deliberate developer change: review the data diff, update coverage/date in README and this document, and run tests and previews.
 
 ## Interpretation
 
@@ -32,6 +32,8 @@ The community snapshot covers standard levels through Town Hall 18 and Builder H
 Baseline planning costs/durations do not include events, Gold Pass, potions or helpers. Running countdowns still use the export-based timing engine, preserving in-game reductions and known active boosts without applying them twice. A menu value is not an affordability claim or a promise that an upgrade can start.
 
 ## Build Menu Layout and Filters
+
+Version 1.18 removes duplicate card padding and uses smaller portraits, text and section gaps, with inner margins retained. Overview cards and the timer list use the same compact spacing. Android font scaling remains enabled.
 
 The gray category header, brown list cards, green progress rows, dark section bars, resource/type grid and Cost Max/Cost Min buttons follow the supplied November 8 game screenshots, adapted for a phone companion. There is no game-background capture or accessibility service. Timers retain the full d/h/m/s format.
 

@@ -2,5 +2,4 @@
     <gradient android:startColor="#AF8868" android:endColor="#987254" android:angle="270" />
     <corners android:radius="9dp" />
     <stroke android:width="2dp" android:color="#553B29" />
-    <padding android:left="10dp" android:top="10dp" android:right="10dp" android:bottom="10dp" />
 </shape>

@@ -7,8 +7,8 @@ android {
         applicationId = "com.villageclock.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "1.17"
+        versionCode = 19
+        versionName = "1.18"
     }
     buildTypes { release { isMinifyEnabled = false } }
     buildFeatures { buildConfig = true }

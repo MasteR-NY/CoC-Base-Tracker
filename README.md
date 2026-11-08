@@ -14,7 +14,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 | --- | --- | --- |
 | <img src="docs/images/app-design.png" width="270" alt="Upgrade timers with an account name, player tag and grouped countdowns"> | <img src="docs/images/build-menu-design.png" width="270" alt="Build Menu with base selection, upgrade costs and category tabs"> | <img src="docs/images/widget-design.png" width="270" alt="Scrollable home screen widget with account details and live countdowns"> |
 
-*Previews use sample account data. Widget appearance may vary by launcher.*
+*Previews show the current compact layouts with sample account data. Widget appearance may vary by launcher.*
 
 <details>
 <summary>Village Overview Previews</summary>
@@ -54,13 +54,15 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.17**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.18**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
 
 Downloads continue when you leave the screen. Use **Update Download** or the ready notification to return. Notifications are optional. You can cancel a download or delete a completed one.
 
-If the GitHub API fails, the app tries the public latest-release redirect, followed by Android’s download service for metadata if both app connections fail. Error details include the system’s socket message. **Retry** and **Open Releases** remain available when GitHub cannot be reached. Checks run only when requested; a download starts after you choose it.
+If the GitHub API fails, the app tries the public latest-release redirect. If Android blocks the app’s connections, Android Downloads tries the public release page before the API. A temporary server failure gets one retry; denied or rate-limited requests do not. A verified release tag can be offered while its APK availability is checked during download.
+
+Failures show a short explanation; expand **Technical Details** for the system message. **Retry** and **Open Releases** remain available. HTTP 403 means access was denied or limited, and HTTP 504 means a gateway timed out; neither proves the phone is offline. An Android `EPERM` socket restriction may still require a phone setting change. Checks run only when requested; a download starts after you choose it.
 
 <details>
 <summary>Preview the Update Screen</summary>
@@ -137,6 +139,8 @@ If Android stops background updates or you force-stop the app, reopen it to rest
 | --- | --- |
 | Village Base | Buildings & Heroes, Army Upgrades, Hero Equipment, Hero Pets |
 | Builder Base | Buildings & Heroes, Army Upgrades |
+
+Version 1.18 corrects Monolith Arrow’s equipment ID and the TH12 requirements for Stone Slammer’s first three levels. A level-17 Monolith Arrow now shows its level-18 upgrade under Archer Queen equipment. See [Catalog Corrections](docs/CATALOG-CORRECTIONS.md) for the reviewed mappings.
 
 The menu opens with **Current Hall Only** enabled. It shows running upgrades first, remaining upgrades reachable within your current Town Hall or Builder Hall, and the next hall upgrade. A required Laboratory, Hero Hall, or other facility upgrade stays listed when it can be completed at the current hall. Future hall requirements are hidden by default. Turn off Current Hall Only in the sliders menu to inspect next steps beyond that hall.
 

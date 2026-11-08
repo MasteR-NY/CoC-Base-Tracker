@@ -90,6 +90,27 @@ public final class UpdateChecker {
             return new Release(version.replaceFirst("^[vV]",""),false,false,version,"","","",0);
         }catch(Exception invalid){throw new CheckException("The release redirect could not be verified for this repository.");}
     }
+    /** Used only for a fresh HTTPS fetch of our fixed /releases/latest URL. */
+    static Release parseReleasePage(String html)throws CheckException{
+        if(html==null||html.length()>2*1024*1024)throw new CheckException("The public release page is too large or unreadable.");
+        java.util.regex.Matcher tags=java.util.regex.Pattern.compile("<(?:meta|link)\\b[^>]{0,4096}>",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(html);
+        Release verified=null;
+        while(tags.find()){
+            String tag=tags.group();java.util.Map<String,String> attributes=new java.util.HashMap<>();
+            java.util.regex.Matcher fields=java.util.regex.Pattern.compile("([A-Za-z_:][-A-Za-z0-9_:.]*)\\s*=\\s*([\"'])(.*?)\\2",java.util.regex.Pattern.DOTALL).matcher(tag);
+            while(fields.find())attributes.put(fields.group(1).toLowerCase(java.util.Locale.ROOT),fields.group(3));
+            String location="og:url".equalsIgnoreCase(attributes.get("property"))?attributes.get("content"):"canonical".equalsIgnoreCase(attributes.get("rel"))?attributes.get("href"):null;
+            if(location!=null){Release candidate=parseReleaseRedirect(location);if(verified!=null&&!verified.tag.equals(candidate.tag))throw new CheckException("The public release page contains conflicting version metadata.");verified=candidate;}
+        }
+        if(verified==null)throw new CheckException("The public release page did not confirm a stable version. The release may still be publishing.");return verified;
+    }
+    static String userMessage(String detail){
+        String value=detail==null?"":detail;
+        if(value.contains("EPERM"))return "Android blocked this app’s direct network access (EPERM). The system download fallback also failed"+(value.contains("403")?" with HTTP 403":value.contains("504")?" with HTTP 504":"")+". Check the app’s network access or retry later. Open Releases remains available.";
+        if(value.contains("403")||value.contains("429"))return "GitHub denied or limited the request. Wait before retrying, or open Releases. This does not mean your phone is offline.";
+        if(value.contains("504")||value.contains("502")||value.contains("503"))return "GitHub did not finish the request. A newly published release or its APK may still be processing. Retry shortly or open Releases.";
+        return "Couldn’t verify the latest release right now. Retry or open Releases. Technical details are available below.";
+    }
     public static String failureDetail(Exception failure){
         if(failure instanceof CheckException)return failure.getMessage();
         if(failure instanceof javax.net.ssl.SSLException)return "Secure connection failed ("+failure.getClass().getSimpleName()+"). Check the phone’s date/time, Android security updates, or network filtering.";

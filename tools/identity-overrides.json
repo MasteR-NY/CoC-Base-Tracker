@@ -35,6 +35,22 @@
       "official_tid": "TID_DECO_COSMIC_FOUNTAIN",
       "artwork_url": "https://assets.clashperk.com/decorations/home_village/sour_elixir_fountain.webp",
       "artwork_sha256": "33a19396d6e722b048331766399a152881916f17fe00f97f4ecb70b504db6af8"
+    },
+    "90000016": {
+      "name": "Monolith Arrow",
+      "kind": "equipment",
+      "icon": "identity_90000016",
+      "artwork_url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/equipment/monolith_arrow.webp",
+      "artwork_sha256": "58279d7c8839c89528083cb4348f219eaf37c20e5cc9e710ce4c89d045a19fb6",
+      "source_metadata": "https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json"
+    },
+    "90000059": {
+      "name": "Electro Fangs",
+      "kind": "equipment",
+      "icon": "identity_90000059",
+      "artwork_url": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/fdac291ae7fbc2901221ff945834be534d0344ae/assets/equipment/electro_fangs.webp",
+      "artwork_sha256": "99063c6c73b8ed08bfb33c2fa046d2f6d84565d1f35353e00a88ff82e2ea028a",
+      "source_metadata": "https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json"
     }
   }
 }

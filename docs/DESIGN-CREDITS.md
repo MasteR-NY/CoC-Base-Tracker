@@ -35,3 +35,7 @@ The revised Build Menu follows the user-supplied game screenshots dated November
 ## Shared Boost Artwork Added in Version 1.17
 
 Builder Potion, Research Potion, Pet Potion, Builder Bite, Study Soup, Clock Tower and the hammer symbol use the existing pinned ClashKingAssets game-art source. Its retained license/attribution applies; original artwork remains © Supercell. Source hashes are recorded in `effect-art-sources.json`. The hammer is a representative game-item symbol for Hammer Jam, not a claimed copy of the event’s promotional logo. No new app-runtime artwork requests are made.
+
+## Equipment Portraits Added in Version 1.18
+
+Monolith Arrow and Electro Fangs use the same pinned ClashKingAssets manifest and retained game-art attribution. Exact artwork URLs, SHA-256 hashes and explicit identity metadata references are recorded in `tools/identity-overrides.json`. The two corrected IDs are also applied to the offline planner; these portraits are not downloaded at runtime.

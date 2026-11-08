@@ -1,0 +1,13 @@
+{
+  "reviewed": "2026-11-08",
+  "corrections": [
+    {"source": "data/home/hero-equipment/monolith-arrow.json", "field": "dataId", "old": 90000059, "value": 90000016},
+    {"source": "data/home/hero-equipment/electro-fangs.json", "field": "dataId", "old": 90000016, "value": 90000059},
+    {"source": "data/home/siege-machines/stone-slammer.json", "levels": [1, 2, 3], "field": "townHallRequired", "old": 13, "value": 12}
+  ],
+  "evidence": [
+    "https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json",
+    "https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/characters.csv",
+    "https://clashofclans.fandom.com/wiki/Stone_Slammer"
+  ]
+}

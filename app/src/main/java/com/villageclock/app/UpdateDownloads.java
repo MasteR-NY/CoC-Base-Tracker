@@ -26,6 +26,11 @@ final class UpdateDownloads {
     static long id(Context c){return prefs(c).getLong("id",-1);}
     static String version(Context c){return prefs(c).getString("version","");}
     interface ReleaseCheck { UpdateChecker.Release fetch()throws Exception; }
+    interface MetadataSource { UpdateChecker.Release fetch(boolean publicPage)throws IOException; }
+    static final class TransferFailure extends IOException {
+        final int code;
+        TransferFailure(int code){super(downloadFailure(code));this.code=code;}
+    }
     static UpdateChecker.Release fetchLatest(Context context)throws Exception{
         return fetchLatest(()->UpdateChecker.fetchLatest(BuildConfig.VERSION_NAME),()->fetchMetadata(context));
     }
@@ -54,27 +59,42 @@ final class UpdateDownloads {
     }
     /** Independent system service fallback for phones whose app sockets fail. Called on a worker. */
     static UpdateChecker.Release fetchMetadata(Context context)throws IOException{
+        return fetchMetadata(publicPage->fetchMetadataFile(context,publicPage));
+    }
+    static UpdateChecker.Release fetchMetadata(MetadataSource source)throws IOException{
+        IOException pageFailure;
+        try{return source.fetch(true);}catch(IOException failure){pageFailure=failure;}
+        // Retry transient gateway/server failures once; never hammer a 403/429 rate limit.
+        if(pageFailure instanceof TransferFailure&&java.util.Arrays.asList(500,502,503,504).contains(((TransferFailure)pageFailure).code)){
+            try{Thread.sleep(1000);}catch(InterruptedException cancelled){Thread.currentThread().interrupt();throw new IOException("The update check was cancelled.");}
+            try{return source.fetch(true);}catch(IOException failure){pageFailure=failure;}
+        }
+        try{return source.fetch(false);}catch(IOException apiFailure){throw new IOException("Public Releases: "+pageFailure.getMessage()+"\nAPI fallback: "+apiFailure.getMessage(),apiFailure);}
+    }
+    private static UpdateChecker.Release fetchMetadataFile(Context context,boolean publicPage)throws IOException{
         Context c=context.getApplicationContext();DownloadManager dm=manager(c);directory(c);
-        String name="release-check-"+UUID.randomUUID()+".json";
-        DownloadManager.Request request=request(UpdateChecker.API_URL,"Checking CoC Base Tracker updates")
-            .addRequestHeader("Accept","application/vnd.github+json").setMimeType("application/json")
+        String name="release-check-"+UUID.randomUUID()+(publicPage?".html":".json");
+        int limit=publicPage?2*1024*1024:512*1024;
+        DownloadManager.Request request=request(publicPage?UpdateChecker.RELEASES_URL:UpdateChecker.API_URL,"Checking CoC Base Tracker updates")
+            .addRequestHeader("Cache-Control","no-cache").addRequestHeader("Pragma","no-cache")
+            .addRequestHeader("Accept",publicPage?"text/html":"application/vnd.github+json").setMimeType(publicPage?"text/html":"application/json")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationInExternalFilesDir(c,Environment.DIRECTORY_DOWNLOADS,name);
         long download=-1;
         try{
-            download=dm.enqueue(request);long deadline=android.os.SystemClock.elapsedRealtime()+35000;
+            download=dm.enqueue(request);long deadline=android.os.SystemClock.elapsedRealtime()+20000;
             while(android.os.SystemClock.elapsedRealtime()<deadline){
                 Status s=status(c,download);
-                if(s.total>512*1024||s.downloaded>512*1024)throw new IOException("The release response is too large.");
-                if(s.state==DownloadManager.STATUS_FAILED)throw new IOException(downloadFailure(s.reason));
+                if(s.total>limit||s.downloaded>limit)throw new IOException("The release response is too large.");
+                if(s.state==DownloadManager.STATUS_FAILED)throw new TransferFailure(s.reason);
                 if(s.state==DownloadManager.STATUS_SUCCESSFUL){
                     try(InputStream input=c.getContentResolver().openInputStream(dm.getUriForDownloadedFile(download))){
-                        return UpdateChecker.parse(new String(readBounded(input,512*1024),StandardCharsets.UTF_8));
+                        String body=new String(readBounded(input,limit),StandardCharsets.UTF_8);return publicPage?UpdateChecker.parseReleasePage(body):UpdateChecker.parse(body);
                     }
                 }
                 try{Thread.sleep(300);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException("The update check was cancelled.");}
             }
-            throw new IOException("Android Downloads did not finish the check within 35 seconds. Check that Downloads is enabled and can access the network.");
+            throw new IOException("Android Downloads did not finish this check within 20 seconds. Check that Downloads is enabled and can access the network.");
         }catch(RuntimeException failure){throw new IOException("Android Downloads: "+failure.getClass().getSimpleName()+". Check that Downloads is enabled in Android Settings.",failure);}
         finally{if(download!=-1)dm.remove(download);new File(directory(c),name).delete();}
     }
@@ -107,6 +127,8 @@ final class UpdateDownloads {
         if(reason==DownloadManager.ERROR_INSUFFICIENT_SPACE)return "Not enough storage. Free some space and retry.";
         if(reason==DownloadManager.ERROR_DEVICE_NOT_FOUND)return "Download storage is unavailable.";
         if(reason==404)return "The APK is not attached to this release yet (HTTP 404). Try again later.";
+        if(reason==403||reason==429)return "GitHub denied or limited the download (HTTP "+reason+"). Wait before retrying, or open Releases.";
+        if(reason==500||reason==502||reason==503||reason==504)return "GitHub’s download server is temporarily unavailable (HTTP "+reason+"). A new release may still be processing. Retry shortly.";
         return "Android Downloads failed (code "+reason+"). Retry or open Releases.";
     }
     /** Checks the completed APK without executing it. Android verifies it again during installation. */

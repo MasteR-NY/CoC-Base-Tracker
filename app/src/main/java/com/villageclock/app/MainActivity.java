@@ -64,15 +64,15 @@ public final class MainActivity extends Activity {
         scroll.setBackgroundColor(BG);
         content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(22), dp(24), dp(22), dp(24));
+        content.setPadding(dp(16), dp(18), dp(16), dp(18));
         scroll.addView(content);
         setContentView(scroll);
         View root = scroll;
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.ime());
-                content.setPadding(dp(22) + bars.left, dp(24) + bars.top, dp(22) + bars.right, dp(24) + bars.bottom);
-            } else content.setPadding(dp(22), dp(24) + insets.getSystemWindowInsetTop(), dp(22), dp(24) + insets.getSystemWindowInsetBottom());
+                content.setPadding(dp(16) + bars.left, dp(18) + bars.top, dp(16) + bars.right, dp(18) + bars.bottom);
+            } else content.setPadding(dp(22), dp(18) + insets.getSystemWindowInsetTop(), dp(22), dp(18) + insets.getSystemWindowInsetBottom());
             return insets;
         });
     }
@@ -93,7 +93,7 @@ public final class MainActivity extends Activity {
     @Override public void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleIntent(intent); }
     @Override public void onResume() { super.onResume(); resumed = true; updateClipboardListener(); Reminders.deliver(this); VillageWidget.refresh(this); Reminders.schedule(this); render(); if (updateResultPending) handler.post(this::deliverUpdateResult); }
     @Override public void onPause() { resumed = false; updateClipboardListener();handler.removeCallbacks(autoClipboard);handler.removeCallbacks(refresh); super.onPause(); }
-    @Override public void onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdown(); updateWorker.shutdown(); super.onDestroy(); }
+    @Override public void onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdown(); updateWorker.shutdownNow(); super.onDestroy(); }
     @Override public void onWindowFocusChanged(boolean focused) {
         super.onWindowFocusChanged(focused);
         if (focused && pendingClipboard) { pendingClipboard = false; handler.removeCallbacks(autoClipboard);handler.post(this::importClipboard); }
@@ -200,7 +200,9 @@ public final class MainActivity extends Activity {
             String reason = pendingUpdateError == null ? "Couldn’t read the release information." : pendingUpdateError;
             updateStatus = "Update check failed. Retry or open Releases.";
             render();
-            new AlertDialog.Builder(this).setTitle("Update Check Unavailable").setMessage(reason)
+            LinearLayout body=vertical();body.setPadding(dp(20),dp(8),dp(20),dp(8));TextView explanation=text(UpdateChecker.userMessage(reason),14,TEXT,false);explanation.setId(R.id.update_error_summary);body.addView(explanation);gap(body,8);
+            TextView technical=text(reason,11,MUTED,false);technical.setVisibility(View.GONE);ScrollView detailsScroll=new ScrollView(this);detailsScroll.addView(technical);detailsScroll.setVisibility(View.GONE);Button details=new Button(this);details.setText("Technical Details ▾");details.setAllCaps(false);details.setTextSize(12);details.setOnClickListener(v->{boolean show=detailsScroll.getVisibility()!=View.VISIBLE;technical.setVisibility(show?View.VISIBLE:View.GONE);detailsScroll.setVisibility(show?View.VISIBLE:View.GONE);});body.addView(details);body.addView(detailsScroll,new LinearLayout.LayoutParams(-1,dp(180)));
+            new AlertDialog.Builder(this).setTitle("Update Check Unavailable").setView(body)
                 .setPositiveButton("Retry", (d,w) -> checkForUpdates()).setNegativeButton("Close", null).setNeutralButton("Open Releases", (d,w) -> openReleases()).show();
             return;
         }
@@ -211,7 +213,7 @@ public final class MainActivity extends Activity {
                 updateStatus = "Update available: v" + offered.version + (offered.apkStatusKnown&&!offered.hasApk?". The APK has not been uploaded yet.":".");
                 render();
                 AlertDialog.Builder prompt=new AlertDialog.Builder(this).setTitle("Update Available")
-                    .setMessage("CoC Base Tracker v"+offered.version+" is available."+(offered.apkStatusKnown&&!offered.hasApk?" The release has no downloadable APK yet.":" Download it here, then tap Install Update. Android will ask you to confirm installation.")+(offered.bytes>0?"\n\nDownload: "+String.format(java.util.Locale.getDefault(),"%.1f MB",offered.bytes/1048576.0):""))
+                    .setMessage("CoC Base Tracker v"+offered.version+" is available."+(offered.apkStatusKnown&&!offered.hasApk?" The release has no downloadable APK yet.":" Download it here, then tap Install Update. Android will ask you to confirm installation.")+(!offered.apkStatusKnown?"\n\nThe release version is confirmed. APK availability will be checked during download.":"")+(offered.bytes>0?"\n\nDownload: "+String.format(java.util.Locale.getDefault(),"%.1f MB",offered.bytes/1048576.0):""))
                     .setNegativeButton("Later",null);
                 if(!offered.apkStatusKnown||offered.hasApk)prompt.setPositiveButton("Download Update",(d,w)->startActivity(UpdateActivity.intent(this,offered)));
                 else prompt.setPositiveButton("Open Releases",(d,w)->openReleases());
@@ -242,7 +244,7 @@ public final class MainActivity extends Activity {
         row.addView(stack, new LinearLayout.LayoutParams(0, -2, 1)); parent.addView(row);
     }
     private void villageState(Village village, long now) {
-        LinearLayout panel = vertical(); panel.setBackgroundResource(R.drawable.widget_bg); panel.setPadding(dp(12), dp(10), dp(12), dp(9));
+        LinearLayout panel = vertical(); panel.setBackgroundResource(R.drawable.widget_bg); panel.setPadding(dp(10), dp(8), dp(10), dp(8));
         LinearLayout header = horizontal();
         header.setBackgroundResource(R.drawable.build_header); header.setPadding(dp(6), dp(5), dp(6), dp(5));
         TextView villageTitle = text(Store.title(this, village) + "  TH" + village.townHall, 21, Color.WHITE, true);
@@ -523,16 +525,16 @@ public final class MainActivity extends Activity {
     }
     private String shortDuration(long ms) { return DurationText.remaining(ms, 0); }
     private int dp(float n) { return (int)(getResources().getDisplayMetrics().density * n + 0.5f); }
-    private TextView text(String s, int size, int color, boolean bold) { TextView t = new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setTypeface(bold ? getResources().getFont(R.font.lilita_one) : Typeface.create("sans-serif", Typeface.NORMAL)); t.setLineSpacing(dp(2), 1); return t; }
+    private TextView text(String s, int size, int color, boolean bold) { TextView t = new TextView(this); t.setText(s); t.setTextSize(size>=26?size-3:size>=18?size-2:size); t.setTextColor(color); t.setTypeface(bold ? getResources().getFont(R.font.lilita_one) : Typeface.create("sans-serif", Typeface.NORMAL)); t.setLineSpacing(dp(2), 1); return t; }
     private LinearLayout vertical() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }
     private LinearLayout horizontal() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
-    private LinearLayout card() { LinearLayout c = vertical(); c.setPadding(dp(16), dp(16), dp(16), dp(16)); c.setBackgroundResource(R.drawable.card_bg); return c; }
+    private LinearLayout card() { LinearLayout c = vertical(); c.setPadding(dp(12), dp(10), dp(12), dp(10)); c.setBackgroundResource(R.drawable.card_bg); return c; }
     private GradientDrawable shape(int color, int radius) { GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(radius)); return d; }
     private LinearLayout.LayoutParams wrap() { return new LinearLayout.LayoutParams(-2, -2); }
-    private void gap(LinearLayout parent, int size) { View gap = new View(this); parent.addView(gap, new LinearLayout.LayoutParams(1, dp(size))); }
+    private void gap(LinearLayout parent, int size) { View gap = new View(this); parent.addView(gap, new LinearLayout.LayoutParams(1, dp(size>=8?size-3:Math.max(2,size-1)))); }
     private Button button(LinearLayout parent, String label, boolean primary, View.OnClickListener click) {
-        Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(primary ? 18 : 16); b.setTypeface(getResources().getFont(R.font.lilita_one));
-        b.setTextColor(primary ? 0xFF3B2508 : GOLD); b.setBackgroundResource(primary ? R.drawable.btn_primary : R.drawable.btn_secondary); b.setMinHeight(dp(50)); b.setPadding(dp(12), dp(4), dp(12), dp(4)); b.setOnClickListener(click);
-        parent.addView(b, new LinearLayout.LayoutParams(-1, dp(50))); return b;
+        Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(primary ? 16 : 14); b.setTypeface(getResources().getFont(R.font.lilita_one));
+        b.setTextColor(primary ? 0xFF3B2508 : GOLD); b.setBackgroundResource(primary ? R.drawable.btn_primary : R.drawable.btn_secondary); b.setMinHeight(dp(44)); b.setPadding(dp(10), dp(3), dp(10), dp(3)); b.setOnClickListener(click);
+        parent.addView(b, new LinearLayout.LayoutParams(-1, dp(44))); return b;
     }
 }

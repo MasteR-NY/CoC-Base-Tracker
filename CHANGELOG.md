@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.18 — A Tighter Layout and Correct TH12 Upgrades
+
+- **More Fits on Screen:** Upgrade rows, Build Menu cards and Overview cards use smaller portraits, tighter spacing and smaller headings. Duplicate card padding is removed while keeping inner margins and normal Android text scaling.
+- **Monolith Arrow and Stone Slammer Restored:** Monolith Arrow and Electro Fangs had swapped data IDs in the source catalog. Their names, hero requirements and artwork now match the game data. Stone Slammer’s first three levels are correctly available within TH12. A level-17 Monolith Arrow now shows its next level at Blacksmith 5.
+- **More Resilient Release Checks:** Android Downloads tries the public latest-release page before the API fallback, avoiding that API’s anonymous request quota. Transient 500/502/503/504 responses receive one retry; 403/429 responses are not repeatedly retried. Failures show a short explanation with expandable technical details. APK availability remains explicit when a release is still publishing.
+
+### How to Use It
+
+1. Open Build Menu → Hero Equipment for Monolith Arrow, or Army Upgrades → Siege for Stone Slammer. Current Hall Only stays enabled by default.
+2. Check for Updates uses the new public-page fallback automatically. Retry after a short wait if GitHub is still processing a newly published release.
+3. If EPERM remains in Technical Details, check this app’s Android network access. Server fallback changes do not grant blocked socket permissions.
+
 ## v1.17 — Know When It Finishes
 
 - **Finish Clocks Beside Upgrades:** Current upgrades show their estimated local finish date/time beside the countdown. Settings → Time Format offers Device Default, 12-Hour and 24-Hour. Dates identify tomorrow and later finishes.

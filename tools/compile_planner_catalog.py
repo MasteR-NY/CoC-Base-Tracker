@@ -19,7 +19,17 @@ for path in spec['paths']:
                       for level in data['levels']]
     item['source'] = path
     items.append(item)
+corrections = json.loads((ROOT / 'tools/planner-corrections.json').read_text(encoding='utf-8'))
+for fix in corrections['corrections']:
+    item = next(item for item in items if item['source'] == fix['source'])
+    targets = [level for level in item['levels'] if level['level'] in fix['levels']] if 'levels' in fix else [item]
+    assert len(targets) == len(fix.get('levels', [None])), 'Review missing or duplicate corrected levels'
+    for target in targets:
+        assert target[fix['field']] == fix['old'], 'Review the correction against changed upstream data'
+        target[fix['field']] = fix['value']
+assert len({item['dataId'] for item in items}) == len(items), 'Duplicate catalog IDs'
 result = {'source': 'chiefpansancolt/clash-of-clans-data', 'revision': spec['sha'], 'checked': '2026-11-08', 'items': items}
+result['corrections'] = corrections
 target = ROOT / 'app/src/main/assets/planner-catalog.json'
 target.write_text(json.dumps(result, separators=(',', ':'), ensure_ascii=False), encoding='utf-8')
 print(f'{len(items)} catalog items, {target.stat().st_size} bytes')
