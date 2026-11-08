@@ -29,12 +29,13 @@ public final class ExportParser {
             if (!tag.matches("#[A-Za-z0-9]{2,16}")) throw new InvalidExport("This export has no valid player tag." );
             long exportedAt = seconds * 1000;
             Map<Integer,Integer> helperLevels = new HashMap<>();
+            Map<Integer,Long> helperCooldowns = new HashMap<>();
             long helperCooldown = 0;
             JSONArray helpers = root.optJSONArray("helpers");
             if (helpers != null) for (int i = 0; i < helpers.length(); i++) {
                 JSONObject h = helpers.optJSONObject(i);
                 if (h != null) helperLevels.put(h.optInt("data"), Math.max(0, Math.min(20, h.optInt("lvl"))));
-                if (h != null) helperCooldown = Math.max(helperCooldown, bounded(h, "helper_cooldown", MAX_SECONDS));
+                if (h != null && h.has("helper_cooldown")) helperCooldowns.put(h.optInt("data"), bounded(h, "helper_cooldown", MAX_SECONDS));
             }
             JSONObject boosts = root.optJSONObject("boosts");
             if (boosts != null) helperCooldown = Math.max(helperCooldown, bounded(boosts, "helper_cooldown", MAX_SECONDS));
@@ -63,14 +64,14 @@ public final class ExportParser {
                         if (id == 1000034) baseBuilders = Math.max(1, baseBuilders);
                         if (id == 1000078 || id == 1000047) baseBuilders = 2;
                     }
-                    add(entry, count, queues[f], exportedAt, boosts, helperLevels, helperCooldown, names, jobs);
+                    add(entry, count, queues[f], exportedAt, boosts, helperLevels, helperCooldowns, helperCooldown, names, jobs);
                     JSONArray types = entry.optJSONArray("types");
                     if (types != null) for (int t = 0; t < Math.min(types.length(), 100); t++) {
                         JSONObject type = types.optJSONObject(t);
                         JSONArray modules = type == null ? null : type.optJSONArray("modules");
                         if (modules != null) for (int m = 0; m < Math.min(modules.length(), 100); m++) {
                             JSONObject module = modules.optJSONObject(m);
-                            if (module != null) add(module, 1, queues[f], exportedAt, boosts, helperLevels, helperCooldown, names, jobs);
+                            if (module != null) add(module, 1, queues[f], exportedAt, boosts, helperLevels, helperCooldowns, helperCooldown, names, jobs);
                         }
                     }
                 }
@@ -81,7 +82,7 @@ public final class ExportParser {
         }
     }
     private static void add(JSONObject item, int count, Village.Queue queue, long at, JSONObject boosts,
-                            Map<Integer,Integer> levels, long helperCooldown, Names names, List<Village.Upgrade> out) throws InvalidExport {
+                            Map<Integer,Integer> levels, Map<Integer,Long> cooldowns, long helperCooldown, Names names, List<Village.Upgrade> out) throws InvalidExport {
         long work = bounded(item, "timer", MAX_SECONDS);
         if (work == 0) return;
         int id = item.optInt("data", -1);
@@ -97,8 +98,10 @@ public final class ExportParser {
         }
         int helper = queue == Village.Queue.BUILDERS ? 93000000 : queue == Village.Queue.LAB ? 93000001 : 0;
         long helperDuration = bounded(item, "helper_timer", MAX_SECONDS);
+        long cooldown=cooldowns.getOrDefault(helper,helperCooldown);
+        boolean recurring=item.has("helper_recurrent")?item.optBoolean("helper_recurrent",false):item.optBoolean("recurrent_helper",false);
         UpgradeTiming.Helper assignment = helper == 0 || levels.getOrDefault(helper, 0) == 0 ? null : new UpgradeTiming.Helper(
-            levels.get(helper), helperDuration, item.optBoolean("recurrent_helper", false) && helperCooldown > 0 ? helperCooldown : -1,
+            levels.get(helper), helperDuration, recurring && cooldown > 0 ? cooldown : -1,
             queue == Village.Queue.BUILDERS ? "Builder's Apprentice" : "Lab Assistant");
         UpgradeTiming.Plan plan = new UpgradeTiming.Plan(work, windows, assignment);
         long finish = at + plan.secondsToFinish() * 1000;

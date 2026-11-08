@@ -71,6 +71,10 @@ Packaging requires the signed APK, passing test reports, lint output, matching R
 
 ## Data and Validation
 
+Auto-sync registers a clipboard-change listener only while MainActivity is resumed, and reads text only when its window has focus and the preference is enabled. Focus return also queues a check so an export copied in Clash is discovered without background access. A shape filter precedes full validation on the import executor; non-text clipboard URIs are never coerced. A SHA-256 fingerprint suppresses repeated clipboard exports, and saved timestamps prevent older/equal snapshots from replacing or selecting an account. Manual widget imports retain their tag guard. Settings is available before the first account is saved, including the option to disable auto-sync.
+
+Clipboard lifecycle, duplicate/stale handling, settings, account isolation and manual widget guards are tested on API 26, 29 and 35. The supplied personal export is inspected locally and excluded from the source package; tests use synthetic data. See [Village Export Data](EXPORT-DATA.md) for the sample field inventory, calculation example and feature recommendations.
+
 The runtime catalog is an offline community data snapshot. Its source revision, reproduction commands, coverage, and special-rule limitations are documented in the [Upgrade Planner Reference](UPGRADE-PLANNER.md). Countdown calculations are documented in [Timer Rules](TIMING.md).
 
 Village exports have an unofficial schema. Check imported timers against the game when validating a release, especially after new game updates. Framework tests and rendered previews do not replace physical-device checks for launcher behavior, battery restrictions, alarm delivery, or foreground-service lifecycle.

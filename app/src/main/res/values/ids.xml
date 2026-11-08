@@ -2,6 +2,7 @@
     <item name="app_version_title" type="id" />
     <item name="check_updates" type="id" />
     <item name="settings_toggle" type="id" />
+    <item name="auto_sync" type="id" />
     <item name="settings_panel" type="id" />
     <item name="update_status" type="id" />
     <item name="whats_new" type="id" />

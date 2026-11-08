@@ -48,6 +48,9 @@ public final class MainActivity extends Activity {
     private boolean checkingUpdates, updateResultPending;
     private String updateStatus = "", pendingUpdateError;
     private UpdateChecker.Release pendingRelease;
+    private boolean clipboardListening,autoChecking;
+    private final Runnable autoClipboard=this::tryAutoClipboard;
+    private final ClipboardManager.OnPrimaryClipChangedListener clipboardChanged=()->queueAutoClipboard();
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -87,12 +90,13 @@ public final class MainActivity extends Activity {
         }
     }
     @Override public void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleIntent(intent); }
-    @Override public void onResume() { super.onResume(); resumed = true; Reminders.deliver(this); VillageWidget.refresh(this); Reminders.schedule(this); render(); if (updateResultPending) handler.post(this::deliverUpdateResult); }
-    @Override public void onPause() { resumed = false; handler.removeCallbacks(refresh); super.onPause(); }
+    @Override public void onResume() { super.onResume(); resumed = true; updateClipboardListener(); Reminders.deliver(this); VillageWidget.refresh(this); Reminders.schedule(this); render(); if (updateResultPending) handler.post(this::deliverUpdateResult); }
+    @Override public void onPause() { resumed = false; updateClipboardListener();handler.removeCallbacks(autoClipboard);handler.removeCallbacks(refresh); super.onPause(); }
     @Override public void onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdown(); updateWorker.shutdown(); super.onDestroy(); }
     @Override public void onWindowFocusChanged(boolean focused) {
         super.onWindowFocusChanged(focused);
-        if (focused && pendingClipboard) { pendingClipboard = false; handler.post(this::importClipboard); }
+        if (focused && pendingClipboard) { pendingClipboard = false; handler.removeCallbacks(autoClipboard);handler.post(this::importClipboard); }
+        else if(focused)queueAutoClipboard();else handler.removeCallbacks(autoClipboard);
     }
     private void render() {
         if (isFinishing() || isDestroyed() || content == null) return;
@@ -132,7 +136,7 @@ public final class MainActivity extends Activity {
         content.addView(actions);
         if (demo != null) { gap(content, 8); button(content, "Leave sample preview", false, v -> { demo = null; message = ""; render(); }); }
         else if (village == null) { gap(content, 8); button(content, "Explore a sample village", false, v -> { demo = sample(); message = ""; render(); }); }
-        if (demo == null && village != null) settings(village);
+        if (demo == null) settings(village);
         gap(content, 12);button(content, "Help & About", false, v -> showHelp());gap(content, 8);
         Button whatsNew = button(content, "What’s New", false, v -> openReleaseGuide());
         whatsNew.setId(R.id.whats_new); gap(content, 8);
@@ -283,6 +287,9 @@ public final class MainActivity extends Activity {
         gap(content, 12);Button settings=button(content,settingsExpanded?"Settings ▴":"Settings ▾",false,v->{settingsExpanded=!settingsExpanded;render();});settings.setId(R.id.settings_toggle);
         if(!settingsExpanded)return;
         gap(content,8);LinearLayout panel = card();panel.setId(R.id.settings_panel);
+        Switch auto=new Switch(this);auto.setId(R.id.auto_sync);auto.setText("Auto-sync on return");auto.setTextColor(TEXT);auto.setTextSize(13);auto.setMinHeight(dp(48));auto.setChecked(ClipboardSync.enabled(this));
+        auto.setOnCheckedChangeListener((button,checked)->{Store.prefs(this).edit().putBoolean(ClipboardSync.PREF,checked).apply();updateClipboardListener();if(checked)queueAutoClipboard();});panel.addView(auto);
+        panel.addView(text("Copy in Clash, then return here to import automatically.",11,MUTED,false));gap(panel,12);
         Switch live = new Switch(this); live.setText("Live readable widget timers"); live.setTextColor(TEXT); live.setTextSize(13); live.setMinHeight(dp(48));
         live.setChecked(LiveTimerService.enabled(this));
         live.setOnCheckedChangeListener((button, checked) -> {
@@ -291,8 +298,10 @@ public final class MainActivity extends Activity {
             if (checked && !Reminders.canNotify(this)) requestNotifications();
         }); panel.addView(live);
         panel.addView(text("Ongoing notification · pauses while locked or screen off", 11, MUTED, false)); gap(panel, 12);
-        button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
-        button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
+        if(village!=null){
+            button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
+            button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
+        }
         Switch toggle = new Switch(this); toggle.setText("Notifications for all saved villages"); toggle.setTextColor(TEXT); toggle.setTextSize(13); toggle.setMinHeight(dp(48));
         toggle.setChecked(Store.prefs(this).getBoolean("notify", true));
         toggle.setOnCheckedChangeListener((button, checked) -> {
@@ -307,21 +316,53 @@ public final class MainActivity extends Activity {
             try { startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()))); }
             catch (android.content.ActivityNotFoundException ex) { show("Precise alarm settings are unavailable on this device."); }
         }); }
-        gap(panel, 12); button(panel, "Clear village data", false, v -> new AlertDialog.Builder(this).setTitle("Clear this village?")
+        if(village!=null){gap(panel, 12); button(panel, "Clear village data", false, v -> new AlertDialog.Builder(this).setTitle("Clear this village?")
             .setMessage("This removes only " + village.tag + ". Other villages and their widgets stay saved. Widgets showing this village will ask you to choose a village.").setNegativeButton("Keep village", null)
-            .setPositiveButton("Clear", (d, w) -> { try { Store.clear(this); Reminders.schedule(this); VillageWidget.refresh(this); message = "Village removed. Other accounts were kept."; render(); } catch (java.io.IOException ex) { show("Could not remove the saved village."); } }).show());
+            .setPositiveButton("Clear", (d, w) -> { try { Store.clear(this); Reminders.schedule(this); VillageWidget.refresh(this); message = "Village removed. Other accounts were kept."; render(); } catch (java.io.IOException ex) { show("Could not remove the saved village."); } }).show());}
         content.addView(panel);
     }
     private void importClipboard() {
         if (importing) return;
         ClipboardManager clipboard = getSystemService(ClipboardManager.class);
-        android.content.ClipData clip = clipboard.getPrimaryClip();
+        android.content.ClipData clip;
+        try{clip=clipboard.getPrimaryClip();}catch(SecurityException unavailable){show("Clipboard unavailable. Return to the app and try Sync again.");return;}
         if (clip == null || clip.getItemCount() == 0) { show("Copy your village export from Clash first."); return; }
         // Only accept actual text. Do not dereference arbitrary clipboard URIs.
         CharSequence value = clip.getItemAt(0).getText();
         if (value == null) { show("The clipboard does not contain a text export."); return; }
         if (value.length() > ExportParser.MAX_CHARS) { show("That export is too large (maximum 1 MB)."); return; }
         importText(value.toString());
+    }
+    private void updateClipboardListener(){
+        ClipboardManager clipboard=getSystemService(ClipboardManager.class);
+        if(clipboardListening){clipboard.removePrimaryClipChangedListener(clipboardChanged);clipboardListening=false;}
+        if(resumed&&ClipboardSync.enabled(this)){clipboard.addPrimaryClipChangedListener(clipboardChanged);clipboardListening=true;}
+    }
+    private void queueAutoClipboard(){
+        handler.removeCallbacks(autoClipboard);
+        if(resumed&&hasWindowFocus()&&ClipboardSync.enabled(this)&&!pendingClipboard)handler.postDelayed(autoClipboard,180);
+    }
+    private void tryAutoClipboard(){
+        if(!resumed||!hasWindowFocus()||!ClipboardSync.enabled(this)||demo!=null||importing||autoChecking||pendingClipboard||isDestroyed())return;
+        String text;
+        try{text=ClipboardSync.candidate(getSystemService(ClipboardManager.class).getPrimaryClip());}catch(SecurityException unavailable){return;}
+        if(text==null)return;
+        autoChecking=true;
+        worker.execute(()->{
+            String fingerprint=ClipboardSync.fingerprint(text);Village parsed=null;Village previous=null;
+            if(!fingerprint.equals(Store.prefs(this).getString(ClipboardSync.LAST,"")))try{
+                parsed=ExportParser.parse(text,Store.catalog(this),System.currentTimeMillis());previous=Store.load(this,parsed.tag);
+            }catch(ExportParser.InvalidExport invalid){ /* Ignore non-exports quietly. */ }
+            Village incoming=parsed,saved=previous;
+            handler.post(()->{
+                autoChecking=false;
+                if(isDestroyed()||!resumed||!hasWindowFocus()||!ClipboardSync.enabled(this)||importing||demo!=null)return;
+                Store.prefs(this).edit().putString(ClipboardSync.LAST,fingerprint).apply();
+                if(incoming==null||!ClipboardSync.newer(incoming,saved))return;
+                if(!syncTarget.isEmpty()&&!syncTarget.equalsIgnoreCase(incoming.tag))return;
+                syncTarget="";importing=true;message="";render();saveImport(text,incoming,true);
+            });
+        });
     }
     private void importText(String text) {
         if (importing) return;
@@ -343,17 +384,18 @@ public final class MainActivity extends Activity {
             } catch (ExportParser.InvalidExport ex) { handler.post(() -> { importing = false; show(ex.getMessage()); }); }
         });
     }
-    private void saveImport(String text, Village village, boolean switchVillage) {
+    private void saveImport(String text, Village village, boolean automatic) {
         worker.execute(() -> {
             try {
                 boolean firstImport = Store.load(this, village.tag) == null;
                 Store.save(this, text, village);
+                Store.prefs(this).edit().putString(ClipboardSync.LAST,ClipboardSync.fingerprint(text.trim())).apply();
                 getSystemService(android.app.NotificationManager.class).cancel(VillageArchive.canonical(village.tag), 7);
                 VillageWidget.refresh(this); Reminders.schedule(this);
                 handler.post(() -> {
                     if (isDestroyed()) return;
                     importing = false; demo = null;
-                    message = "";Toast.makeText(this,"Synced "+Store.title(this,village),Toast.LENGTH_SHORT).show();
+                    message = "";Toast.makeText(this,(automatic?"Auto-synced ":"Synced ")+Store.title(this,village),Toast.LENGTH_SHORT).show();
                     render();
                     Runnable next = () -> { if (!Store.prefs(this).getBoolean("asked-notify", false)) requestNotifications(); };
                     if (firstImport && Store.inGameName(this, village).isEmpty()) editInGameName(village, next); else next.run();
@@ -440,10 +482,10 @@ public final class MainActivity extends Activity {
     }
     private void showHelp(){
         new AlertDialog.Builder(this).setTitle("Help & About").setMessage(
-            "Sync Your Village\nIn Clash: Settings → More Settings → Export village data → Copy. Return here and tap Sync / Add Account. Sync after new upgrades, early finishes, using items or changing helpers. New activity is discovered only after an export.\n\n"
+            "Sync Your Village\nIn Clash: Settings → More Settings → Export village data → Copy. Return here; Auto-sync on return imports fresh exports automatically while this app has focus. Turn it off in Settings for manual Sync / Add Account. Android does not let the tracker watch Clash’s Copy button in the background or redirect from it. Sync after upgrades, items or helper changes.\n\n"
             +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Review imported effects in Boosts & Helpers. Green bars show progress since export.\n\n"
             +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
-            +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard data is read only when you sync. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
+            +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
             +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL.")
             .setPositiveButton("Close",null).show();
     }

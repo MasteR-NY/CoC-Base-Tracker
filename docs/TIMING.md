@@ -43,7 +43,7 @@ Each source expires independently. The implementation integrates work over those
 
 A helper affects only the upgrade whose export entry records its assignment. An active `helper_timer` supplies the remaining current session. Merely owning or upgrading a helper does not accelerate every upgrade.
 
-An explicit `recurrent_helper: true` flag, a known helper level, and a positive exported unified `helper_cooldown` enable a repeat-session forecast on that same upgrade. The shared cooldown can appear on a helper entry or in the boosts object. The current supported work day is **23 hours**, with **one-hour helper sessions**, following Supercell's Helper Hut guide.
+An explicit `helper_recurrent: true` flag (or the earlier `recurrent_helper` spelling), a known helper level, and that helper’s positive exported `helper_cooldown` enable a repeat-session forecast on the same running upgrade. A legacy explicit `helper_cooldown` in the boosts object is supported when the relevant helper entry has no cooldown. The app does not borrow another helper entry’s cooldown. The current supported work day is **23 hours**, with **one-hour helper sessions**, following Supercell's Helper Hut guide.
 
 Forecasts include the partial current session and later sessions, with no overlapping helper work. If the repeat flag or cooldown is absent, the app counts the current recorded session only. It does not invent a daily assignment or transfer a helper to another upgrade after a job ends. Sync after changing or cancelling an assignment.
 
@@ -79,6 +79,8 @@ Screen-off and lock pause display updates without a wake lock. Unlocking recalcu
 Force-stop requires reopening the app. Android battery restrictions can delay updates or alarms. Framework tests and previews do not establish physical-device accuracy for every launcher.
 
 ## Validation and Limits
+
+The parser accepts both `helper_recurrent` and `recurrent_helper`. A repeat flag on an item without a running timer does not create a job or assign its helper to another job. Repeating forecasts use the relevant helper’s own `helper_cooldown`; cooldowns from unrelated helpers are not pooled. The supplied export’s field inventory and example Laboratory calculation are documented in [Village Export Data](EXPORT-DATA.md).
 
 The village-export schema is unofficial. Tests cover finite potion windows, duration stacks, overlap priority, individual queue eligibility, partial and recurring helper sessions, event-discount preservation, and work-countdown boundaries. A separate second-by-second simulator checks the work integrator.
 

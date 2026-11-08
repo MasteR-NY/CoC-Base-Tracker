@@ -18,6 +18,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 
 ## Features
 
+- Automatic import of fresh village exports when returning to the app, with a manual-sync option.
 - Scrollable home screen widgets with live countdowns in days, hours, minutes, and seconds.
 - Upgrade tracking and finish reminders for builders, research, pets, and both bases.
 - Upgrade planning with level requirements, baseline costs, and durations.
@@ -29,7 +30,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 
 1. Download and install the APK from the [latest release](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest).
 2. In Clash of Clans, open **Settings → More Settings → Export village data** and copy the export. Menu wording may vary by game version or language.
-3. Open CoC Base Tracker and tap **Sync / Add Account**.
+3. Open CoC Base Tracker. **Auto-sync on return** imports a fresh export automatically; **Sync / Add Account** is available for manual import.
 4. Enter the account's in-game name if prompted. You can edit it later under **Settings → In-game Name**.
 5. Tap **Add widget** and choose an account, or add CoC Base Tracker from your launcher's widget picker.
 
@@ -37,7 +38,7 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.11**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.12**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. When a newer release is available, it notifies you and opens the GitHub release page, where you can download the APK under **Assets**. If the API check fails, the app tries GitHub’s public latest-release redirect. If both checks fail, the dialog explains the connection, DNS, TLS or server error and offers **Retry** or **Open Releases**. Update checks run only when requested; installing an update remains your choice.
 
@@ -58,13 +59,15 @@ The **What’s New** button at the bottom of the app reopens the guide anytime. 
 
 Timers run from your most recent village export and continue counting down when Clash is closed. Import a fresh export after starting an upgrade, finishing one early, using a potion, or changing helper assignments. New activity in Clash appears after you sync.
 
+With **Auto-sync on return** enabled, copy the export in Clash and switch back to the tracker. A new valid export imports without tapping Sync. Duplicate and older snapshots are ignored, and each widget keeps its account selection. Turn the option off in **Settings** to use manual import. Android does not allow the tracker to watch Clash’s Copy button in the background or automatically redirect you from it; returning to the app gives it clipboard access. See [Village Export Data](docs/EXPORT-DATA.md) for the field reference and platform limits.
+
 Active potions, upgrade-speed Magic Snacks, Clock Tower boosts, and assigned helpers are included in the timer calculations. In the app and Build Menu, boosted upgrades show their work rate, a smooth accelerated **Work left** countdown, and estimated real **Finishes in** time. A 24× boost advances work through intermediate seconds instead of subtracting 24 seconds in one jump. Widgets show the estimated real time remaining in steady seconds, alongside a boost badge. Open **Boosts & Helpers** to review the effects recorded in your export.
 
 Additional doses extend boost duration. Known repeating helper assignments are forecast when their assignment and cooldown are included in the export. Books, Hammers and other instant finishes appear after a fresh sync; unused chest rewards and combat/resource boosts do not accelerate upgrade timers. See [Timer Rules](docs/TIMING.md) for supported effects and examples.
 
 ### Settings and Help
 
-Tap **Settings** to expand account names, nicknames, live widget timers and notification controls. The panel starts collapsed to leave more room for upgrades. **Help & About** contains sync instructions, timer explanations, widget guidance, privacy details and credits.
+Tap **Settings** to expand auto-sync, account names, nicknames, live widget timers and notification controls. The panel starts collapsed to leave more room for upgrades and is available before the first import. **Help & About** contains sync instructions, timer explanations, widget guidance, privacy details and credits.
 
 ## Multiple Accounts and Widgets
 
@@ -99,11 +102,12 @@ Upgrade tracking and planning work offline. Village exports and account labels a
 
 The app uses internet access only when you tap **Check for Updates**, making an HTTPS request to this repository's public GitHub release API and, if needed, its public latest-release redirect. Requests include the app version but no village export, account name, player tag, or login credentials. GitHub receives normal connection information such as your IP address. Opening a release page uses your browser.
 
-There is no advertising or analytics. Clipboard text is read only when you choose to sync. Saved accounts can be removed from Settings.
+There is no advertising or analytics. Clipboard text is read when you tap Sync or while the tracker has focus with **Auto-sync on return** enabled. Unrelated text is ignored, clipboard URIs are never opened, and the widget service does not monitor the clipboard. Saved accounts can be removed from Settings.
 
 ## Documentation
 
 - [Release Notes](CHANGELOG.md)
+- [Village Export Data and Feature Possibilities](docs/EXPORT-DATA.md)
 - [Timer Rules](docs/TIMING.md)
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)

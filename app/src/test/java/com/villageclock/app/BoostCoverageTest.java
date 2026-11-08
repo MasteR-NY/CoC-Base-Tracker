@@ -33,13 +33,22 @@ public class BoostCoverageTest {
         assertEquals(27,find(v,4000000).timing.speed(100));assertEquals(4,find(v,4000000).timing.speed(200));
     }
     @Test public void explicitlyRepeatingHelperUsesUnified23HourWorkDays()throws Exception{
-        Village v=parse("\"helpers\":[{\"data\":93000000,\"lvl\":8,\"helper_cooldown\":1000},{\"data\":93000001,\"lvl\":12}],\"buildings\":[],\"units\":[{\"data\":4000000,\"timer\":300000,\"recurrent_helper\":true}]");
+        Village v=parse("\"helpers\":[{\"data\":93000000,\"lvl\":8},{\"data\":93000001,\"lvl\":12,\"helper_cooldown\":1000}],\"buildings\":[],\"units\":[{\"data\":4000000,\"timer\":300000,\"recurrent_helper\":true}]");
         UpgradeTiming.Plan p=v.upgrades.get(0).timing;assertEquals(1,p.speed(999));assertEquals(13,p.speed(1000));assertEquals(1,p.speed(4600));assertEquals(13,p.speed(83800));assertEquals(13,p.speed(166600));
         assertEquals(12*3600+4600,p.workDone(4600));
     }
     @Test public void recurringFlagWithoutExportedCooldownDoesNotInventAHelperSchedule()throws Exception{
         Village v=parse("\"helpers\":[{\"data\":93000000,\"lvl\":8}],\"buildings\":[{\"data\":1000008,\"timer\":200000,\"recurrent_helper\":true}]");
         assertEquals(NOW+200000000,v.upgrades.get(0).finishAt);assertFalse(v.upgrades.get(0).hasBoosts());
+    }
+    @Test public void actualHelperRecurrentSpellingUsesOnlyThatHelpersCooldown()throws Exception{
+        Village v=parse("\"helpers\":[{\"data\":93000001,\"lvl\":1,\"helper_cooldown\":100},{\"data\":93000003,\"lvl\":1,\"helper_cooldown\":9000}],\"buildings\":[],\"units\":[{\"data\":4000004,\"lvl\":8,\"helper_recurrent\":true}],\"spells\":[{\"data\":26000000,\"timer\":200000,\"helper_recurrent\":true}]");
+        assertEquals(1,v.upgrades.size());UpgradeTiming.Plan p=v.upgrades.get(0).timing;
+        assertEquals(100,p.helper.nextStartSeconds);assertEquals(1,p.speed(99));assertEquals(2,p.speed(100));
+    }
+    @Test public void idleRepeatPreferenceDoesNotAssignHelperToDifferentRunningUpgrade()throws Exception{
+        Village v=parse("\"helpers\":[{\"data\":93000001,\"lvl\":1,\"helper_cooldown\":100}],\"buildings\":[],\"units\":[{\"data\":4000004,\"lvl\":8,\"helper_recurrent\":true}],\"spells\":[{\"data\":26000000,\"timer\":200000}]");
+        assertEquals(1,v.upgrades.size());assertFalse(v.upgrades.get(0).hasBoosts());assertEquals(1,v.upgrades.get(0).timing.speed(100));
     }
     @Test public void currentSessionAndFutureSessionsDoNotOverlapOrDoubleCount() {
         UpgradeTiming.Helper helper=new UpgradeTiming.Helper(8,2000,1000,"Apprentice");UpgradeTiming.Plan p=new UpgradeTiming.Plan(200000,Collections.emptyList(),helper);

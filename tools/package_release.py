@@ -43,10 +43,10 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.10; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.11; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
-4. Open CoC Base Tracker and tap Sync / Add Account.
+4. Return to CoC Base Tracker. Auto-sync on return imports a fresh export automatically; Sync / Add Account remains available for manual import.
 5. Allow notifications if you want upgrade-finished reminders.
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
 7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Base Tracker and choose a village when prompted.
@@ -63,11 +63,15 @@ UPDATE CHECKS: The header shows the installed version. Scroll to the bottom and 
 
 UPDATE RELIABILITY: If the API fails, a second anonymous HTTPS GET checks the public latest-release redirect, accepting only a stable numeric tag in this exact repository. The fallback does not claim to verify APK availability. Both paths retain normal certificate and hostname validation; errors distinguish DNS, TLS, timeouts and server status with Retry and Open Releases buttons. Android 8.0+ remains supported; Android 8 and 10 framework checks are included, but physical-phone networking still needs validation.
 
+AUTO-SYNC: Enabled by default in Settings and available before your first account import. Copy the village export in Clash, then switch back through Recent Apps, the launcher or the live-timer notification. A focused tracker imports a fresh export without an extra Sync tap. Duplicate/older exports are ignored, manual widget account guards remain enforced, and each widget keeps its selected account. Unrelated clipboard text is ignored and URIs are never opened. Disable Auto-sync on return for manual imports. Android 10+ does not let this tracker detect Clash's Copy button from the background or automatically bring itself forward. No background clipboard monitoring service is added.
+
+EXPORT FIELD REFERENCE: docs/EXPORT-DATA.md contains a non-identifying review of the supplied snapshot, supported fields, missing information, the potion calculation example and potential features. The original personal export is excluded from this source ZIP. Helper repeat flags support helper_recurrent and recurrent_helper; idle preferences do not fabricate active jobs, and helper cooldowns are kept separate.
+
 SMOOTHER TIMERS AND HOME: Boosted Work left updates through intermediate work seconds in the app and Build Menu, recalculated from fractional real seconds with a 16 ms minimum display interval. Widgets show steady real time remaining and a boost badge with the existing one-second service refresh. Settings starts collapsed; expand it for account and notification controls. Help & About contains the longer sync, timer, widget, privacy and credit information.
 
 Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Clash. The widget does not switch your actual in-game Supercell account.
 
-MULTIPLE ACCOUNTS: Copy and import the village export for each account. Each one is saved separately. Add two widgets and choose a different village for each. Tap the downward arrow beside Sync on an existing widget to change its village. Switching villages in the app does not change other widgets. A widget's Sync rejects clipboard data from the wrong account; use Sync from clipboard / add account in the app to save another account.
+MULTIPLE ACCOUNTS: Copy and import the village export for each account. Each one is saved separately. Add two widgets and choose a different village for each. Tap the downward arrow beside Sync on an existing widget to change its village. Switching villages in the app does not change other widgets. A widget's Sync rejects clipboard data from the wrong account; use Sync / Add Account in the app to save another account.
 
 IN-GAME NAMES: Names appear in account lists, app/Build Menu headers, widget selection/headers and finish reminders, alongside player tags. Exports may omit the name; enter it once after first import or use Set In-game Name / Settings > In-game Name. A plain-text name supplied by an export is used when present. Names survive sync and are stored separately per tag. Manual names take priority. Old village labels remain optional Account Nicknames (Main/Mini). Nothing is looked up online or renamed in your actual game account.
 
@@ -85,7 +89,7 @@ EVENTS: Event/Gold Pass reductions already present in the exported work are reta
 
 Explore a sample village is a clearly marked preview. It never schedules real reminders or saves sample data as your village.
 
-PRIVACY: Tracking/planning work offline. Internet permission is used for manual HTTPS update checks to this repository's GitHub API and its public latest-release redirect as a fallback. Requests include the app version, not village exports, account names, player tags or credentials; GitHub sees normal connection information such as IP address. Browser navigation opens the public Releases page. No screen capture, accessibility access, analytics, ads or automatic clipboard monitoring. Village data stays on this phone with backup/transfer exclusions.
+PRIVACY: Tracking/planning work offline. Internet permission is used for manual HTTPS update checks to this repository's GitHub API and its public latest-release redirect as a fallback. Requests include the app version, not village exports, account names, player tags or credentials; GitHub sees normal connection information such as IP address. Browser navigation opens the public Releases page. Clipboard reads occur for manual Sync or while the tracker is focused with Auto-sync on return enabled; unrelated text is ignored and there is no background clipboard monitoring. No screen capture, accessibility access, analytics or ads. Village data stays on this phone with backup/transfer exclusions.
 
 LIMITS: New upgrades cannot be discovered automatically with the currently available official data access. Android battery restrictions can delay inexact alarms. After force-stopping the app, reopen it to restore reminders. The export format is unofficial; compare the first imported timers with the game. Android framework tests verify widget list inflation and adapter contents, migration, and account isolation. This build has not been run on a physical phone or emulator here.
 
@@ -117,6 +121,8 @@ report = {
     'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }
 report['features'][:0] = ['public GitHub release redirect fallback with specific connection diagnostics', 'fractional-time accelerated work countdowns in app and planner', 'steady real-time widget countdowns with boost badges', 'collapsed settings and Help & About', 'offline release guide and per-version launch summary', 'expandable earlier release notes', 'shared bundled notes and generated changelog']
+report['features'][:0] = ['foreground clipboard auto-sync on return with duplicate/stale suppression', 'first-import settings and auto-sync opt-out', 'per-helper cooldowns and helper_recurrent compatibility', 'export field reference and grounded feature recommendations']
+report['clipboard'] = 'User-selected foreground auto-sync (default enabled), or manual Sync; resumed focused activity only; plain-text export validation; no background reads, URI coercion, unrelated-text persistence or uploads'
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')
 print(json.dumps({'apk': str(APK), 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,

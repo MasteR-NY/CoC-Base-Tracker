@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "version": "1.12",
+      "versionCode": 13,
+      "title": "Auto-Sync on Return",
+      "highlights": [
+        {"title": "Copy, Then Return", "body": "Copy a village export in Clash and return to CoC Base Tracker. A fresh export imports automatically when the tracker has focus. Android does not allow background clipboard watching or an automatic redirect from Clash’s Copy button."},
+        {"title": "Your Sync Controls", "body": "Auto-sync on return is enabled by default and can be turned off in Settings, even before importing an account. Duplicate and older exports are ignored. Each widget keeps its account selection."},
+        {"title": "Updated Helper Detection", "body": "Repeat-helper settings from newer exports are recognized. Forecasts use the assigned helper’s cooldown, and a repeat preference on an idle item does not create an active upgrade."}
+      ],
+      "steps": ["Open Clash and copy Settings → More Settings → Export village data.", "Switch back to the tracker, or tap its live-timer notification. The app auto-syncs a new export without a separate Sync tap.", "Turn off Settings → Auto-sync on return if you prefer manual Sync / Add Account."]
+    },
+    {
       "version": "1.11",
       "versionCode": 12,
       "title": "Smoother Timers and a Cleaner Home",
