@@ -1,104 +1,88 @@
 # CoC Base Tracker
 
-A private Android home-screen widget for Clash of Clans upgrade countdowns.
+Upgrade timers, village planning, and account-specific home screen widgets for Clash of Clans.
 
-[![Download latest Android APK](docs/images/download-apk.svg)](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest)
+[![Download Latest APK](docs/images/download-apk.svg)](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest)
 
-Open the latest release, expand **Assets**, and download its `.apk` file. This button always follows the latest published release, including future versions with different APK filenames.
+**Android 8.0+ · Offline · Multiple Accounts**
 
-Repository name: `CoC-Base-Tracker`. Previously named Village Clock; version 1.7 adds per-account in-game names alongside readable live countdowns and the latest-release download button while preserving the Android package, signing identity, saved villages, and widget selections.
+Download the `.apk` file under **Assets** on the latest release page. When updating, install over your existing version to keep your saved accounts and widgets.
 
 ## Design Previews
 
-Actual Android layouts rendered with synthetic sample data. The Build Menu adapts the gray header, brown cards, level badges and bottom tabs in [Supercell's October 2026 interface redesign](https://supercell.com/en/games/clashofclans/blog/news/weve-revamped-the-clash-of-clans-user-interface/). The widget retains the reference project's green countdown bars and scrollable account-specific list.
-
-| App and Countdowns | Build Menu | Home Screen Widget |
+| Upgrade Timers | Build Menu | Home Screen Widget |
 | --- | --- | --- |
-| <img src="docs/images/app-design.png" width="270" alt="CoC Base Tracker app with grouped upgrade countdowns"> | <img src="docs/images/build-menu-design.png" width="270" alt="Build Menu with base switching, upgrade cards and category tabs"> | <img src="docs/images/widget-design.png" width="270" alt="Scrollable home-screen widget"> |
+| <img src="docs/images/app-design.png" width="270" alt="Upgrade timers with an account name, player tag and grouped countdowns"> | <img src="docs/images/build-menu-design.png" width="270" alt="Build Menu with base selection, upgrade costs and category tabs"> | <img src="docs/images/widget-design.png" width="270" alt="Scrollable home screen widget with account details and live countdowns"> |
 
-The normal `build.ps1` command renders these previews from the actual app/widget layouts and refreshes `docs/images/` automatically. Commit changed images with design changes so GitHub shows the current version. `-SkipTests` does not refresh previews. See [preview maintenance](docs/DESIGN-PREVIEWS.md).
-
-## Use It
-
-1. Install `CoC-Base-Tracker-1.7.apk` on an Android 8.0+ phone. It uses the original private signing key and installs as an update over versions 1.0–1.6; do not uninstall first.
-2. In Clash of Clans, open **Settings → More Settings → Export village data**, then **Copy**. The exact wording can vary with the game's language/version.
-3. Open CoC Base Tracker and tap **Sync from clipboard / add account**.
-4. Tap **Add widget** and choose its village, or long-press the home screen and find CoC Base Tracker under Widgets.
-5. Allow notifications for finish reminders. On Android 12+, **Allow precise timers** improves alarm timing and changes finished widget rows promptly.
-
-Countdowns show **days, hours, minutes and seconds**, for example `1d 12h 18m 56s`. The app and Build Menu update this text while visible. Home-screen widgets use the **Live widget countdowns** foreground service, with an ongoing notification, so the same text can update every second after Clash and the companion app close. Updates pause while the screen is off or locked; unlocking immediately recalculates the remaining time from the saved finish timestamp. The service holds no wake lock and stops when no widget has an active upgrade.
-
-**Live readable widget timers** is enabled by default in Settings. The notification's **Pause live updates** action switches widgets back to Android's native clock-style countdown. Turn the setting back on to resume d/h/m/s text. Android may prevent a service from starting in the background; opening the app restores it. Allow notifications to see its ongoing control. This service is separate from optional upgrade-finished alerts.
-
-Tap a widget's **Sync** after copying a fresh export; only that action reads clipboard text. Scroll inside the widget to see all upgrades, and tap an upgrade to open Clash. The widget does not switch the actual in-game Supercell account for you.
-
-## Multiple Accounts and Widgets
-
-Import each account's village export once. **Accounts** in the app switches the account you are viewing. This does not change the account selected on existing widgets. Add two widgets and choose a different village for each, or tap **▾** beside a widget's Sync button to reassign it later. Names, exports, and reminder cursors are stored separately per player tag. All saved villages can send finish reminders, with the village name shown in each notification.
-
-### In-Game Account Names
-
-Each saved account has an **In-game Name**, shown in the app, account chooser, Build Menu, widget chooser, widget header and finish reminders. The player tag remains visible so accounts with identical names are still distinguishable. If an export includes a plain-text `name`, the app uses it; exports can omit this field, so the first import offers to enter the name once. Existing accounts show **Set In-game Name**, and **Settings → In-game Name** lets you edit it later. No online name lookup, Supercell login or extra permission is needed.
-
-Names are saved per player tag and survive later syncs that omit the name. A manually entered name takes priority until you clear it or edit it. Existing custom village labels are preserved as optional **Account Nicknames**, such as Main or Mini, alongside the name/tag. Editing these fields only labels this companion app; it does not rename your account in Clash of Clans.
-
-Your original 1.0 village and name migrate automatically. Existing widgets keep that village. Removing one account does not remove another account or redirect widgets to it. If a widget is bound to a removed account, choose a saved account for that widget. A widget's Sync rejects clipboard data from the wrong account; import another account through the app instead.
-
-Live readable widgets use a permission-protected collection service on all Android versions. Each tick refreshes the existing list adapter rather than replacing the widget, preserving scroll position and independent widget account selection. Native fallback widgets use collection items on Android 12+ or the same collection service on older Android versions and unusually large imports. Scrolling depends on the launcher's support for Android list widgets.
-
-**A live countdown is not a live connection to the game.** Sync again after starting new upgrades, finishing early, using a potion, or changing helper assignments. The official player API does not currently provide active upgrade queues/timers, so this application does not pretend to discover those changes automatically.
+*Previews use sample account data. Widget appearance may vary by launcher.*
 
 ## Features
 
-The app keeps the Clash-style presentation introduced in 1.2: wooden panels, Lilita One font, gold buttons/headings, circular game artwork, green timer bars, and gold completed rows. Sections stay grouped in the scrollable widget. Green bars measure elapsed countdown time since the last export, rather than an unknown full-upgrade percentage. See [presentation credits](docs/DESIGN-CREDITS.md).
+- Scrollable home screen widgets with live countdowns in days, hours, minutes, and seconds.
+- Upgrade tracking and finish reminders for builders, research, pets, and both bases.
+- Upgrade planning with level requirements, baseline costs, and durations.
+- Resource, type, hero, and status filters, with cost, time, and name sorting.
+- Multiple accounts with in-game names, optional nicknames, and independent widgets.
 
-- Builders, research, pets, Builder Base, and Star Laboratory queues.
-- Export timestamp-based countdowns, including known active boosts and helper speed-ups.
-- Upgrade-finished notifications and alarm restoration after reboot, update, or clock changes.
-- Multiple saved villages, names per account, and a separate village selection for every widget.
-- Scrollable home-screen upgrade lists with no fixed visible-row cap.
-- Explicit d/h/m/s countdowns in the app, Build Menu, and live widgets; pause/resume from Settings or the ongoing notification.
-- Build Menu with Village Base / Builder Base switching, four Home Village tabs and two Builder Base tabs.
-- Remaining upgrades, grouped duplicate levels and walls, next-level requirements, baseline costs/times, equipment ore costs and catalog maximum levels.
-- Resource/type/hero and status filters, Cost Min / Cost Max sorting, and active upgrades first by remaining timer.
-- Potion duration stacks, independent boost expirations, integer finish-time arithmetic, and event-discount preservation. See [timer rules](docs/TIMING.md).
-- Stale-export rejection and bounded JSON parsing.
-- Clearly marked sample preview; sample data is never saved as your village or scheduled for notifications.
-- No internet permission, account login, analytics, advertising, screen capture, accessibility access, or automatic clipboard monitoring.
-- Private internal storage, system cloud backup disabled, and an explicit clear-data action.
+## Getting Started
 
-Android can delay inexact alarms or pause an app after force-stop. If precise-timer access is denied, a widget's finished state may update late and its native countdown can briefly show elapsed time past zero. Reopen the companion app after force-stopping it to restore reminders. Standard Android reboot delivery occurs after the device is unlocked.
+1. Download and install the APK from the [latest release](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest).
+2. In Clash of Clans, open **Settings → More Settings → Export village data** and copy the export. Menu wording may vary by game version or language.
+3. Open CoC Base Tracker and tap **Sync from clipboard / add account**.
+4. Enter the account's in-game name if prompted. You can edit it later under **Settings → In-game Name**.
+5. Tap **Add widget** and choose an account, or add CoC Base Tracker from your launcher's widget picker.
 
-The village-export schema is not officially documented. Boost interpretation and unknown future game fields can require updates. Validate against your in-game timers after importing. Missing catalog IDs show a readable fallback rather than a fabricated item name. Android framework tests cover widget inflation, scrolling adapters, migration, and account isolation; a physical phone was not available.
+Allow notifications for upgrade-finished alerts and the live widget controls. On Android 12 and later, **Allow precise timers** helps finish alerts arrive on time.
 
-## Build Menu and Upgrade Requirements
+### Keeping Your Village Current
 
-Tap **Build Menu · what’s left to upgrade** above your timers. Village Base offers **Buildings & Heroes**, **Army Upgrades**, **Hero Equipment** and **Hero Pets**. Builder Base offers the first two. Cards show exported current levels, next catalog levels, and prices/durations per item. Tap for prerequisite levels, acquisition notes where supplied, and levels remaining to the catalog maximum. Identical building/wall levels are grouped; different active timers remain separate.
+Timers run from your most recent village export and continue counting down when Clash is closed. Import a fresh export after starting an upgrade, finishing one early, using a potion, or changing helper assignments. New activity in Clash appears after you sync.
 
-The filter button beside the title opens **Resource**, **Type** (Army, Defense, Hero, Resource, New and Non-Seasonal where applicable), or **Hero** for equipment. **Cost Min / Cost Max** reproduce the game's cost directions. Default sorting puts active timers first, shortest first. Companion additions include time/name sorting and Remaining, All, Requirements met, In progress, Locked / unowned and Maxed views. Filters are independent per base/tab and reset when the menu closes. Empty restrictive filters clear to Remaining. Cost sorting compares amounts per item; choose one currency for a meaningful comparison.
+Active boost durations, potion stacking, and supported helper boosts are included in the timer calculations. Time reductions already present in an exported timer are retained. See [Timer Rules](docs/TIMING.md) for details.
 
-**Planning values are baseline catalog values.** They do not apply future event, Gold Pass, potion or helper discounts. Running countdowns continue using exported timers and boost rules. Requirements met checks listed level gates against current exported levels; it does not promise sufficient resources or an available builder. Ended timers request a fresh sync rather than inventing a completed level.
+## Multiple Accounts and Widgets
 
-The community catalog contains 223 items, checked on 8 November 2026, through Town Hall 18 / Builder Hall 10. This pinned snapshot cannot guarantee every current game rule. Standard levels are covered; supercharges, some crafted modules, merge recipes, hall prerequisite checklists, and items without verified IDs require in-game confirmation. Missing equipment is labeled **Not in export**, not assumed owned. Omitted bases do not become empty villages. Merge-consumed old defenses are not invented as missing new buildings. See [planner data and limits](docs/UPGRADE-PLANNER.md).
+Import an export from each account, then use **Accounts** to switch between them. Each home screen widget keeps its own account selection. Tap **▾** beside a widget's Sync button to change it.
 
-## Build and Signing
+In-game names and optional nicknames such as Main or Mini are saved per player tag. If an export omits the name, enter it once in the app. Names stay saved across later syncs. Editing an account label here does not change your name in Clash of Clans.
 
-Use JDK 21+, Gradle 9.7.1, Android SDK Platform 37, and SDK build-tools 36.0.0+. Set `JAVA_HOME` and `ANDROID_HOME` (or `local.properties`).
+## Live Widget Timers
 
-```powershell
-pwsh -File .\build.ps1
-```
+**Live readable widget timers** is enabled by default. An ongoing notification keeps the formatted countdowns updating while the app is closed. Display updates pause when the screen is off or locked and recalculate when you unlock your phone.
 
-The script runs parser/planner/timer tests, foreground-service and widget framework tests, native layout previews, Android lint, and a release build, then aligns and signs the APK. It refreshes README previews, verifies the signature and prints the APK SHA-256. It supports `-JavaHome` and `-GradlePath` when those tools are not on PATH. The source ZIP excludes installed tools, local SDK paths, caches, output files, and signing secrets.
+Choose **Pause live updates** in the notification to use Android's clock-style widget timer. Turn **Live readable widget timers** back on in Settings to restore the days, hours, minutes, and seconds format.
 
-To publish an update, commit/push the source and README images, create a GitHub release with the matching version tag, and upload the signed versioned APK under Assets. Mark the release as latest. The download button follows `/releases/latest`, so its link stays valid when APK filenames change. See [GitHub's release-link documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases).
+If Android stops background updates or you force-stop the app, reopen it to restore tracking. Your launcher's widget support and Android battery settings can affect updates and alert timing.
 
-The signing keystore and its random password are generated locally in `.private/`. **Keep that directory private and backed up.** It is excluded from Git and the source ZIP. You need the same private key to install future updates over this APK. No signing private key is embedded in the APK or publicly committed. A source recipient generates their own key; their build will require uninstalling your build before installation.
+## Build Menu
+
+| Base | Upgrade Categories |
+| --- | --- |
+| Village Base | Buildings & Heroes, Army Upgrades, Hero Equipment, Hero Pets |
+| Builder Base | Buildings & Heroes, Army Upgrades |
+
+Tap an upgrade card to view its next level, listed requirements, baseline cost, and duration. Buildings and walls at the same level are grouped together; prices and durations are shown per item. Resource, type, and hero filters help narrow the list.
+
+Planning costs and durations are baseline values. Event discounts, Gold Pass benefits, potions, and helpers may change the in-game quote. Listed requirements do not account for your available resources or free builders.
+
+The offline catalog covers standard levels through **Town Hall 18** and **Builder Hall 10**. Supercharges, some crafted modules, merge recipes, and other special conditions require confirmation in game. See the [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md) for coverage and limitations.
+
+## Privacy
+
+CoC Base Tracker works offline. Village exports and account labels are stored on your device, with system cloud backup disabled. No Supercell login, password, or verification code is required.
+
+The app has no internet permission, advertising, or analytics. It reads clipboard text only when you choose to sync. Saved accounts can be removed from Settings.
+
+## Documentation
+
+- [Timer Rules](docs/TIMING.md)
+- [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
+- [Build and Release Guide](docs/DEVELOPMENT.md)
+- [Preview Maintenance](docs/DESIGN-PREVIEWS.md)
+- [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md)
 
 ## Credits
 
-Original application logic and vector artwork: Village Clock contributors (now CoC Base Tracker), MIT license. The app adapts presentation resources from the reviewed Coc-Widget repository at the user's request; see [presentation credits](docs/DESIGN-CREDITS.md). Third-party presentation resources, font, and game artwork retain their separate attribution and terms.
+Original application code is available under the [MIT License](LICENSE). The presentation draws on [Coc-Widget](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget); game artwork, fonts, and other third-party resources retain their respective terms. Full attribution is in [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md).
 
-The original names catalog came from the inspected Coc-Widget build at commit `68626b688116ff19a535ec5be630f8b9bd85d759`. The planner uses factual costs, requirements and standard levels from Christopher Pezza's MIT-licensed [clash-of-clans-data](https://github.com/chiefpansancolt/clash-of-clans-data/tree/7afaa0375e5865c04021836a3a4192ffcfea092d), pinned at `7afaa0375e5865c04021836a3a4192ffcfea092d`. Its license is retained at `app/src/main/assets/data-license.txt`. Catalog durations are for future planning only; they never invent start times or replace exported running timers.
-
-This project is not affiliated with, endorsed, sponsored, or approved by Supercell. Clash of Clans and its related names belong to Supercell. See [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/).
+CoC Base Tracker is an unofficial fan project and is not affiliated with or endorsed by Supercell. Clash of Clans and its related assets belong to Supercell. See [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/).
