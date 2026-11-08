@@ -1,0 +1,1 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/empty_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="8dp" android:paddingBottom="8dp" android:textColor="#F3F1E8" android:textSize="13sp" android:text="Copy your village export in Clash, then tap Sync." />

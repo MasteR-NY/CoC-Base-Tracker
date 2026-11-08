@@ -1,0 +1,13 @@
+.tools/
+apk-review/
+.gradle/
+.gradle-home/
+.android/
+.private/
+**/build/
+local.properties
+outputs/
+*.iml
+.idea/
+build-log.txt
+verification-log.txt

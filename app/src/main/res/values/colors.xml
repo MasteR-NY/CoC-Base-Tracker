@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <color name="bg">#24180F</color>
+    <color name="card">#35251A</color>
+    <color name="card_stroke">#4A3524</color>
+    <color name="gold">#FFC531</color>
+    <color name="text">#FFF6E6</color>
+    <color name="dim">#CDBDA5</color>
+    <color name="free">#8EE04A</color>
+    <color name="ic_bg">#2A1E14</color>
+
+    <!-- Widget -->
+    <color name="w_text">#FFFFFF</color>
+    <color name="w_dim">#EFE3CF</color>
+    <color name="w_shadow">#C0000000</color>
+    <color name="w_ink">#3B2508</color>
+    <color name="w_outline">#1E140B</color>
+</resources>
