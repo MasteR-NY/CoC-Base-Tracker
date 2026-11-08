@@ -97,14 +97,17 @@ def main(fetch_art):
                 prefix = defense['name'] + ' '
                 short_name = module['name'][len(prefix):] if module['name'].startswith(prefix) else module['name']
                 entries[str(module['_id'])] = {'name': module['name'], 'short_name': short_name, 'kind': 'crafting-module', 'parent': parent, 'cap': cap, 'icon': f'identity_{parent}'}
+    # Reviewed additions verified against explicit GlobalIDs in official game tables.
+    overrides = json.loads((ROOT / 'tools/identity-overrides.json').read_text(encoding='utf-8'))
+    entries.update(overrides['items'])
     shared = Counter(row['artwork'] for row in entries.values() if 'artwork' in row)
     for row in entries.values():
         if row.get('artwork') and shared[row['artwork']] > 1:
             row['shared_artwork'] = True
     result = {'reviewed': '2026-11-08', 'metadata_revision': DATA_REV, 'artwork_revision': ASSET_REV, 'module_table_revision': TABLE_REV,
-              'metadata_sha256': hashlib.sha256(raw).hexdigest(), 'manifest_sha256': hashlib.sha256(manifest_raw).hexdigest(), 'items': entries}
+              'metadata_sha256': hashlib.sha256(raw).hexdigest(), 'manifest_sha256': hashlib.sha256(manifest_raw).hexdigest(), 'official_overrides': overrides['sources'], 'items': entries}
     (ROOT / 'app/src/main/assets/item-identities.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
-    jobs = [(key, row) for key, row in entries.items() if 'artwork' in row or 'table_artwork' in row]
+    jobs = [(key, row) for key, row in entries.items() if 'artwork' in row or 'table_artwork' in row or 'artwork_url' in row]
     print(json.dumps({'identities': len(entries), 'artwork_entries': len(jobs), 'module_names': [x['name'] for x in entries.values() if x['kind'] == 'crafting-module']}, indent=2), flush=True)
     if not fetch_art:
         return
@@ -114,7 +117,9 @@ def main(fetch_art):
     def art(job):
         key, row = job
         destination = out / (row['icon'] + '.webp')
-        if 'artwork' in row:
+        if 'artwork_url' in row:
+            path=row['artwork_url'];source=download(path,CACHE / (key+'.webp'),row['artwork_sha256'])
+        elif 'artwork' in row:
             path = row['artwork']; source = download(ART_BASE + urllib.parse.quote(path, safe='/'), CACHE / 'artwork' / path, row['artwork_sha256'])
         else:
             path = row['table_artwork']; source = download(f'https://raw.githubusercontent.com/chiefpansancolt/clash-of-clans-data/{TABLE_REV}/' + path, CACHE / 'table-artwork' / path)

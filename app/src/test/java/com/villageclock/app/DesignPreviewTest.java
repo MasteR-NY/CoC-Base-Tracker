@@ -45,6 +45,8 @@ public class DesignPreviewTest {
         render(widget, 400, 560, "widget-design.png");
         WhatsNewActivity guide = Robolectric.buildActivity(WhatsNewActivity.class).setup().get();
         render(guide.getWindow().getDecorView(), 411, 1000, "whats-new-design.png");
+        UpdateActivity update = Robolectric.buildActivity(UpdateActivity.class,new android.content.Intent(context,UpdateActivity.class).putExtra("preview",true)).setup().get();
+        render(update.getWindow().getDecorView(),411,891,"update-design.png");
         OverviewActivity overview = Robolectric.buildActivity(OverviewActivity.class,
             new android.content.Intent(context, OverviewActivity.class).putExtra("sample",true)).setup().get();
         render(overview.getWindow().getDecorView(),411,1000,"overview-design.png");

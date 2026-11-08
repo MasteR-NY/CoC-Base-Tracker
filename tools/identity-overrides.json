@@ -1,0 +1,40 @@
+{
+  "sources": {
+    "reviewed": "2026-11-08",
+    "game_version": "18.647.6",
+    "fingerprint": "443f20eb3aa749c454b1da26259eac44f145a40b",
+    "official_base": "https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/",
+    "files": {
+      "logic/decos_logic.scindex": {
+        "sha1": "3b32e380322f70fd25af91779f452421f0cdc13d",
+        "sha256": "fb2ceae27181ee73fdcc552998ae6a9b0791a98e98a76d73189045cf5b16cf31"
+      },
+      "localization/texts.csv": {
+        "sha1": "dc584436c643dd4281b0584eae3c2f1effd5a295",
+        "sha256": "faa0bf248c39b9e1332cdd208b2f255799963db7fbfd752bb660eec4a7bf73ca"
+      },
+      "logic/skins.csv": {
+        "sha1": "1f1e7ee8e0f2286f2ab9aa8c35329ce454c38654",
+        "sha256": "2dbf628a71380159a0d7b8867695e261efaed56429ce26216bdf96694f0359bc"
+      }
+    }
+  },
+  "items": {
+    "18000244": {
+      "name": "Amber Hot Streak",
+      "kind": "decorations",
+      "icon": "identity_18000244",
+      "official_tid": "TID_DECO_COMMUNITY_FLAMER_ORANGE",
+      "artwork_url": "https://assets.clashperk.com/decorations/home_village/amber_hot_streak.webp",
+      "artwork_sha256": "e9707ef442b3aa53344f11c1905f58cdc83b2e0b394492729aa31d7d6b206e64"
+    },
+    "18000248": {
+      "name": "Sour Elixir Fountain",
+      "kind": "decorations",
+      "icon": "identity_18000248",
+      "official_tid": "TID_DECO_COSMIC_FOUNTAIN",
+      "artwork_url": "https://assets.clashperk.com/decorations/home_village/sour_elixir_fountain.webp",
+      "artwork_sha256": "33a19396d6e722b048331766399a152881916f17fe00f97f4ecb70b504db6af8"
+    }
+  }
+}

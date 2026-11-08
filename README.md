@@ -54,9 +54,22 @@ Allow notifications for upgrade-finished alerts and the live widget controls. On
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.14**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.15**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
-If your version is current, the app confirms that you are up to date. When a newer release is available, it notifies you and opens the GitHub release page, where you can download the APK under **Assets**. If the API check fails, the app tries GitHub’s public latest-release redirect. If both checks fail, the dialog explains the connection, DNS, TLS or server error and offers **Retry** or **Open Releases**. Update checks run only when requested; installing an update remains your choice.
+If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
+
+Downloads continue when you leave the screen. Use **Update Download** or the ready notification to return. Notifications are optional. You can cancel a download or delete a completed one.
+
+If the GitHub API fails, the app tries the public latest-release redirect, followed by Android’s download service for metadata if both app connections fail. Error details include the system’s socket message. **Retry** and **Open Releases** remain available when GitHub cannot be reached. Checks run only when requested; a download starts after you choose it.
+
+<details>
+<summary>Preview the Update Screen</summary>
+
+<img src="docs/images/update-design.png" width="300" alt="Update download screen with a verified APK and Install Update button">
+
+*Sample update version shown for illustration.*
+
+</details>
 
 ### What’s New
 
@@ -126,7 +139,9 @@ See [Village Overview](docs/OVERVIEW.md) for calculation details and [Official G
 
 Upgrade tracking and planning work offline. Village exports and account labels are stored on your device, with system cloud backup disabled. No Supercell login, password, or verification code is required.
 
-The app uses internet access only when you tap **Check for Updates**, making an HTTPS request to this repository's public GitHub release API and, if needed, its public latest-release redirect. Requests include the app version but no village export, account name, player tag, or login credentials. GitHub receives normal connection information such as your IP address. Opening a release page uses your browser.
+Internet access is used for requested update checks and APK downloads from this repository’s GitHub releases. Android’s download service provides a fallback for metadata and handles approved APK downloads, including GitHub’s asset-host redirects. Requests include the app version but no village exports, account names, player tags, or login credentials. GitHub receives normal connection information such as your IP address. The optional **Open Releases** button uses your browser.
+
+Update files are checked for the app’s package, newer version and matching signing key; GitHub’s SHA-256 digest is checked when available. The **Install unknown apps** permission enables Android’s installer for these updates. Installation still requires your confirmation. No broad storage permission is requested.
 
 There is no advertising or analytics. Clipboard text is read when you tap Sync or while the tracker has focus with **Auto-sync on return** enabled. Unrelated text is ignored, clipboard URIs are never opened, and the widget service does not monitor the clipboard. Saved accounts can be removed from Settings.
 

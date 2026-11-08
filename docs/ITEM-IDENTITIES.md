@@ -1,6 +1,6 @@
 # Item Names and Artwork
 
-Version 1.14 bundles **878 identity records** and **869 compact artwork files**. Nine crafting module records share their parent defense portraits and add a stat symbol. Names and pictures work offline; no image service is contacted by the app.
+Version 1.15 bundles **880 identity records** and **871 compact artwork files**. Nine crafting module records share their parent defense portraits and add a stat symbol. Names and pictures work offline; no image service is contacted by the app.
 
 ## Crafting Modules
 
@@ -25,20 +25,26 @@ The earlier general name table incorrectly associated 93000002 with Prospector. 
 
 ## Cosmetic Coverage
 
-In the supplied sample, **91 of 95 distinct cosmetic IDs** have names and artwork. This includes both sceneries, all 25 house parts, all 34 obstacle records across the two bases, 9 of 11 skins and 21 of 23 decorations. All exported helpers and all nine modules are resolved.
+The supplied export has 95 distinct cosmetic IDs. **93 now have verified names and bundled artwork**, including `18000244` **Amber Hot Streak** and `18000248` **Sour Elixir Fountain**.
 
-These four sample IDs remain unresolved in the verified sources:
+The current public game package points to official asset fingerprint `443f20eb3aa749c454b1da26259eac44f145a40b`. Its CDN manifest reports **18.647.6**. The decoration index contains explicit GlobalIDs, and its localization table supplies these exact English names. The two matching portraits are published in ClashPerk’s decoration catalog and bundled with source hashes. This replaces the older CSV snapshot used for the earlier search.
 
-| Type | Export ID |
-| --- | --- |
-| Hero skin | 52000268 |
-| Hero skin | 52000337 |
-| Decoration | 18000244 |
-| Decoration | 18000248 |
+| Export ID | Current Official Table Record | App Status |
+| --- | --- | --- |
+| 18000244 | `Community Flamer Orange` → `TID_DECO_COMMUNITY_FLAMER_ORANGE` → Amber Hot Streak | Named, with artwork |
+| 18000248 | `cosmic_fountain` → `TID_DECO_COSMIC_FOUNTAIN` → Sour Elixir Fountain | Named, with artwork |
+| 52000268 | `MinionHero018`, Minion Prince; blank TID and Icon | ID retained; no verified public name or icon |
+| 52000337 | `GrandWarden059`, Grand Warden; blank TID and Icon | ID retained; no verified public name or icon |
 
-They remain visible by ID and receive no borrowed portrait. Older game tables contain unnamed placeholders or lack corresponding records; a nearby ID, release date or a similar picture is insufficient evidence of a match.
+The [November announcement](https://supercell.com/en/games/clashofclans/blog/news/clash-of-titans-is-hot-off-the-press/) names current skins but does not map them to export IDs. It cannot establish a name for either blank skin row. No seasonal-date guesses or borrowed skin portraits are applied.
 
-Some variants share a name and source image, particularly obstacles. Tap a cosmetic to inspect its data ID and whether the source uses shared artwork. Owned quantities and exported levels are preserved.
+Some other source records share a display name or picture across variants. Tapping a cosmetic shows its data ID and identifies shared artwork so those variants remain distinguishable. Coverage describes the supplied snapshot, not a complete list of every collectible in the game.
+
+### Rechecking the Official Tables
+
+Run `python tools/check_cosmetic_ids.py`. It downloads only three pinned data files, verifies their recorded SHA-256 hashes, decodes the tables without executing game code, and prints the four records above. No account data is needed. The current public package was inspected only through bounded ZIP-directory/fingerprint reads; it was never installed or executed.
+
+`tools/identity-overrides.json` records the official fingerprint, English TIDs, source hashes and the two artwork URLs. Official files: [decoration index](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/decos_logic.scindex), [English text table](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/localization/texts.csv), [skin table](https://game-assets.clashofclans.com/443f20eb3aa749c454b1da26259eac44f145a40b/logic/skins.csv). Artwork is linked from [ClashPerk’s decoration catalog](https://wiki.clashperk.com/decorations?group=Home+village).
 
 ## Sources and Reproduction
 

@@ -1,109 +1,248 @@
 {
   "releases": [
     {
+      "version": "1.15",
+      "versionCode": 16,
+      "title": "Updates Without the Browser",
+      "highlights": [
+        {
+          "title": "Download and Install in the App",
+          "body": "Download a published APK directly from the update prompt. Follow progress, leave the screen while Android downloads, and tap Install Update when ready. Android asks you to allow this install source and confirm installation."
+        },
+        {
+          "title": "Another Way to Check for Updates",
+          "body": "After the API and public Releases checks fail, Android Downloads tries the release metadata. Socket errors now include the actual system detail instead of only the exception name. This does not bypass blocked GitHub connections."
+        },
+        {
+          "title": "Two More Cosmetic Identities",
+          "body": "Official game-data IDs now identify Amber Hot Streak and Sour Elixir Fountain, with matching offline artwork. Two skin records still have no verified name or icon and remain labeled by ID."
+        }
+      ],
+      "steps": [
+        "Tap Check for Updates, then Download Update if a newer APK is available.",
+        "After downloading, tap Install Update. If Android asks, allow installs from CoC Base Tracker, return, and tap Install Update again. Confirm Android’s installation prompt.",
+        "Use Update Download or the ready notification to return to a saved download. Open Overview → Collection → Decorations for the newly identified cosmetics."
+      ]
+    },
+    {
       "version": "1.14",
       "versionCode": 15,
       "title": "Names and Artwork",
       "highlights": [
-        {"title": "Named Crafting Modules", "body": "Hot Candle, Hero Hunter and Cake-A-Pult modules now show their stat names, verified catalog caps and defense portraits with stat symbols."},
-        {"title": "Recognizable Helpers", "body": "Alchemist and Prospector are identified correctly in helper cards and availability reminders. Helper portraits make each one easier to recognize."},
-        {"title": "Cosmetic Names and Icons", "body": "The collection uses a bundled identity catalog and compact offline artwork for known skins, sceneries, decorations, obstacles and house parts. Entries missing from the source data keep their IDs."}
+        {
+          "title": "Named Crafting Modules",
+          "body": "Hot Candle, Hero Hunter and Cake-A-Pult modules now show their stat names, verified catalog caps and defense portraits with stat symbols."
+        },
+        {
+          "title": "Recognizable Helpers",
+          "body": "Alchemist and Prospector are identified correctly in helper cards and availability reminders. Helper portraits make each one easier to recognize."
+        },
+        {
+          "title": "Cosmetic Names and Icons",
+          "body": "The collection uses a bundled identity catalog and compact offline artwork for known skins, sceneries, decorations, obstacles and house parts. Entries missing from the source data keep their IDs."
+        }
       ],
-      "steps": ["Open Overview → Crafting to see named modules and their current levels.", "Open Helpers for corrected helper names and portraits, or Collection for cosmetic names and artwork.", "Tap a crafting module to inspect its identity and cap. Unresolved entries remain visible for later data updates."]
+      "steps": [
+        "Open Overview → Crafting to see named modules and their current levels.",
+        "Open Helpers for corrected helper names and portraits, or Collection for cosmetic names and artwork.",
+        "Tap a crafting module to inspect its identity and cap. Unresolved entries remain visible for later data updates."
+      ]
     },
     {
       "version": "1.13",
       "versionCode": 14,
       "title": "Your Village at a Glance",
       "highlights": [
-        {"title": "Progress for Both Bases", "body": "Overview shows building, wall, trap, army and hero level progress. Choose targets for your Current Hall or the full offline Catalog Max."},
-        {"title": "Crafting and Collections", "body": "Track all exported crafting modules, equipment levels and cosmetic collections. Unverified names stay visible as IDs, and unknown module caps are clearly marked."},
-        {"title": "Helper and Clock Tower Alerts", "body": "See exported cooldowns and receive a one-time availability reminder for each deadline. Sync after using a helper or Clock Tower to keep estimates current."},
-        {"title": "Official Game References", "body": "The News button in Overview opens dated notes and links to Supercell’s official blog, support and community-channel directory. Notes are bundled with this release."}
+        {
+          "title": "Progress for Both Bases",
+          "body": "Overview shows building, wall, trap, army and hero level progress. Choose targets for your Current Hall or the full offline Catalog Max."
+        },
+        {
+          "title": "Crafting and Collections",
+          "body": "Track all exported crafting modules, equipment levels and cosmetic collections. Unverified names stay visible as IDs, and unknown module caps are clearly marked."
+        },
+        {
+          "title": "Helper and Clock Tower Alerts",
+          "body": "See exported cooldowns and receive a one-time availability reminder for each deadline. Sync after using a helper or Clock Tower to keep estimates current."
+        },
+        {
+          "title": "Official Game References",
+          "body": "The News button in Overview opens dated notes and links to Supercell’s official blog, support and community-channel directory. Notes are bundled with this release."
+        }
       ],
-      "steps": ["Tap Overview beside Build Menu, then switch Village Base or Builder Base.", "Use Progress, Crafting, Helpers or Collection to explore your export. Collection includes an equipment and cosmetic selector.", "Enable notifications and Helper & Clock Tower alerts in Settings. Availability is estimated from the last export; sync after use in Clash."]
+      "steps": [
+        "Tap Overview beside Build Menu, then switch Village Base or Builder Base.",
+        "Use Progress, Crafting, Helpers or Collection to explore your export. Collection includes an equipment and cosmetic selector.",
+        "Enable notifications and Helper & Clock Tower alerts in Settings. Availability is estimated from the last export; sync after use in Clash."
+      ]
     },
     {
       "version": "1.12",
       "versionCode": 13,
       "title": "Auto-Sync on Return",
       "highlights": [
-        {"title": "Copy, Then Return", "body": "Copy a village export in Clash and return to CoC Base Tracker. A fresh export imports automatically when the tracker has focus. Android does not allow background clipboard watching or an automatic redirect from Clash’s Copy button."},
-        {"title": "Your Sync Controls", "body": "Auto-sync on return is enabled by default and can be turned off in Settings, even before importing an account. Duplicate and older exports are ignored. Each widget keeps its account selection."},
-        {"title": "Updated Helper Detection", "body": "Repeat-helper settings from newer exports are recognized. Forecasts use the assigned helper’s cooldown, and a repeat preference on an idle item does not create an active upgrade."}
+        {
+          "title": "Copy, Then Return",
+          "body": "Copy a village export in Clash and return to CoC Base Tracker. A fresh export imports automatically when the tracker has focus. Android does not allow background clipboard watching or an automatic redirect from Clash’s Copy button."
+        },
+        {
+          "title": "Your Sync Controls",
+          "body": "Auto-sync on return is enabled by default and can be turned off in Settings, even before importing an account. Duplicate and older exports are ignored. Each widget keeps its account selection."
+        },
+        {
+          "title": "Updated Helper Detection",
+          "body": "Repeat-helper settings from newer exports are recognized. Forecasts use the assigned helper’s cooldown, and a repeat preference on an idle item does not create an active upgrade."
+        }
       ],
-      "steps": ["Open Clash and copy Settings → More Settings → Export village data.", "Switch back to the tracker, or tap its live-timer notification. The app auto-syncs a new export without a separate Sync tap.", "Turn off Settings → Auto-sync on return if you prefer manual Sync / Add Account."]
+      "steps": [
+        "Open Clash and copy Settings → More Settings → Export village data.",
+        "Switch back to the tracker, or tap its live-timer notification. The app auto-syncs a new export without a separate Sync tap.",
+        "Turn off Settings → Auto-sync on return if you prefer manual Sync / Add Account."
+      ]
     },
     {
       "version": "1.11",
       "versionCode": 12,
       "title": "Smoother Timers and a Cleaner Home",
       "highlights": [
-        {"title": "More Reliable Update Checks", "body": "If the GitHub API is unavailable, the app checks the public latest-release redirect. Errors now identify connection, DNS or secure-connection failures, with Retry and Open Releases options. Android 8.0 and later remain supported."},
-        {"title": "Smooth Boosted Countdowns", "body": "In the app and Build Menu, boosted work counts down through intermediate seconds instead of jumping once per real second. The home widget shows steady real time remaining with its boost badge."},
-        {"title": "Less Clutter", "body": "Settings starts collapsed, actions use shorter labels, and long explanations have moved to Help & About. Account names, sync status and important timer information stay visible."}
+        {
+          "title": "More Reliable Update Checks",
+          "body": "If the GitHub API is unavailable, the app checks the public latest-release redirect. Errors now identify connection, DNS or secure-connection failures, with Retry and Open Releases options. Android 8.0 and later remain supported."
+        },
+        {
+          "title": "Smooth Boosted Countdowns",
+          "body": "In the app and Build Menu, boosted work counts down through intermediate seconds instead of jumping once per real second. The home widget shows steady real time remaining with its boost badge."
+        },
+        {
+          "title": "Less Clutter",
+          "body": "Settings starts collapsed, actions use shorter labels, and long explanations have moved to Help & About. Account names, sync status and important timer information stay visible."
+        }
       ],
-      "steps": ["Tap Check for Updates; if both checks fail, the message shows the reason and offers Retry or Open Releases.", "Sync a fresh export after using a potion to see the fast work countdown in the app. Finishes in remains the estimated real completion time.", "Expand Settings for account and notification controls. Open Help & About for sync instructions, timer details and privacy information."]
+      "steps": [
+        "Tap Check for Updates; if both checks fail, the message shows the reason and offers Retry or Open Releases.",
+        "Sync a fresh export after using a potion to see the fast work countdown in the app. Finishes in remains the estimated real completion time.",
+        "Expand Settings for account and notification controls. Open Help & About for sync instructions, timer details and privacy information."
+      ]
     },
     {
       "version": "1.10",
       "versionCode": 11,
       "title": "What’s New Guide",
       "highlights": [
-        {"title": "Release Highlights on Launch", "body": "A short summary introduces the installed release after an update. Read the guide or tap Got It to dismiss it for that version."},
-        {"title": "Read the Guide Anytime", "body": "What’s New at the bottom of the app opens the full release guide, including changes from earlier versions."},
-        {"title": "Available Offline", "body": "Release highlights are included with the app. You can read them without an internet connection."}
+        {
+          "title": "Release Highlights on Launch",
+          "body": "A short summary introduces the installed release after an update. Read the guide or tap Got It to dismiss it for that version."
+        },
+        {
+          "title": "Read the Guide Anytime",
+          "body": "What’s New at the bottom of the app opens the full release guide, including changes from earlier versions."
+        },
+        {
+          "title": "Available Offline",
+          "body": "Release highlights are included with the app. You can read them without an internet connection."
+        }
       ],
-      "steps": ["Open CoC Base Tracker to see the release summary.", "Tap Read Release Guide for the full details, or Got It to continue.", "Reopen What’s New at the bottom of the app whenever you need it."]
+      "steps": [
+        "Open CoC Base Tracker to see the release summary.",
+        "Tap Read Release Guide for the full details, or Got It to continue.",
+        "Reopen What’s New at the bottom of the app whenever you need it."
+      ]
     },
     {
       "version": "1.9",
       "versionCode": 10,
       "title": "App Version and Update Checks",
       "highlights": [
-        {"title": "Installed Version in the Header", "body": "The app title includes its installed version so you can tell which build you are using."},
-        {"title": "Check for Updates", "body": "The button at the bottom checks the latest stable GitHub release. It confirms when you are current and opens Releases when a newer version is available."},
-        {"title": "Checks Stay Under Your Control", "body": "GitHub is contacted only when you request a check. Village exports, player tags and account names are not sent. Failed checks offer a retry or manual release-page check."}
+        {
+          "title": "Installed Version in the Header",
+          "body": "The app title includes its installed version so you can tell which build you are using."
+        },
+        {
+          "title": "Check for Updates",
+          "body": "The button at the bottom checks the latest stable GitHub release. It confirms when you are current and opens Releases when a newer version is available."
+        },
+        {
+          "title": "Checks Stay Under Your Control",
+          "body": "GitHub is contacted only when you request a check. Village exports, player tags and account names are not sent. Failed checks offer a retry or manual release-page check."
+        }
       ],
-      "steps": ["Scroll to the bottom and tap Check for Updates.", "If a newer release opens, download its APK from Assets.", "Install the APK over your existing app to keep saved accounts and widgets."]
+      "steps": [
+        "Scroll to the bottom and tap Check for Updates.",
+        "If a newer release opens, download its APK from Assets.",
+        "Install the APK over your existing app to keep saved accounts and widgets."
+      ]
     },
     {
       "version": "1.8",
       "versionCode": 9,
       "title": "Boost-Aware Upgrade Timers",
       "highlights": [
-        {"title": "Work Left and Finish Estimates", "body": "Boosted upgrades show their effective speed, accelerated Work left countdown and estimated real Finishes in time."},
-        {"title": "Potions, Snacks and Helpers", "body": "Known upgrade-speed effects apply for their remaining duration. Repeating helper assignments can be forecast when the export provides the assignment and cooldown."},
-        {"title": "Boosts & Helpers", "body": "Review recorded effects and upcoming speed changes in one place. Use items in Clash first, then sync a fresh export."}
+        {
+          "title": "Work Left and Finish Estimates",
+          "body": "Boosted upgrades show their effective speed, accelerated Work left countdown and estimated real Finishes in time."
+        },
+        {
+          "title": "Potions, Snacks and Helpers",
+          "body": "Known upgrade-speed effects apply for their remaining duration. Repeating helper assignments can be forecast when the export provides the assignment and cooldown."
+        },
+        {
+          "title": "Boosts & Helpers",
+          "body": "Review recorded effects and upcoming speed changes in one place. Use items in Clash first, then sync a fresh export."
+        }
       ],
-      "steps": ["Use the potion, snack or helper in Clash of Clans.", "Copy a fresh village export and sync it in the tracker.", "Open Boosts & Helpers to review the imported effects."]
+      "steps": [
+        "Use the potion, snack or helper in Clash of Clans.",
+        "Copy a fresh village export and sync it in the tracker.",
+        "Open Boosts & Helpers to review the imported effects."
+      ]
     },
     {
       "version": "1.7",
       "versionCode": 8,
       "title": "In-Game Account Names",
       "highlights": [
-        {"title": "Recognizable Accounts", "body": "In-game names appear with player tags in the app, widgets, account selection and finish reminders."},
-        {"title": "Names That Stay Saved", "body": "Enter a name once if an export omits it. Names persist across syncs, and optional nicknames such as Main or Mini remain separate."}
+        {
+          "title": "Recognizable Accounts",
+          "body": "In-game names appear with player tags in the app, widgets, account selection and finish reminders."
+        },
+        {
+          "title": "Names That Stay Saved",
+          "body": "Enter a name once if an export omits it. Names persist across syncs, and optional nicknames such as Main or Mini remain separate."
+        }
       ],
-      "steps": ["Use Set In-game Name or Settings → In-game Name to enter or edit a name.", "Use Account Nickname for an optional label without changing your name in Clash."]
+      "steps": [
+        "Use Set In-game Name or Settings → In-game Name to enter or edit a name.",
+        "Use Account Nickname for an optional label without changing your name in Clash."
+      ]
     },
     {
       "version": "1.6",
       "versionCode": 7,
       "title": "Readable Live Countdowns",
       "highlights": [
-        {"title": "Days, Hours, Minutes and Seconds", "body": "Countdowns use a readable format such as 1d 12h 18m 56s in the app, Build Menu and live widgets."},
-        {"title": "Live Widget Controls", "body": "An ongoing notification keeps readable widget timers updating. Pause live updates from the notification or Settings to use Android’s clock-style widget countdown."}
+        {
+          "title": "Days, Hours, Minutes and Seconds",
+          "body": "Countdowns use a readable format such as 1d 12h 18m 56s in the app, Build Menu and live widgets."
+        },
+        {
+          "title": "Live Widget Controls",
+          "body": "An ongoing notification keeps readable widget timers updating. Pause live updates from the notification or Settings to use Android’s clock-style widget countdown."
+        }
       ],
-      "steps": ["Keep Live readable widget timers enabled for the full duration format.", "Allow notifications to see the live widget controls."]
+      "steps": [
+        "Keep Live readable widget timers enabled for the full duration format.",
+        "Allow notifications to see the live widget controls."
+      ]
     },
     {
       "version": "1.5",
       "versionCode": 6,
       "title": "CoC Base Tracker",
       "highlights": [
-        {"title": "A New App Name", "body": "The app and project were renamed CoC Base Tracker. Installing over the earlier app preserves saved villages and widget selections."}
+        {
+          "title": "A New App Name",
+          "body": "The app and project were renamed CoC Base Tracker. Installing over the earlier app preserves saved villages and widget selections."
+        }
       ],
       "steps": []
     },
@@ -112,10 +251,19 @@
       "versionCode": 5,
       "title": "Village Upgrade Planning",
       "highlights": [
-        {"title": "Build Menu", "body": "Switch between Village Base and Builder Base and browse their upgrade categories."},
-        {"title": "Plan the Next Upgrade", "body": "Review remaining standard upgrades, listed requirements, baseline costs and durations. Use resource, type, hero and status filters to narrow the list."}
+        {
+          "title": "Build Menu",
+          "body": "Switch between Village Base and Builder Base and browse their upgrade categories."
+        },
+        {
+          "title": "Plan the Next Upgrade",
+          "body": "Review remaining standard upgrades, listed requirements, baseline costs and durations. Use resource, type, hero and status filters to narrow the list."
+        }
       ],
-      "steps": ["Tap Build Menu above your upgrade timers.", "Choose a base and category, then tap a card for its details."]
+      "steps": [
+        "Tap Build Menu above your upgrade timers.",
+        "Choose a base and category, then tap a card for its details."
+      ]
     }
   ]
 }

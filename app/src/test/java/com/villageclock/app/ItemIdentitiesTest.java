@@ -25,7 +25,9 @@ public class ItemIdentitiesTest {
         Context c=RuntimeEnvironment.getApplication();ItemIdentities catalog=ItemIdentities.load(c);
         assertEquals("Super Squad King",catalog.item(52000136).name);assertEquals("Shadow Scenery",catalog.item(60000017).name);
         for(int id:new int[]{52000136,60000017,18000001,8000065,82000008})assertNotEquals(R.drawable.ic_village,ItemArt.icon(c,id));
-        for(int id:new int[]{52000268,52000337,18000244,18000248,99999999})assertNull(catalog.item(id));
+        assertEquals("Amber Hot Streak",catalog.item(18000244).name);assertEquals("Sour Elixir Fountain",catalog.item(18000248).name);
+        for(int id:new int[]{18000244,18000248})assertNotEquals(R.drawable.ic_village,ItemArt.icon(c,id));
+        for(int id:new int[]{52000268,52000337,99999999})assertNull(catalog.item(id));
     }
     @Test @Config(sdk=35) public void allDeclaredArtworkResourcesExistAndDecode(){
         Context c=RuntimeEnvironment.getApplication();for(ItemIdentities.Entry entry:ItemIdentities.load(c).items())if(!entry.icon.isEmpty()){

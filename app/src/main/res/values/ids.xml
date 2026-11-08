@@ -1,4 +1,7 @@
 <resources>
+    <item name="download_status" type="id" />
+    <item name="download_detail" type="id" />
+    <item name="install_update" type="id" />
     <item name="app_version_title" type="id" />
     <item name="check_updates" type="id" />
     <item name="settings_toggle" type="id" />

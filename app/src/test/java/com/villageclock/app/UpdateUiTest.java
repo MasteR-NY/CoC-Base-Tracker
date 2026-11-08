@@ -14,7 +14,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class) @Config(sdk={26,29,35})
 public class UpdateUiTest {
-    private UpdateChecker.Release release(String tag)throws Exception{return UpdateChecker.parse("{\"tag_name\":\""+tag+"\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"app.apk\",\"state\":\"uploaded\"}]}");}
+    private UpdateChecker.Release release(String tag)throws Exception{return UpdateChecker.parse("{\"tag_name\":\""+tag+"\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"app.apk\",\"state\":\"uploaded\",\"browser_download_url\":\"https://github.com/MasteR-NY/CoC-Base-Tracker/releases/download/"+tag+"/app.apk\"}]}");}
     @Test public void openingShowsInstalledVersionAndBottomUpdateButton(){
         MainActivity activity=Robolectric.buildActivity(MainActivity.class).setup().get();
         assertEquals("CoC Base Tracker v"+BuildConfig.VERSION_NAME,((TextView)activity.findViewById(R.id.app_version_title)).getText().toString());
@@ -27,9 +27,11 @@ public class UpdateUiTest {
         assertTrue(((TextView)dialog.findViewById(android.R.id.message)).getText().toString().contains("latest published version"));
         assertNull(shadowOf(activity).getNextStartedActivity());
     }
-    @Test public void newerReleaseOpensOnlyOurGitHubReleasesPage()throws Exception{
+    @Test public void newerReleasePromptsBeforeStartingPrivateDownloadScreen()throws Exception{
         MainActivity activity=Robolectric.buildActivity(MainActivity.class).setup().get();activity.finishUpdateCheck(release("99.0"),null);
-        Intent intent=shadowOf(activity).getNextStartedActivity();assertNotNull(intent);assertEquals(Intent.ACTION_VIEW,intent.getAction());assertEquals(UpdateChecker.RELEASES_URL,intent.getDataString());
+        assertNull(shadowOf(activity).getNextStartedActivity());
+        AlertDialog prompt=ShadowAlertDialog.getLatestAlertDialog();assertEquals("Download Update",prompt.getButton(AlertDialog.BUTTON_POSITIVE).getText().toString());prompt.getButton(AlertDialog.BUTTON_POSITIVE).performClick();shadowOf(android.os.Looper.getMainLooper()).idle();
+        Intent intent=shadowOf(activity).getNextStartedActivity();assertNotNull(intent);assertEquals(UpdateActivity.class.getName(),intent.getComponent().getClassName());assertNull(intent.getData());
         assertTrue(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("99.0"));
     }
     @Test public void errorsAndOlderPublishedVersionsNeverLaunchAnUpdate()throws Exception{
@@ -41,12 +43,12 @@ public class UpdateUiTest {
     @Test public void checkCompletingInBackgroundWaitsUntilAppResumes()throws Exception{
         ActivityController<MainActivity> controller=Robolectric.buildActivity(MainActivity.class).setup();MainActivity activity=controller.get();controller.pause();
         activity.finishUpdateCheck(release("99.0"),null);assertNull(shadowOf(activity).getNextStartedActivity());
-        controller.resume();shadowOf(android.os.Looper.getMainLooper()).idle();assertNotNull(shadowOf(activity).getNextStartedActivity());
+        controller.resume();shadowOf(android.os.Looper.getMainLooper()).idle();assertNull(shadowOf(activity).getNextStartedActivity());assertTrue(ShadowAlertDialog.getLatestAlertDialog().isShowing());
     }
     @Test public void websiteFallbackDoesNotFalselyClaimApkIsMissing()throws Exception{
         MainActivity activity=Robolectric.buildActivity(MainActivity.class).setup().get();
         activity.finishUpdateCheck(UpdateChecker.parseReleaseRedirect("/MasteR-NY/CoC-Base-Tracker/releases/tag/v99.0"),null);
-        assertTrue(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("Check Assets"));
+        assertTrue(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("99.0"));
         assertFalse(((TextView)activity.findViewById(R.id.update_status)).getText().toString().contains("not been uploaded"));
     }
 }

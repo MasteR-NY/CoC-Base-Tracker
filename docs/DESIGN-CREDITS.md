@@ -21,3 +21,7 @@ Additional helper portraits, skins, scenery thumbnails, decorations, obstacles a
 Identity metadata is derived from the pinned [Clashy game-data file](https://github.com/ClashKingInc/clashy.py/blob/33ca78371dda26e6ccda76c49fb7d07242eeb2f0/coc/static/static_data.json). Its [MIT notice](licenses/Clashy-MIT.txt) is retained. Crafted defense portraits and cross-checked module metadata use the existing pinned chiefpansancolt source. Stat symbols are original Android vector resources; module cards combine these symbols with a defense portrait.
 
 Artwork is resized for offline app use; animated previews use a static frame. No source publisher's extraction code is executed or included as app code. Source IDs, name coverage and reproducible import steps are documented in [Item Names and Artwork](ITEM-IDENTITIES.md).
+
+## Decoration Artwork Added in Version 1.15
+
+Amber Hot Streak and Sour Elixir Fountain names are verified against explicit IDs and English TIDs in Supercell’s public 18.647.6 asset tables. Their game-art portraits are provided by [ClashPerk’s decoration catalog](https://wiki.clashperk.com/decorations?group=Home+village), with exact URLs and hashes in `tools/identity-overrides.json`. Credit to ClashPerk for publishing these extracted previews; original artwork remains © Supercell under its Fan Content Policy. Only the two game-art images are reused; no site UI, extraction code or prose is bundled.

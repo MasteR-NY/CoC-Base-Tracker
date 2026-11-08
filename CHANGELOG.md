@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.15 — Updates Without the Browser
+
+- **Download and Install in the App:** Download a published APK directly from the update prompt. Follow progress, leave the screen while Android downloads, and tap Install Update when ready. Android asks you to allow this install source and confirm installation.
+- **Another Way to Check for Updates:** After the API and public Releases checks fail, Android Downloads tries the release metadata. Socket errors now include the actual system detail instead of only the exception name. This does not bypass blocked GitHub connections.
+- **Two More Cosmetic Identities:** Official game-data IDs now identify Amber Hot Streak and Sour Elixir Fountain, with matching offline artwork. Two skin records still have no verified name or icon and remain labeled by ID.
+
+### How to Use It
+
+1. Tap Check for Updates, then Download Update if a newer APK is available.
+2. After downloading, tap Install Update. If Android asks, allow installs from CoC Base Tracker, return, and tap Install Update again. Confirm Android’s installation prompt.
+3. Use Update Download or the ready notification to return to a saved download. Open Overview → Collection → Decorations for the newly identified cosmetics.
+
 ## v1.14 — Names and Artwork
 
 - **Named Crafting Modules:** Hot Candle, Hero Hunter and Cake-A-Pult modules now show their stat names, verified catalog caps and defense portraits with stat symbols.

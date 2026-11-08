@@ -9,7 +9,7 @@ import java.security.cert.Certificate;
 import static org.junit.Assert.*;
 
 public class UpdateCheckerTest {
-    private static String release(String version){return "{\"tag_name\":\""+version+"\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"CoC-Base-Tracker.apk\",\"state\":\"uploaded\"}]}";}
+    private static String release(String version){return "{\"tag_name\":\""+version+"\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"CoC-Base-Tracker.apk\",\"state\":\"uploaded\",\"browser_download_url\":\"https://github.com/MasteR-NY/CoC-Base-Tracker/releases/download/"+version+"/CoC-Base-Tracker.apk\"}]}";}
     @Test public void comparesVersionsNumericallyIncludingFutureDoubleDigitMinorReleases()throws Exception{
         assertTrue(UpdateChecker.compare("v1.10","1.9")>0);assertTrue(UpdateChecker.compare("v2.0","1.99")>0);
         assertEquals(0,UpdateChecker.compare("1.9.0","v1.9"));assertEquals(0,UpdateChecker.compare("1.9+build.3","1.9"));

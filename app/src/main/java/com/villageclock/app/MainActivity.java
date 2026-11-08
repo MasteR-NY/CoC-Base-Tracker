@@ -54,6 +54,7 @@ public final class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
+        try { if(UpdateDownloads.id(this)!=-1&&UpdateChecker.compare(UpdateDownloads.version(this),BuildConfig.VERSION_NAME)<=0)UpdateDownloads.cancel(this); } catch(Exception ignored) { }
         createShell();
         handleIntent(getIntent());
     }
@@ -143,6 +144,7 @@ public final class MainActivity extends Activity {
         whatsNew.setId(R.id.whats_new); gap(content, 8);
         Button updates = button(content, checkingUpdates ? "Checking for Updates…" : "Check for Updates", false, v -> checkForUpdates());
         updates.setId(R.id.check_updates); updates.setEnabled(!checkingUpdates);
+        if(UpdateDownloads.id(this)!=-1){gap(content,8);button(content,"Update Download",false,v->startActivity(UpdateActivity.intent(this,null)));}
         TextView updateNote = text(updateStatus, 12, MUTED, false);
         updateNote.setId(R.id.update_status);updateNote.setVisibility(updateStatus.isEmpty()?View.GONE:View.VISIBLE);gap(content, 6);content.addView(updateNote);
         if (village != null && resumed) {
@@ -179,7 +181,7 @@ public final class MainActivity extends Activity {
         checkingUpdates = true; updateStatus = "Checking the latest GitHub release…"; render();
         updateWorker.execute(() -> {
             UpdateChecker.Release release = null; String error = null;
-            try { release = UpdateChecker.fetchLatest(BuildConfig.VERSION_NAME); }
+            try { release = UpdateDownloads.fetchLatest(getApplicationContext()); }
             catch (UpdateChecker.CheckException failure) { error = failure.getMessage(); }
             catch (Exception failure) { error = UpdateChecker.failureDetail(failure); }
             UpdateChecker.Release result = release; String failure = error;
@@ -205,8 +207,15 @@ public final class MainActivity extends Activity {
         try {
             int comparison = UpdateChecker.compare(pendingRelease.version, BuildConfig.VERSION_NAME);
             if (comparison > 0) {
-                updateStatus = "Update available: v" + pendingRelease.version + (!pendingRelease.apkStatusKnown ? ". Check Assets for the APK." : pendingRelease.hasApk ? "." : ". The APK has not been uploaded yet.");
-                render(); Toast.makeText(this, updateStatus + " Opening GitHub Releases…", Toast.LENGTH_LONG).show(); openReleases();
+                UpdateChecker.Release offered=pendingRelease;
+                updateStatus = "Update available: v" + offered.version + (offered.apkStatusKnown&&!offered.hasApk?". The APK has not been uploaded yet.":".");
+                render();
+                AlertDialog.Builder prompt=new AlertDialog.Builder(this).setTitle("Update Available")
+                    .setMessage("CoC Base Tracker v"+offered.version+" is available."+(offered.apkStatusKnown&&!offered.hasApk?" The release has no downloadable APK yet.":" Download it here, then tap Install Update. Android will ask you to confirm installation.")+(offered.bytes>0?"\n\nDownload: "+String.format(java.util.Locale.getDefault(),"%.1f MB",offered.bytes/1048576.0):""))
+                    .setNegativeButton("Later",null);
+                if(!offered.apkStatusKnown||offered.hasApk)prompt.setPositiveButton("Download Update",(d,w)->startActivity(UpdateActivity.intent(this,offered)));
+                else prompt.setPositiveButton("Open Releases",(d,w)->openReleases());
+                prompt.show();
             } else {
                 boolean current = comparison == 0;
                 updateStatus = current ? "You’re up to date · v" + BuildConfig.VERSION_NAME : "No newer release · installed v" + BuildConfig.VERSION_NAME + ", published v" + pendingRelease.version;
@@ -487,9 +496,9 @@ public final class MainActivity extends Activity {
             "Sync Your Village\nIn Clash: Settings → More Settings → Export village data → Copy. Return here; Auto-sync on return imports fresh exports automatically while this app has focus. Turn it off in Settings for manual Sync / Add Account. Android does not let the tracker watch Clash’s Copy button in the background or redirect from it. Sync after upgrades, items or helper changes.\n\n"
             +"Timers & Boosts\nWork left is upgrade work; a 24× Research Potion makes it count down faster. Finishes in is the estimated real time to completion, including boost expiry. Widgets show real time remaining in steady seconds. Potions stack by extending duration. Review imported effects in Boosts & Helpers. Green bars show progress since export.\n\n"
             +"Widgets & Alerts\nEach widget keeps its own account. Live readable widget timers use an ongoing notification, pause while locked or screen off, and recalculate on unlock. Pause live updates to use Android’s native timer. Battery restrictions can delay widgets or alerts. Reopen the app after force-stop.\n\n"
-            +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub’s public API, with a public Releases fallback, only when tapped. No village or account data is sent.\n\n"
+            +"Privacy & Updates\nVillage data stays on this phone. No Supercell login, ads or analytics. Clipboard access happens when you tap Sync or while this app is focused with Auto-sync on return enabled. Unrelated text is ignored; clipboard URIs are never opened. Check for Updates contacts GitHub only when tapped, with Android Downloads as another network path if app connections fail. APK downloads start after you choose Download Update. Install Update opens Android’s installer after package, version and signing-key checks. No village or account data is sent.\n\n"
             +"Overview\nProgress compares exported levels and counts with Current Hall or Catalog Max targets. Crafting shows all exported modules. Helpers shows cooldown estimates and availability alerts; sync after use. Collection contains equipment and cosmetic records, using stable IDs when names are unavailable.\n\n"
-            +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell, with additional offline artwork and identity data via ClashKing. Lilita One font: SIL OFL.")
+            +"About\nCoC Base Tracker v"+BuildConfig.VERSION_NAME+" supports Android 8.0 and later. Independent fan companion; not affiliated with or endorsed by Supercell. Item art © Supercell, with additional offline artwork and identity data via ClashKing, with two decoration portraits via ClashPerk. Lilita One font: SIL OFL.")
             .setPositiveButton("Close",null).show();
     }
     private void equalButtons(Button left,Button right){
