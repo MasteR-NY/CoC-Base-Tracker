@@ -16,7 +16,7 @@ public final class UpgradeListService extends RemoteViewsService {
             private Village snapshot;
             @Override public void onCreate() { onDataSetChanged(); }
             @Override public void onDataSetChanged() {
-                Village village = Store.load(UpgradeListService.this, Store.widgetTag(UpgradeListService.this, id));
+                Village village = LiveTimerService.snapshot(UpgradeListService.this, id);
                 snapshot = village;
                 jobs = VillageWidget.displayJobs(village, System.currentTimeMillis());
             }

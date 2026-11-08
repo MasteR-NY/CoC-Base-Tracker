@@ -1,5 +1,13 @@
 # Timer rules in CoC Base Tracker
 
+## Readable countdown display
+
+Version 1.6 formats remaining time as `1d 12h 18m 56s`, always including all four units. Remaining milliseconds round up to the next second and clamp at zero; hours wrap at 24 rather than growing beyond one day. Formatting never changes a predicted finish timestamp.
+
+Activity text ticks while its window has focus and cancels scheduled callbacks when a row detaches or the window loses focus. Widgets use a user-selected foreground service with an ongoing low-priority notification because Android's built-in remote Chronometer cannot supply this format. It refreshes the existing permission-protected list adapter each second, retaining scroll/account selections and cached village snapshots rather than re-reading JSON on each tick. Screen-off/lock pauses display work without a wake lock; screen-on/unlock recalculates current remaining time. Upgrade-finish alarms remain separate.
+
+The service stops when there are no running upgrades on selected widgets. Pause from its notification or Settings returns widgets to the native clock-style timer. If Android blocks a background start or stops the service, opening the app can restore readable widget updates. Force-stop still requires reopening the app. System/device restrictions can delay screen updates; this is not live game sync. Physical-device battery/launcher behavior has not been validated here.
+
 CoC Base Tracker predicts finish times from the village snapshot, not from the catalog's normal full upgrade duration. The snapshot's `timestamp` anchors all calculations. The `timer` is treated as remaining upgrade work after any permanent/event time reductions already applied by the game.
 
 ## Stacked copies of a potion

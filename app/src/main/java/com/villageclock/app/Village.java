@@ -25,12 +25,15 @@ public final class Village {
         public boolean done(long now) { return finishAt <= now; }
         public String label() { return name + "  → " + level; }
     }
-    public final String tag;
+    public final String tag, playerName;
     public final long exportedAt;
     public final int townHall, builders, baseBuilders;
     public final List<Upgrade> upgrades;
     Village(String tag, long exportedAt, int townHall, int builders, int baseBuilders, List<Upgrade> upgrades) {
-        this.tag = tag; this.exportedAt = exportedAt; this.townHall = townHall;
+        this(tag, "", exportedAt, townHall, builders, baseBuilders, upgrades);
+    }
+    Village(String tag, String playerName, long exportedAt, int townHall, int builders, int baseBuilders, List<Upgrade> upgrades) {
+        this.tag = tag; this.playerName = AccountNames.clean(playerName); this.exportedAt = exportedAt; this.townHall = townHall;
         this.builders = builders; this.baseBuilders = baseBuilders;
         ArrayList<Upgrade> ordered = new ArrayList<>(upgrades);
         ordered.sort(java.util.Comparator.comparingLong(u -> u.finishAt));

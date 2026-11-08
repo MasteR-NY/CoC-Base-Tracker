@@ -78,22 +78,47 @@ public final class Store {
         Village previous = read(c, tag);
         if (previous != null && previous.exportedAt > village.exportedAt) throw new IOException("An older export cannot replace this village.");
         archive(c).write(tag, text);
-        prefs(c).edit().putString("active-tag", tag).putLong(key("notified-through", tag), System.currentTimeMillis())
-            .putLong(key("last-import", tag), System.currentTimeMillis()).apply();
+        SharedPreferences.Editor edit = prefs(c).edit().putString("active-tag", tag).putLong(key("notified-through", tag), System.currentTimeMillis())
+            .putLong(key("last-import", tag), System.currentTimeMillis());
+        String importedName = !village.playerName.isEmpty() ? village.playerName : previous == null ? "" : previous.playerName;
+        if (!importedName.isEmpty()) edit.putString(key("imported-name", tag), importedName);
+        edit.apply();
     }
     public static synchronized void clear(Context c) throws IOException {
         String tag = activeTag(c);
         if (tag.isEmpty()) return;
         archive(c).remove(tag);
-        prefs(c).edit().remove(key("name", tag)).remove(key("notified-through", tag)).remove(key("last-import", tag)).remove("active-tag").apply();
+        prefs(c).edit().remove(key("name", tag)).remove(key("in-game-name", tag)).remove(key("imported-name", tag))
+            .remove(key("notified-through", tag)).remove(key("last-import", tag)).remove("active-tag").apply();
         c.getSystemService(android.app.NotificationManager.class).cancel(tag, 7);
     }
-    public static void rename(Context c, String tag, String name) { prefs(c).edit().putString(key("name", tag), name.trim()).apply(); }
+    public static void rename(Context c, String tag, String name) { prefs(c).edit().putString(key("name", tag), AccountNames.clean(name)).apply(); }
+    public static String nickname(Context c, String tag) { return AccountNames.clean(prefs(c).getString(key("name", tag), "")); }
+    public static void setInGameName(Context c, String tag, String name) {
+        String clean = AccountNames.clean(name);
+        SharedPreferences.Editor edit = prefs(c).edit();
+        if (clean.isEmpty()) edit.remove(key("in-game-name", tag)); else edit.putString(key("in-game-name", tag), clean);
+        edit.apply();
+    }
+    public static String inGameName(Context c, Village v) {
+        if (v == null) return "";
+        String saved = AccountNames.clean(prefs(c).getString(key("in-game-name", v.tag), ""));
+        if (!saved.isEmpty()) return saved;
+        return !v.playerName.isEmpty() ? v.playerName : AccountNames.clean(prefs(c).getString(key("imported-name", v.tag), ""));
+    }
     public static String title(Context c, Village v) {
         if (v == null) return "Choose village";
-        String custom = prefs(c).getString(key("name", v.tag), "").trim();
+        String player = inGameName(c, v);
+        if (!player.isEmpty()) return player;
+        String custom = nickname(c, v.tag);
         return custom.isEmpty() ? v.tag : custom;
     }
+    public static String identity(Context c, Village v) {
+        if (v == null) return "Import an account to get started";
+        String alias = nickname(c, v.tag);
+        return v.tag + (inGameName(c, v).isEmpty() ? " · In-game Name not set" : !alias.isEmpty() && !alias.equals(title(c,v)) ? " · " + alias : "");
+    }
+    public static String accountLabel(Context c, Village v) { return title(c, v) + " · " + identity(c, v); }
     public static long notifiedThrough(Context c, String tag) { return prefs(c).getLong(key("notified-through", tag), System.currentTimeMillis()); }
     public static void setNotifiedThrough(Context c, String tag, long time) { prefs(c).edit().putLong(key("notified-through", tag), time).apply(); }
     public static String widgetTag(Context c, int id) {

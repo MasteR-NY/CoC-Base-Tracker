@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <queries><package android:name="com.supercell.clashofclans" /></queries>
     <application android:allowBackup="false" android:fullBackupContent="false"
         android:dataExtractionRules="@xml/data_extraction" android:label="@string/app_name"
@@ -24,6 +26,9 @@
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter>
         </activity>
         <service android:name=".UpgradeListService" android:exported="false" android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <service android:name=".LiveTimerService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Updates user-selected home-screen upgrade countdown widgets each second while the screen is on. Stops when no widget has a running upgrade." />
+        </service>
         <receiver android:name=".VillageWidget" android:exported="false">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/village_widget" />

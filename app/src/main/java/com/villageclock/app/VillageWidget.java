@@ -34,31 +34,41 @@ public final class VillageWidget extends AppWidgetProvider {
         return PendingIntent.getActivity(c, 2, intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
     public static void refresh(Context c) {
+        refresh(c, true);
+    }
+    static void refresh(Context c, boolean reconcileLiveTimers) {
         AppWidgetManager manager = AppWidgetManager.getInstance(c);
         for (int id : manager.getAppWidgetIds(new ComponentName(c, VillageWidget.class))) {
             String tag = Store.widgetTag(c, id);
             Village village = Store.load(c, tag);
+            LiveTimerService.cache(id, tag, village);
             manager.updateAppWidget(id, render(c, village, id, tag));
-            if (Build.VERSION.SDK_INT < 31 || (village != null && village.upgrades.size() > 50))
+            if (LiveTimerService.readable(c) || Build.VERSION.SDK_INT < 31 || (village != null && village.upgrades.size() > 50))
                 manager.notifyAppWidgetViewDataChanged(id, R.id.rows);
         }
+        if (reconcileLiveTimers) LiveTimerService.reconcile(c);
     }
     static RemoteViews render(Context c, Village village, int widgetId, String tag) {
+        return render(c, village, widgetId, tag, LiveTimerService.readable(c), true);
+    }
+    static RemoteViews render(Context c, Village village, int widgetId, String tag, boolean readable, boolean liveAdapter) {
         long now = System.currentTimeMillis();
         RemoteViews view = new RemoteViews(c.getPackageName(), R.layout.widget);
         String name = Store.title(c, village);
         android.text.SpannableStringBuilder title = new android.text.SpannableStringBuilder(name);
         if (village != null && village.townHall > 0) title.append(" TH" + village.townHall, new android.text.style.ForegroundColorSpan(0xFFFFC531), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         view.setTextViewText(R.id.title, title);
+        view.setTextViewText(R.id.account_identity, Store.identity(c, village));
         view.setOnClickPendingIntent(R.id.sync, open(c, true, widgetId, tag));
         view.setOnClickPendingIntent(R.id.title, open(c, false, widgetId, tag));
+        view.setOnClickPendingIntent(R.id.account_identity, open(c, false, widgetId, tag));
         view.setOnClickPendingIntent(R.id.choose, configure(c, widgetId));
         view.setOnClickPendingIntent(R.id.freshness, open(c, false, widgetId, tag));
         view.setEmptyView(R.id.rows, R.id.empty_text);
         List<Village.Upgrade> jobs = displayJobs(village, now);
-        if (Build.VERSION.SDK_INT >= 31 && jobs.size() <= 50) {
+        if ((!readable || !liveAdapter) && Build.VERSION.SDK_INT >= 31 && jobs.size() <= 50) {
             RemoteViews.RemoteCollectionItems.Builder items = new RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(true).setViewTypeCount(1);
-            for (int i = 0; i < jobs.size(); i++) items.addItem(itemId(jobs.get(i)), styledRow(c, village, jobs, i, now));
+            for (int i = 0; i < jobs.size(); i++) items.addItem(itemId(jobs.get(i)), styledRow(c, village, jobs, i, now, readable));
             view.setRemoteAdapter(R.id.rows, items.build());
         } else {
             Intent adapter = new Intent(c, UpgradeListService.class).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
@@ -94,6 +104,9 @@ public final class VillageWidget extends AppWidgetProvider {
         return row(c, u, now, now);
     }
     static RemoteViews row(Context c, Village.Upgrade u, long now, long snapshotAt) {
+        return row(c, u, now, snapshotAt, LiveTimerService.readable(c));
+    }
+    static RemoteViews row(Context c, Village.Upgrade u, long now, long snapshotAt, boolean readable) {
             RemoteViews row = new RemoteViews(c.getPackageName(), R.layout.widget_row);
             row.setImageViewResource(R.id.row_icon, ItemArt.icon(c, u.dataId));
             row.setTextViewText(R.id.row_name, u.name + " → " + u.level);
@@ -102,11 +115,13 @@ public final class VillageWidget extends AppWidgetProvider {
             row.setViewVisibility(R.id.row_bar_done, u.done(now) ? View.VISIBLE : View.GONE);
             row.setViewVisibility(R.id.row_clock, u.done(now) ? View.GONE : View.VISIBLE);
             row.setProgressBar(R.id.row_bar, 1000, progress(snapshotAt, u.finishAt, now), false);
+            row.setViewVisibility(R.id.readable_timer, !u.done(now) && readable ? View.VISIBLE : View.GONE);
             if (u.done(now)) { row.setChronometer(R.id.timer, 0, null, false); row.setViewVisibility(R.id.timer, View.GONE); row.setViewVisibility(R.id.done, View.VISIBLE); }
             else {
-                row.setViewVisibility(R.id.timer, View.VISIBLE); row.setViewVisibility(R.id.done, View.GONE);
+                row.setViewVisibility(R.id.timer, readable ? View.GONE : View.VISIBLE); row.setViewVisibility(R.id.done, View.GONE);
+                row.setTextViewText(R.id.readable_timer, DurationText.remaining(u.finishAt, now));
                 // Native Chronometer ticks in the launcher; no second-by-second background task.
-                row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + u.finishAt - now, null, true);
+                row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + u.finishAt - now, null, !readable);
                 row.setChronometerCountDown(R.id.timer, true);
             }
             row.setOnClickFillInIntent(R.id.row_root, new Intent());
@@ -136,8 +151,11 @@ public final class VillageWidget extends AppWidgetProvider {
         return "BUILDER BASE " + v.running(Village.Queue.BASE, now) + (v.baseBuilders > 0 ? "/" + v.baseBuilders : "");
     }
     static RemoteViews styledRow(Context c, Village village, List<Village.Upgrade> jobs, int position, long now) {
+        return styledRow(c, village, jobs, position, now, LiveTimerService.readable(c));
+    }
+    static RemoteViews styledRow(Context c, Village village, List<Village.Upgrade> jobs, int position, long now, boolean readable) {
         Village.Upgrade u = jobs.get(position);
-        RemoteViews row = row(c, u, now, village.exportedAt);
+        RemoteViews row = row(c, u, now, village.exportedAt, readable);
         boolean first = position == 0 || group(jobs.get(position - 1).queue) != group(u.queue);
         row.setViewVisibility(R.id.section_heading, first ? View.VISIBLE : View.GONE);
         if (first) row.setTextViewText(R.id.section_heading, sectionTitle(village, group(u.queue), now));
@@ -156,7 +174,7 @@ public final class VillageWidget extends AppWidgetProvider {
             if (info != null && new ComponentName(c, VillageWidget.class).equals(info.provider) && Store.load(c, tag) != null) { Store.bind(c, id, tag); refresh(c); }
         }
     }
-    @Override public void onDeleted(Context c, int[] ids) { for (int id : ids) Store.removeWidget(c, id); }
+    @Override public void onDeleted(Context c, int[] ids) { for (int id : ids) { Store.removeWidget(c, id); LiveTimerService.forget(id); } LiveTimerService.reconcile(c); }
     @Override public void onUpdate(Context c, AppWidgetManager manager, int[] ids) { Reminders.deliver(c); refresh(c); Reminders.schedule(c); }
     @Override public void onAppWidgetOptionsChanged(Context c, AppWidgetManager manager, int id, Bundle opts) { refresh(c); }
 }

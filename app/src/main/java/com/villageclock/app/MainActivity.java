@@ -100,7 +100,7 @@ public final class MainActivity extends Activity {
         content.addView(text(getString(R.string.app_name), 30, GOLD, true));
         gap(content, 14);
         if (demo == null && !Store.all(this).isEmpty()) {
-            button(content, "Villages (" + Store.all(this).size() + ") · choose account", false, v -> chooseVillage());
+            button(content, "Accounts (" + Store.all(this).size() + ") · " + (village == null ? "Choose Account" : Store.title(this, village)), false, v -> chooseVillage());
             gap(content, 10);
         }
         if (demo != null) { content.addView(text("SAMPLE VILLAGE · PREVIEW ONLY", 12, GOLD, true)); gap(content, 8); }
@@ -164,6 +164,12 @@ public final class MainActivity extends Activity {
         Button sync = button(header, "↻ Sync", true, v -> { syncTarget = ""; importClipboard(); });
         sync.setTextSize(16); sync.setLayoutParams(new LinearLayout.LayoutParams(dp(78), dp(36)));
         panel.addView(header); gap(panel, 8);
+        TextView identity = text(Store.identity(this, village), 12, TEXT, false);
+        identity.setMaxLines(2); panel.addView(identity); gap(panel, 6);
+        if (demo == null && Store.inGameName(this, village).isEmpty()) {
+            Button name = button(panel, "Set In-game Name", false, v -> editInGameName(village, () -> {}));
+            name.setTextSize(15); name.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(42))); gap(panel, 8);
+        }
         if (village.upgrades.isEmpty()) {
             panel.addView(text("No upgrades in this export. Start an upgrade in Clash, then sync again.", 14, TEXT, false));
         }
@@ -183,7 +189,8 @@ public final class MainActivity extends Activity {
         footer.setMaxLines(1); panel.addView(footer); content.addView(panel);
     }
     private LinearLayout upgradeCard(Village.Upgrade u, long now, long snapshotAt) {
-        LinearLayout card = (LinearLayout)VillageWidget.row(this, u, now, snapshotAt).apply(this, new android.widget.FrameLayout(this));
+        LinearLayout card = (LinearLayout)VillageWidget.row(this, u, now, snapshotAt, true).apply(this, new android.widget.FrameLayout(this));
+        if (!u.done(now)) CountdownText.bind(card.findViewById(R.id.readable_timer), u.finishAt, "Done ✓");
         card.setOnClickListener(v -> openGame());
         return card;
     }
@@ -193,9 +200,18 @@ public final class MainActivity extends Activity {
     private void settings(Village village) {
         gap(content, 22); LinearLayout panel = card();
         panel.addView(text("Settings", 18, GOLD, true)); gap(panel, 12);
+        Switch live = new Switch(this); live.setText("Live readable widget timers"); live.setTextColor(TEXT); live.setTextSize(13); live.setMinHeight(dp(48));
+        live.setChecked(LiveTimerService.enabled(this));
+        live.setOnCheckedChangeListener((button, checked) -> {
+            Store.prefs(this).edit().putBoolean(LiveTimerService.PREF, checked).apply();
+            VillageWidget.refresh(this);
+            if (checked && !Reminders.canNotify(this)) requestNotifications();
+        }); panel.addView(live);
+        panel.addView(text("Shows days, hours, minutes and seconds with an ongoing notification. Updates pause while the screen is off or locked. Pause the notification or turn this off to use the native widget timer.", 11, MUTED, false)); gap(panel, 12);
         panel.addView(text(FastEvents.noteAt(village.exportedAt), 12, MUTED, false)); gap(panel, 8);
         panel.addView(text("Stacked copies extend boost duration. Potions, snacks, and the active helper contribute independently until each expires. Sync after changing boosts or helper assignments.", 11, MUTED, false)); gap(panel, 10);
-        button(panel, "Village name: " + Store.title(this, village), false, v -> rename(village)); gap(panel, 10);
+        button(panel, "In-game Name: " + (Store.inGameName(this, village).isEmpty() ? "Not Set" : Store.inGameName(this, village)), false, v -> editInGameName(village, () -> {})); gap(panel, 10);
+        button(panel, "Account Nickname: " + (Store.nickname(this, village.tag).isEmpty() ? "Not Set" : Store.nickname(this, village.tag)), false, v -> rename(village)); gap(panel, 10);
         Switch toggle = new Switch(this); toggle.setText("Notifications for all saved villages"); toggle.setTextColor(TEXT); toggle.setTextSize(13); toggle.setMinHeight(dp(48));
         toggle.setChecked(Store.prefs(this).getBoolean("notify", true));
         toggle.setOnCheckedChangeListener((button, checked) -> {
@@ -249,15 +265,17 @@ public final class MainActivity extends Activity {
     private void saveImport(String text, Village village, boolean switchVillage) {
         worker.execute(() -> {
             try {
+                boolean firstImport = Store.load(this, village.tag) == null;
                 Store.save(this, text, village);
                 getSystemService(android.app.NotificationManager.class).cancel(VillageArchive.canonical(village.tag), 7);
                 VillageWidget.refresh(this); Reminders.schedule(this);
                 handler.post(() -> {
                     if (isDestroyed()) return;
                     importing = false; demo = null;
-                    message = "Synced " + village.tag + ". " + village.running(System.currentTimeMillis()) + " upgrades running.";
+                    message = "Synced " + Store.title(this, village) + " · " + village.tag + ". " + village.running(System.currentTimeMillis()) + " upgrades running.";
                     render();
-                    if (!Store.prefs(this).getBoolean("asked-notify", false)) requestNotifications();
+                    Runnable next = () -> { if (!Store.prefs(this).getBoolean("asked-notify", false)) requestNotifications(); };
+                    if (firstImport && Store.inGameName(this, village).isEmpty()) editInGameName(village, next); else next.run();
                 });
             } catch (java.io.IOException ex) { handler.post(() -> { importing = false; show("Could not save the export. Your previous village is unchanged."); }); }
         });
@@ -276,17 +294,29 @@ public final class MainActivity extends Activity {
     }
     @Override public void onRequestPermissionsResult(int code, String[] permissions, int[] results) { super.onRequestPermissionsResult(code, permissions, results); if (code == 9) { Reminders.schedule(this); render(); } }
     private void rename(Village village) {
-        EditText input = new EditText(this); input.setSingleLine(true); input.setText(Store.title(this, village)); input.setSelectAllOnFocus(true);
+        EditText input = new EditText(this); input.setSingleLine(true); input.setText(Store.nickname(this, village.tag)); input.setSelectAllOnFocus(true);
         input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(32)});
         LinearLayout box = vertical(); box.setPadding(dp(20), dp(8), dp(20), 0); box.addView(input);
-        new AlertDialog.Builder(this).setTitle("Village name").setView(box).setNegativeButton("Cancel", null)
+        new AlertDialog.Builder(this).setTitle("Account Nickname").setMessage("Optional label such as Main or Mini. Your in-game name stays separate.").setView(box).setNegativeButton("Cancel", null)
             .setPositiveButton("Save", (d, w) -> { Store.rename(this, village.tag, input.getText().toString()); VillageWidget.refresh(this); render(); }).show();
+    }
+    private void editInGameName(Village village, Runnable after) {
+        EditText input = new EditText(this); input.setSingleLine(true); input.setHint("Name shown on your Clash profile");
+        input.setText(Store.inGameName(this, village)); input.setSelectAllOnFocus(true);
+        input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(64)});
+        LinearLayout box = vertical(); box.setPadding(dp(20), dp(8), dp(20), 0); box.addView(input);
+        new AlertDialog.Builder(this).setTitle("In-game Name · " + village.tag)
+            .setMessage("Exports may omit the player name. Enter it once to identify this account in the app and widgets. Saved only on this phone; this does not rename your Clash account. Leave blank to use any exported name or saved nickname.")
+            .setView(box).setNegativeButton("Later", (d,w) -> after.run()).setOnCancelListener(d -> after.run())
+            .setPositiveButton("Save", (d,w) -> {
+                Store.setInGameName(this, village.tag, input.getText().toString()); VillageWidget.refresh(this); render(); after.run();
+            }).show();
     }
     private void chooseVillage() {
         java.util.List<Village> villages = Store.all(this);
         String[] names = new String[villages.size()];
-        for (int i = 0; i < names.length; i++) names[i] = Store.title(this, villages.get(i)) + " · " + villages.get(i).tag;
-        new AlertDialog.Builder(this).setTitle("Saved villages").setItems(names, (d, which) -> {
+        for (int i = 0; i < names.length; i++) names[i] = Store.accountLabel(this, villages.get(i));
+        new AlertDialog.Builder(this).setTitle("Saved Accounts").setItems(names, (d, which) -> {
             Store.select(this, villages.get(which).tag); syncTarget = ""; message = "Viewing " + villages.get(which).tag + ". Your widget selections are unchanged."; render();
         }).setNegativeButton("Close", null).show();
     }
@@ -295,7 +325,7 @@ public final class MainActivity extends Activity {
         java.util.List<Village> villages = Store.all(this);
         if (villages.isEmpty()) { show("Import a village first, then add a widget for it."); return; }
         String[] names = new String[villages.size()];
-        for (int i = 0; i < names.length; i++) names[i] = Store.title(this, villages.get(i)) + " · " + villages.get(i).tag;
+        for (int i = 0; i < names.length; i++) names[i] = Store.accountLabel(this, villages.get(i));
         new AlertDialog.Builder(this).setTitle("Village for the new widget").setItems(names, (d, which) -> {
             if (!manager.isRequestPinAppWidgetSupported()) { show("Long-press your home screen, choose Widgets, then find " + getString(R.string.app_name) + ". Choose this widget’s village when prompted."); return; }
             String tag = villages.get(which).tag;
@@ -318,9 +348,9 @@ public final class MainActivity extends Activity {
         jobs.add(new Village.Upgrade(4000059, 6, "Electro Dragon", Village.Queue.LAB, now + 2 * 86400000L, false, 2));
         jobs.add(new Village.Upgrade(73000000, 8, "L.A.S.S.I", Village.Queue.PETS, now + 7 * 3600000L, false, 3));
         jobs.add(new Village.Upgrade(1000034, 10, "Builder Hall", Village.Queue.BASE, now + 19 * 3600000L, false, 4));
-        return new Village("#SAMPLE", now - 12 * 3600000L, 15, 6, 2, jobs);
+        return new Village("#SAMPLE", "Sample Chief", now - 12 * 3600000L, 15, 6, 2, jobs);
     }
-    private String shortDuration(long ms) { long minutes = Math.max(1, ms / 60000); return minutes >= 1440 ? (minutes / 1440) + "d " + (minutes % 1440 / 60) + "h" : minutes >= 60 ? (minutes / 60) + "h " + (minutes % 60) + "m" : minutes + "m"; }
+    private String shortDuration(long ms) { return DurationText.remaining(ms, 0); }
     private int dp(float n) { return (int)(getResources().getDisplayMetrics().density * n + 0.5f); }
     private TextView text(String s, int size, int color, boolean bold) { TextView t = new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setTypeface(bold ? getResources().getFont(R.font.lilita_one) : Typeface.create("sans-serif", Typeface.NORMAL)); t.setLineSpacing(dp(2), 1); return t; }
     private LinearLayout vertical() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }

@@ -99,4 +99,30 @@ public class AccountWidgetTest {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         assertFalse(activity.isFinishing()); assertEquals(2, Store.all(context).size());
     }
+    @Test public void inGameNamesAreIndependentAndOldLabelsRemainNicknames() throws Exception {
+        Village a=save("#AAA111",1),b=save("#BBB222",1);
+        Store.rename(context,a.tag,"Main");Store.setInGameName(context,a.tag,"Chief Alpha");Store.setInGameName(context,b.tag,"Chief Beta");
+        assertEquals("Chief Alpha",Store.title(context,a));assertEquals("Chief Beta",Store.title(context,b));assertEquals("Main",Store.nickname(context,a.tag));
+        assertTrue(Store.accountLabel(context,a).contains("#AAA111"));assertTrue(Store.identity(context,a).contains("Main"));
+        Store.bind(context,101,a.tag);Store.bind(context,202,b.tag);Store.select(context,b.tag);
+        assertEquals("Chief Alpha",Store.title(context,Store.load(context,Store.widgetTag(context,101))));
+        assertEquals("Chief Beta",Store.title(context,Store.load(context,Store.widgetTag(context,202))));
+        Store.clear(context);assertEquals("",Store.inGameName(context,b));assertEquals("Chief Alpha",Store.inGameName(context,a));
+    }
+    @Test public void exportedNameSurvivesNamelessSyncAndManualNameTakesPriority() throws Exception {
+        String named=text("#AAA111",1).replace("\"buildings\"","\"name\":\"Export Chief\",\"buildings\"");
+        Village a=ExportParser.parse(named,Store.catalog(context),now);Store.save(context,named,a);
+        assertEquals("Export Chief",Store.title(context,a));
+        a=save("#AAA111",2);assertEquals("Export Chief",Store.title(context,a));
+        Store.setInGameName(context,a.tag,"My Chief");
+        String changed=named.replace("Export Chief","New Export Name");Store.save(context,changed,ExportParser.parse(changed,Store.catalog(context),now));
+        a=Store.load(context,a.tag);assertEquals("My Chief",Store.title(context,a));
+        Store.setInGameName(context,a.tag,"");assertEquals("New Export Name",Store.title(context,a));
+    }
+    @Test public void widgetHeaderShowsInGameNameAndTag() throws Exception {
+        Village village=save("#AAA111",1);Store.setInGameName(context,village.tag,"Chief Alpha");
+        View root=VillageWidget.render(context,village,101,village.tag).apply(context,new FrameLayout(context));
+        assertTrue(((android.widget.TextView)root.findViewById(R.id.title)).getText().toString().contains("Chief Alpha"));
+        assertTrue(((android.widget.TextView)root.findViewById(R.id.account_identity)).getText().toString().contains(village.tag));
+    }
 }

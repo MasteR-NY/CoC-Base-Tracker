@@ -41,7 +41,7 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.4; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.6; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
 4. Open CoC Base Tracker and tap Sync from clipboard / add account.
@@ -49,11 +49,17 @@ guide = f'''COC BASE TRACKER — ANDROID SETUP
 6. On Android 12+, tap Allow precise timers in the app for prompt alerts and finished-widget updates.
 7. Tap Add widget and choose the village for that widget, or long-press your home screen > Widgets > CoC Base Tracker and choose a village when prompted.
 
-The countdowns tick every second even when Clash is closed. After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
+READABLE TIMERS: App, Build Menu and live widgets show days, hours, minutes and seconds (for example 1d 12h 18m 56s). Live readable widget timers are enabled by default and use an ongoing foreground-service notification. Updates pause with the screen off or locked and recalculate on unlock. No wake lock is used. Pause live updates in the notification or turn the setting off to use native clock-style widget timers. Re-enable in Settings to resume. If Android prevents a background start, open the app. The service stops when no widget has a running upgrade. Finish reminders remain independent.
+
+After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
+
+PUBLISHING: Commit/push the changed source, README and docs/images. Create the version's GitHub release, attach the signed CoC-Base-Tracker-{VERSION}.apk, and mark it as latest. README's download button follows the latest release page without depending on a fixed APK filename. Users open Assets and choose the APK.
 
 Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Clash. The widget does not switch your actual in-game Supercell account.
 
 MULTIPLE ACCOUNTS: Copy and import the village export for each account. Each one is saved separately. Add two widgets and choose a different village for each. Tap the downward arrow beside Sync on an existing widget to change its village. Switching villages in the app does not change other widgets. A widget's Sync rejects clipboard data from the wrong account; use Sync from clipboard / add account in the app to save another account.
+
+IN-GAME NAMES: Names appear in account lists, app/Build Menu headers, widget selection/headers and finish reminders, alongside player tags. Exports may omit the name; enter it once after first import or use Set In-game Name / Settings > In-game Name. A plain-text name supplied by an export is used when present. Names survive sync and are stored separately per tag. Manual names take priority. Old village labels remain optional Account Nicknames (Main/Mini). Nothing is looked up online or renamed in your actual game account.
 
 CLASH-STYLE DESIGN: Gray headers, brown upgrade cards and bottom category tabs adapt Supercell's October 2026 Build Menu. Timers retain the reference repository's wooden panel, Lilita One font, gold controls, item art and green/gold countdown rows. Bars show progress since export. README includes actual framework-rendered app, planner and widget previews, refreshed by normal builds.
 
@@ -86,13 +92,14 @@ report = {
                   'certificate_sha256': '607696bd8e6ae0130aa00429915fab8de31ce5383fcf8886a4306a1db8767a71',
                   'signing_key': 'Locally generated private RSA-3072 key; not included in APK or source ZIP'},
     'antivirus': {'product': 'Microsoft Defender', 'result': 'found no threats', 'scan_exit_code': 0},
-    'permissions': ['android.permission.POST_NOTIFICATIONS', 'android.permission.RECEIVE_BOOT_COMPLETED', 'android.permission.SCHEDULE_EXACT_ALARM'],
+    'permissions': [e.attrib['{http://schemas.android.com/apk/res/android}name'] for e in ET.parse(ROOT / 'app/src/main/AndroidManifest.xml').getroot().findall('uses-permission')],
     'internet_permission': False, 'backup': 'Disabled, with cloud and device transfer exclusions',
     'android_device_test': 'Not run: no attached device or configured emulator available',
-    'android_framework_tests': 'Robolectric API 28 and API 35: list widget inflation, all 20 rows in adapter, migration, account isolation, startup, base/category navigation and sample isolation',
+    'android_framework_tests': 'Robolectric API 28 and API 35: widget inflation/adapters, migration, account/name isolation and persistence, widget name/tag headers, startup, base/category navigation, readable rows, countdown focus lifecycle, foreground notification/pause and bound-account snapshots',
     'live_game_validation': 'Not run: no private user village export supplied',
-    'sync': 'Explicit village export import; native live countdowns afterward',
-    'features': ['offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
+    'sync': 'Explicit village export import; readable live countdowns afterward (foreground service for widgets)',
+    'readable_widget_service': 'User-selected specialUse foreground service; ongoing notification with pause, screen-off/lock suspension, no wake lock',
+    'features': ['per-account in-game names with optional nicknames and visible tags', 'explicit days/hours/minutes/seconds countdowns', 'foreground live widget service with notification pause', 'README latest-release download button and title-case headings', 'offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
     'planner_catalog': {'items': 223, 'revision': '7afaa0375e5865c04021836a3a4192ffcfea092d', 'coverage': 'standard levels through TH18/BH10; special rules require in-game confirmation'},
     'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }

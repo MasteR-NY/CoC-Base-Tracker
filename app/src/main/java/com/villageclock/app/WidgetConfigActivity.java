@@ -33,7 +33,7 @@ public final class WidgetConfigActivity extends Activity {
         TextView detail = new TextView(this); detail.setText("Each widget keeps its own selection, even when you switch villages in the app."); detail.setTextColor(0xFFAAB9AB); detail.setTextSize(14); detail.setPadding(0, pad / 2, 0, pad); list.addView(detail);
         java.util.List<Village> villages = Store.all(this);
         for (Village village : villages) {
-            Button choose = new Button(this); choose.setAllCaps(false); choose.setText(Store.title(this, village) + " · TH " + village.townHall + "\n" + village.tag); choose.setMinHeight(pad * 3);
+            Button choose = new Button(this); choose.setAllCaps(false); choose.setText(Store.title(this, village) + " · TH " + village.townHall + "\n" + Store.identity(this, village)); choose.setMinHeight(pad * 3);
             choose.setTypeface(getResources().getFont(R.font.lilita_one)); choose.setTextColor(0xFF3B2508); choose.setBackgroundResource(R.drawable.btn_primary);
             choose.setOnClickListener(v -> {
                 Store.bind(this, widgetId, village.tag); VillageWidget.refresh(this);

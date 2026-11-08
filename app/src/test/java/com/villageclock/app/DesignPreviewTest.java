@@ -31,7 +31,7 @@ public class DesignPreviewTest {
             + "\"pets\":[{\"data\":73000000,\"lvl\":11,\"timer\":350000}],"
             + "\"buildings2\":[{\"data\":1000034,\"lvl\":10},{\"data\":1000078,\"lvl\":1},{\"data\":1000036,\"lvl\":9,\"timer\":150000}]}";
         Village village = ExportParser.parse(export, Store.catalog(context), System.currentTimeMillis());
-        Store.save(context, export, village); Store.rename(context, village.tag, "Kuswa"); Store.bind(context, 777, village.tag);
+        Store.save(context, export, village); Store.setInGameName(context, village.tag, "Kuswa"); Store.rename(context, village.tag, "Main Account"); Store.bind(context, 777, village.tag);
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         View app = activity.getWindow().getDecorView();
         render(app, 411, 1000, "app-design.png");
@@ -39,7 +39,8 @@ public class DesignPreviewTest {
             new android.content.Intent(context, PlannerActivity.class).putExtra("sample", true)).setup().get();
         render(planner.getWindow().getDecorView(), 411, 891, "build-menu-design.png");
         AppWidgetHostView host = new AppWidgetHostView(context);
-        View widget = VillageWidget.render(context, village, 777, village.tag).apply(context, host);
+        // Same readable row renderer as the live service, with a fixed collection for the test host.
+        View widget = VillageWidget.render(context, village, 777, village.tag, true, false).apply(context, host);
         render(widget, 400, 560, "widget-design.png");
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));

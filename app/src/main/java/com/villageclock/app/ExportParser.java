@@ -72,7 +72,7 @@ public final class ExportParser {
                     }
                 }
             }
-            return new Village(tag, exportedAt, townHall, Math.min(builders, 7), baseBuilders, jobs);
+            return new Village(tag, AccountNames.clean(root.opt("name")), exportedAt, townHall, Math.min(builders, 7), baseBuilders, jobs);
         } catch (JSONException | StackOverflowError ex) {
             throw new InvalidExport("The copied text is not valid village JSON." );
         }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="54" viewBox="0 0 280 54" role="img" aria-label="Download latest Android APK">
+  <defs><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffe181"/><stop offset="1" stop-color="#ffbf32"/></linearGradient></defs>
+  <rect x="1" y="1" width="278" height="52" rx="12" fill="url(#gold)" stroke="#78501e" stroke-width="2"/>
+  <path d="M27 13v18m-7-7 7 7 7-7M18 34v6h18v-6" fill="none" stroke="#39260e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="33" fill="#39260e" font-family="Arial, sans-serif" font-size="18" font-weight="700">Download latest APK</text>
+</svg>
