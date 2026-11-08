@@ -4,7 +4,7 @@ Upgrade timers, village planning, and account-specific home screen widgets for C
 
 [![Download Latest APK](docs/images/download-apk.svg)](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest)
 
-**Android 8.0+ · Offline · Multiple Accounts**
+**Android 8.0+ · Offline Tracking · Multiple Accounts**
 
 Download the `.apk` file under **Assets** on the latest release page. When updating, install over your existing version to keep your saved accounts and widgets.
 
@@ -23,6 +23,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 - Upgrade planning with level requirements, baseline costs, and durations.
 - Resource, type, hero, and status filters, with cost, time, and name sorting.
 - Multiple accounts with in-game names, optional nicknames, and independent widgets.
+- An offline What’s New guide with release highlights and usage instructions.
 
 ## Getting Started
 
@@ -33,6 +34,25 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 5. Tap **Add widget** and choose an account, or add CoC Base Tracker from your launcher's widget picker.
 
 Allow notifications for upgrade-finished alerts and the live widget controls. On Android 12 and later, **Allow precise timers** helps finish alerts arrive on time.
+
+### Checking for Updates
+
+The app header shows the installed version, for example **CoC Base Tracker v1.10**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+
+If your version is current, the app confirms that you are up to date. When a newer release is available, it notifies you and opens the GitHub release page, where you can download the APK under **Assets**. A failed check reports an error and lets you retry or open Releases manually. Update checks run only when requested; installing an update remains your choice.
+
+### What’s New
+
+After installing or updating, a short summary introduces the release. Tap **Read Release Guide** for the changes and instructions, or **Got It** to dismiss the summary for that version.
+
+The **What’s New** button at the bottom of the app reopens the guide anytime. Earlier releases can be expanded individually, and the entire guide works offline. The same notes are available in the [Release Notes](CHANGELOG.md).
+
+<details>
+<summary>Preview the What’s New Guide</summary>
+
+<img src="docs/images/whats-new-design.png" width="300" alt="Offline What’s New guide showing release highlights and instructions">
+
+</details>
 
 ### Keeping Your Village Current
 
@@ -71,12 +91,15 @@ The offline catalog covers standard levels through **Town Hall 18** and **Builde
 
 ## Privacy
 
-CoC Base Tracker works offline. Village exports and account labels are stored on your device, with system cloud backup disabled. No Supercell login, password, or verification code is required.
+Upgrade tracking and planning work offline. Village exports and account labels are stored on your device, with system cloud backup disabled. No Supercell login, password, or verification code is required.
 
-The app has no internet permission, advertising, or analytics. It reads clipboard text only when you choose to sync. Saved accounts can be removed from Settings.
+The app uses internet access only when you tap **Check for Updates**, making an HTTPS request to this repository's public GitHub release API. The request includes the app version but no village export, account name, player tag, or login credentials. GitHub receives normal connection information such as your IP address. Opening a release page uses your browser.
+
+There is no advertising or analytics. Clipboard text is read only when you choose to sync. Saved accounts can be removed from Settings.
 
 ## Documentation
 
+- [Release Notes](CHANGELOG.md)
 - [Timer Rules](docs/TIMING.md)
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)

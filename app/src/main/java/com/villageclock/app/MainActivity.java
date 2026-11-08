@@ -38,12 +38,16 @@ public final class MainActivity extends Activity {
     private static final int BG = 0xFF24180F, CARD = 0xFF35251A, TEXT = 0xFFFFF6E6, MUTED = 0xFFCDBDA5, GOLD = 0xFFFFC531, GREEN = 0xFF8EE04A;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final ExecutorService updateWorker = Executors.newSingleThreadExecutor();
     private final Runnable refresh = this::render;
     private LinearLayout content;
     private Village demo;
     private boolean pendingClipboard, importing, resumed;
     private String message = "";
     private String syncTarget = "";
+    private boolean checkingUpdates, updateResultPending;
+    private String updateStatus = "", pendingUpdateError;
+    private UpdateChecker.Release pendingRelease;
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -83,9 +87,9 @@ public final class MainActivity extends Activity {
         }
     }
     @Override public void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleIntent(intent); }
-    @Override public void onResume() { super.onResume(); resumed = true; Reminders.deliver(this); VillageWidget.refresh(this); Reminders.schedule(this); render(); }
+    @Override public void onResume() { super.onResume(); resumed = true; Reminders.deliver(this); VillageWidget.refresh(this); Reminders.schedule(this); render(); if (updateResultPending) handler.post(this::deliverUpdateResult); }
     @Override public void onPause() { resumed = false; handler.removeCallbacks(refresh); super.onPause(); }
-    @Override public void onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdown(); super.onDestroy(); }
+    @Override public void onDestroy() { handler.removeCallbacksAndMessages(null); worker.shutdown(); updateWorker.shutdown(); super.onDestroy(); }
     @Override public void onWindowFocusChanged(boolean focused) {
         super.onWindowFocusChanged(focused);
         if (focused && pendingClipboard) { pendingClipboard = false; handler.post(this::importClipboard); }
@@ -97,8 +101,10 @@ public final class MainActivity extends Activity {
         content.removeAllViews();
         Village village = demo != null ? demo : Store.load(this);
         long now = System.currentTimeMillis();
-        content.addView(text(getString(R.string.app_name), 30, GOLD, true));
+        TextView appTitle = text(getString(R.string.app_title_version, getString(R.string.app_name), BuildConfig.VERSION_NAME), 30, GOLD, true);
+        appTitle.setId(R.id.app_version_title); content.addView(appTitle);
         gap(content, 14);
+        if (demo == null && ReleaseNotes.needsSummary(this)) releaseSummary();
         if (demo == null && !Store.all(this).isEmpty()) {
             button(content, "Accounts (" + Store.all(this).size() + ") · " + (village == null ? "Choose Account" : Store.title(this, village)), false, v -> chooseVillage());
             gap(content, 10);
@@ -130,7 +136,14 @@ public final class MainActivity extends Activity {
         TextView note = text("Countdowns keep ticking when Clash is closed. Sync after new upgrades, early finishes, potions, or helper changes. Green bars show countdown progress since the last sync.", 12, MUTED, false);
         note.setLineSpacing(dp(3), 1); content.addView(note);
         gap(content, 16);
-        content.addView(text("Independent fan companion. Not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL. No account login, ads, or internet access.", 11, MUTED, false));
+        content.addView(text("Independent fan companion. Not affiliated with or endorsed by Supercell. Item art © Supercell. Lilita One font: SIL OFL. No Supercell login, ads, or analytics.", 11, MUTED, false));
+        gap(content, 20);
+        Button whatsNew = button(content, "What’s New", false, v -> openReleaseGuide());
+        whatsNew.setId(R.id.whats_new); gap(content, 8);
+        Button updates = button(content, checkingUpdates ? "Checking for Updates…" : "Check for Updates", false, v -> checkForUpdates());
+        updates.setId(R.id.check_updates); updates.setEnabled(!checkingUpdates);
+        TextView updateNote = text(updateStatus.isEmpty() ? "Checks GitHub when tapped. Your village data stays on this phone." : updateStatus, 12, MUTED, false);
+        updateNote.setId(R.id.update_status); gap(content, 6); content.addView(updateNote);
         if (village != null && resumed) {
             long next = village.nextFinish(now);
             if (next > now) handler.postDelayed(refresh, Math.min(60000, Math.max(1000, next - now + 100)));
@@ -146,6 +159,73 @@ public final class MainActivity extends Activity {
         step(card, "02", "Copy your village data", "Find Export village data and tap Copy.");
         step(card, "03", "Come back and paste", "Tap Paste village export below.");
         content.addView(card);
+    }
+    private void releaseSummary() {
+        try {
+            ReleaseNotes.Entry release = ReleaseNotes.load(this).current();
+            LinearLayout card = card(); card.setId(R.id.release_summary);
+            card.addView(text("What’s New in v" + release.version, 22, GOLD, true)); gap(card, 8);
+            for (ReleaseNotes.Highlight point : release.highlights) { card.addView(text("• " + point.title, 14, TEXT, false)); gap(card, 5); }
+            gap(card, 7);
+            Button read = button(card, "Read Release Guide", true, v -> openReleaseGuide()); read.setId(R.id.release_summary_open);
+            gap(card, 7);
+            Button dismiss = button(card, "Got It", false, v -> { ReleaseNotes.markSeen(this); render(); }); dismiss.setId(R.id.release_summary_dismiss);
+            content.addView(card); gap(content, 14);
+        } catch (Exception unavailable) { /* The manual guide can still offer the release-page fallback. */ }
+    }
+    private void openReleaseGuide() {
+        startActivity(new Intent(this, WhatsNewActivity.class)); ReleaseNotes.markSeen(this); render();
+    }
+    private void checkForUpdates() {
+        if (checkingUpdates) return;
+        checkingUpdates = true; updateStatus = "Checking the latest GitHub release…"; render();
+        updateWorker.execute(() -> {
+            UpdateChecker.Release release = null; String error = null;
+            try { release = UpdateChecker.fetchLatest(BuildConfig.VERSION_NAME); }
+            catch (UpdateChecker.CheckException failure) { error = failure.getMessage(); }
+            catch (Exception failure) { error = "Couldn’t check for updates. Check your internet connection and try again, or open Releases."; }
+            UpdateChecker.Release result = release; String failure = error;
+            handler.post(() -> finishUpdateCheck(result, failure));
+        });
+    }
+    void finishUpdateCheck(UpdateChecker.Release release, String error) {
+        if (isDestroyed() || isFinishing()) return;
+        checkingUpdates = false; pendingRelease = release; pendingUpdateError = error; updateResultPending = true;
+        if (resumed) deliverUpdateResult();
+    }
+    private void deliverUpdateResult() {
+        if (!resumed || !updateResultPending || isDestroyed() || isFinishing()) return;
+        updateResultPending = false;
+        if (pendingUpdateError != null || pendingRelease == null) {
+            updateStatus = pendingUpdateError == null ? "Couldn’t read the release information." : pendingUpdateError;
+            render();
+            new AlertDialog.Builder(this).setTitle("Update Check Unavailable").setMessage(updateStatus)
+                .setPositiveButton("Close", null).setNeutralButton("Open Releases", (d,w) -> openReleases()).show();
+            return;
+        }
+        try {
+            int comparison = UpdateChecker.compare(pendingRelease.version, BuildConfig.VERSION_NAME);
+            if (comparison > 0) {
+                updateStatus = "Update available: v" + pendingRelease.version + (pendingRelease.hasApk ? "." : ". The APK has not been uploaded yet.");
+                render(); Toast.makeText(this, updateStatus + " Opening GitHub Releases…", Toast.LENGTH_LONG).show(); openReleases();
+            } else {
+                boolean current = comparison == 0;
+                updateStatus = current ? "You’re up to date · v" + BuildConfig.VERSION_NAME : "No newer release · installed v" + BuildConfig.VERSION_NAME + ", published v" + pendingRelease.version;
+                render();
+                new AlertDialog.Builder(this).setTitle(current ? "You’re Up to Date" : "No Update Available")
+                    .setMessage(current ? "CoC Base Tracker v" + BuildConfig.VERSION_NAME + " is the latest published version."
+                        : "You have v" + BuildConfig.VERSION_NAME + " installed. GitHub currently offers v" + pendingRelease.version + ". Your installed build is newer.")
+                    .setPositiveButton("Close", null).show();
+            }
+        } catch (UpdateChecker.CheckException failure) {
+            pendingUpdateError = failure.getMessage(); updateResultPending = true; deliverUpdateResult();
+        }
+    }
+    private void openReleases() {
+        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_URL)).addCategory(Intent.CATEGORY_BROWSABLE)); }
+        catch (android.content.ActivityNotFoundException unavailable) {
+            new AlertDialog.Builder(this).setTitle("GitHub Releases").setMessage("Open this address in a browser:\n" + UpdateChecker.RELEASES_URL).setPositiveButton("Close", null).show();
+        }
     }
     private void step(LinearLayout parent, String number, String title, String detail) {
         LinearLayout row = horizontal(); row.setPadding(0, dp(8), 0, dp(8));

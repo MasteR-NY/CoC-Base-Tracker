@@ -32,6 +32,7 @@ public class DesignPreviewTest {
             + "\"buildings2\":[{\"data\":1000034,\"lvl\":10},{\"data\":1000078,\"lvl\":1},{\"data\":1000036,\"lvl\":9,\"timer\":150000}]}";
         Village village = ExportParser.parse(export, Store.catalog(context), System.currentTimeMillis());
         Store.save(context, export, village); Store.setInGameName(context, village.tag, "Kuswa"); Store.rename(context, village.tag, "Main Account"); Store.bind(context, 777, village.tag);
+        ReleaseNotes.markSeen(context);
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         View app = activity.getWindow().getDecorView();
         render(app, 411, 1000, "app-design.png");
@@ -42,6 +43,8 @@ public class DesignPreviewTest {
         // Same readable row renderer as the live service, with a fixed collection for the test host.
         View widget = VillageWidget.render(context, village, 777, village.tag, true, false).apply(context, host);
         render(widget, 400, 560, "widget-design.png");
+        WhatsNewActivity guide = Robolectric.buildActivity(WhatsNewActivity.class).setup().get();
+        render(guide.getWindow().getDecorView(), 411, 1000, "whats-new-design.png");
         assertNotNull(context.getResources().getFont(R.font.lilita_one));
         assertNotEquals(R.drawable.ic_village, ItemArt.icon(context, 1000008));
     }

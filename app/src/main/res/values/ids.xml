@@ -1,0 +1,9 @@
+<resources>
+    <item name="app_version_title" type="id" />
+    <item name="check_updates" type="id" />
+    <item name="update_status" type="id" />
+    <item name="whats_new" type="id" />
+    <item name="release_summary" type="id" />
+    <item name="release_summary_dismiss" type="id" />
+    <item name="release_summary_open" type="id" />
+</resources>

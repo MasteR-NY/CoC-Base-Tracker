@@ -8,6 +8,7 @@ apk-review/
 local.properties
 outputs/
 *.iml
+__pycache__/
 .idea/
 build-log.txt
 verification-log.txt

@@ -32,16 +32,32 @@ A source recipient creates their own signing identity. An APK signed with a diff
 
 ## Prepare a Release
 
-1. Update `versionCode` and `versionName` in `app/build.gradle.kts` for application changes.
+1. Update `versionCode` and `versionName` in `app/build.gradle.kts` for application changes. Add a matching entry to `app/src/main/assets/release-notes.json` with highlights and short usage steps; keep earlier entries.
 2. Run the normal build and inspect the refreshed preview images.
 3. Review test and lint reports under `app/build/`. Record device testing separately from framework tests.
 4. Scan the signed APK before distribution.
 5. Commit and push the source, README, and updated preview images. Keep `.private/`, local SDK paths, tools, caches, and generated outputs out of Git.
-6. Create a GitHub release with the matching version tag, attach the signed APK under Assets, and mark the release as latest.
+6. Create a GitHub release with the matching version tag, copy that version’s notes from `CHANGELOG.md` into its description, attach the signed APK under Assets, and mark the release as latest.
 
 The README download button opens `https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest`. It follows the latest published release without depending on a fixed APK filename.
 
 For documentation-only changes, the APK does not need a new version or rebuild.
+
+## What’s New Guide
+
+`app/src/main/assets/release-notes.json` is the source for both the offline app guide and the public changelog. Run `python tools/update_release_notes.py` after editing it to regenerate `CHANGELOG.md`; source packaging also runs this step. Use concrete changes and instructions for each release. Keep earlier entries so users can expand their history in the app.
+
+The home screen shows a summary when the installed version code is newer than the last acknowledged guide. Read Release Guide and Got It record that version locally. The bottom What’s New button always remains available. Opening the guide makes no network request and does not change saved accounts or widget selections; View GitHub Releases opens the browser only when tapped.
+
+Framework tests require a bundled entry matching both the installed version name and code. They also check summary dismissal, reopening, earlier-release expansion and preservation of account data. Normal builds refresh the guide preview alongside the app, planner and widget images.
+
+## In-App Update Checks
+
+The app header reads `BuildConfig.VERSION_NAME`, so version labels follow the installed build automatically. The bottom Check for Updates button sends one explicit HTTPS GET to `https://api.github.com/repos/MasteR-NY/CoC-Base-Tracker/releases/latest`. Internet permission is required; cleartext traffic is disabled. No request runs on launch or in a background schedule.
+
+Requests contain an application/version User-Agent and GitHub's JSON Accept header. They do not include credentials, account tags, names or village exports. The client uses eight-second connection/read timeouts, a 512 KiB response limit, and no automatic HTTP redirects. Version comparison is numeric, so 1.10 sorts after 1.9; unknown version formats, drafts, prereleases, rate limits and connection failures produce a manual-check option rather than an up-to-date result.
+
+Newer releases trigger an in-app notice and open the fixed repository Releases URL in the browser. An available release without an uploaded APK is identified as such. Responses completing while the activity is paused wait until it resumes before opening a browser. The updater never downloads, installs or executes an APK itself. Keep this repository public and attach the signed APK before marking a stable release as latest.
 
 ## Source and Verification Package
 

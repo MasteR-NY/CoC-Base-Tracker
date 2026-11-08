@@ -7,10 +7,11 @@ android {
         applicationId = "com.villageclock.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.8"
+        versionCode = 11
+        versionName = "1.10"
     }
     buildTypes { release { isMinifyEnabled = false } }
+    buildFeatures { buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

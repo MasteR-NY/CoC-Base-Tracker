@@ -1,0 +1,76 @@
+{
+  "releases": [
+    {
+      "version": "1.10",
+      "versionCode": 11,
+      "title": "What’s New Guide",
+      "highlights": [
+        {"title": "Release Highlights on Launch", "body": "A short summary introduces the installed release after an update. Read the guide or tap Got It to dismiss it for that version."},
+        {"title": "Read the Guide Anytime", "body": "What’s New at the bottom of the app opens the full release guide, including changes from earlier versions."},
+        {"title": "Available Offline", "body": "Release highlights are included with the app. You can read them without an internet connection."}
+      ],
+      "steps": ["Open CoC Base Tracker to see the release summary.", "Tap Read Release Guide for the full details, or Got It to continue.", "Reopen What’s New at the bottom of the app whenever you need it."]
+    },
+    {
+      "version": "1.9",
+      "versionCode": 10,
+      "title": "App Version and Update Checks",
+      "highlights": [
+        {"title": "Installed Version in the Header", "body": "The app title includes its installed version so you can tell which build you are using."},
+        {"title": "Check for Updates", "body": "The button at the bottom checks the latest stable GitHub release. It confirms when you are current and opens Releases when a newer version is available."},
+        {"title": "Checks Stay Under Your Control", "body": "GitHub is contacted only when you request a check. Village exports, player tags and account names are not sent. Failed checks offer a retry or manual release-page check."}
+      ],
+      "steps": ["Scroll to the bottom and tap Check for Updates.", "If a newer release opens, download its APK from Assets.", "Install the APK over your existing app to keep saved accounts and widgets."]
+    },
+    {
+      "version": "1.8",
+      "versionCode": 9,
+      "title": "Boost-Aware Upgrade Timers",
+      "highlights": [
+        {"title": "Work Left and Finish Estimates", "body": "Boosted upgrades show their effective speed, accelerated Work left countdown and estimated real Finishes in time."},
+        {"title": "Potions, Snacks and Helpers", "body": "Known upgrade-speed effects apply for their remaining duration. Repeating helper assignments can be forecast when the export provides the assignment and cooldown."},
+        {"title": "Boosts & Helpers", "body": "Review recorded effects and upcoming speed changes in one place. Use items in Clash first, then sync a fresh export."}
+      ],
+      "steps": ["Use the potion, snack or helper in Clash of Clans.", "Copy a fresh village export and sync it in the tracker.", "Open Boosts & Helpers to review the imported effects."]
+    },
+    {
+      "version": "1.7",
+      "versionCode": 8,
+      "title": "In-Game Account Names",
+      "highlights": [
+        {"title": "Recognizable Accounts", "body": "In-game names appear with player tags in the app, widgets, account selection and finish reminders."},
+        {"title": "Names That Stay Saved", "body": "Enter a name once if an export omits it. Names persist across syncs, and optional nicknames such as Main or Mini remain separate."}
+      ],
+      "steps": ["Use Set In-game Name or Settings → In-game Name to enter or edit a name.", "Use Account Nickname for an optional label without changing your name in Clash."]
+    },
+    {
+      "version": "1.6",
+      "versionCode": 7,
+      "title": "Readable Live Countdowns",
+      "highlights": [
+        {"title": "Days, Hours, Minutes and Seconds", "body": "Countdowns use a readable format such as 1d 12h 18m 56s in the app, Build Menu and live widgets."},
+        {"title": "Live Widget Controls", "body": "An ongoing notification keeps readable widget timers updating. Pause live updates from the notification or Settings to use Android’s clock-style widget countdown."}
+      ],
+      "steps": ["Keep Live readable widget timers enabled for the full duration format.", "Allow notifications to see the live widget controls."]
+    },
+    {
+      "version": "1.5",
+      "versionCode": 6,
+      "title": "CoC Base Tracker",
+      "highlights": [
+        {"title": "A New App Name", "body": "The app and project were renamed CoC Base Tracker. Installing over the earlier app preserves saved villages and widget selections."}
+      ],
+      "steps": []
+    },
+    {
+      "version": "1.4",
+      "versionCode": 5,
+      "title": "Village Upgrade Planning",
+      "highlights": [
+        {"title": "Build Menu", "body": "Switch between Village Base and Builder Base and browse their upgrade categories."},
+        {"title": "Plan the Next Upgrade", "body": "Review remaining standard upgrades, listed requirements, baseline costs and durations. Use resource, type, hero and status filters to narrow the list."}
+      ],
+      "steps": ["Tap Build Menu above your upgrade timers.", "Choose a base and category, then tap a card for its details."]
+    }
+  ]
+}

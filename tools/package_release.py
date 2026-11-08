@@ -6,10 +6,12 @@ import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import zipfile
+from update_release_notes import update_changelog
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'outputs'
 OUT.mkdir(exist_ok=True)
+update_changelog()
 config = (ROOT / 'app/build.gradle.kts').read_text(encoding='utf-8')
 VERSION = re.search(r'versionName\s*=\s*"([0-9.]+)"', config).group(1)
 VERSION_CODE = int(re.search(r'versionCode\s*=\s*(\d+)', config).group(1))
@@ -17,7 +19,7 @@ APK = OUT / f'CoC-Base-Tracker-{VERSION}.apk'
 apk_hash = hashlib.sha256(APK.read_bytes()).hexdigest()
 scan = (OUT / f'Defender-{VERSION}.txt').read_text(encoding='utf-8-sig')
 assert 'ScanExitCode: 0' in scan and f'APK-SHA256: {apk_hash}' in scan
-for preview in ('app-design', 'build-menu-design', 'widget-design'):
+for preview in ('app-design', 'build-menu-design', 'widget-design', 'whats-new-design'):
     assert (ROOT / f'docs/images/{preview}.png').read_bytes() == (OUT / f'previews/{preview}.png').read_bytes()
 test_suites = [ET.parse(path).getroot() for path in sorted((ROOT / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))]
 assert len(test_suites) >= 4
@@ -25,7 +27,7 @@ tests = {key: sum(int(suite.attrib[key]) for suite in test_suites) for key in ('
 assert tests['failures'] == 0 and tests['errors'] == 0
 sarif = json.loads((ROOT / 'app/build/reports/lint-results-release.sarif').read_text(encoding='utf-8'))
 lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get('results', []))
-files = [ROOT / p for p in ['.gitignore', 'README.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py']]
+files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
 files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json')]
@@ -41,7 +43,7 @@ with zipfile.ZipFile(source) as z:
     assert not any(name.endswith(('.p12', '.keystore', 'signing-password.txt', 'local.properties')) for name in z.namelist())
 guide = f'''COC BASE TRACKER — ANDROID SETUP
 
-1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.7; do not uninstall first.
+1. Copy CoC-Base-Tracker-{VERSION}.apk to your Android phone and open it. Install as an update over versions 1.0–1.9; do not uninstall first.
 2. If Android asks, allow this one installation from your file manager.
 3. Open Clash of Clans: Settings > More Settings > Export village data > Copy.
 4. Open CoC Base Tracker and tap Sync from clipboard / add account.
@@ -54,6 +56,10 @@ READABLE TIMERS: App, Build Menu and live widgets show days, hours, minutes and 
 After starting a new upgrade, finishing early, using a potion, or changing a helper assignment, copy a fresh export and tap Sync on the widget.
 
 PUBLISHING: Commit/push the changed source, README and docs/images. Create the version's GitHub release, attach the signed CoC-Base-Tracker-{VERSION}.apk, and mark it as latest. README's download button follows the latest release page without depending on a fixed APK filename. Users open Assets and choose the APK.
+
+WHAT'S NEW: A release summary appears after installing or updating. Tap Read Release Guide for highlights and instructions, or Got It to dismiss the summary for that version. The What's New button at the bottom reopens the offline guide with expandable earlier releases. CHANGELOG.md is generated from the same bundled notes; copy the matching version section into GitHub's release description when publishing.
+
+UPDATE CHECKS: The header shows the installed version. Scroll to the bottom and tap Check for Updates. The app compares with GitHub's latest stable release, confirms when current, and opens the Releases page when a newer version is available. If your local build is newer than the published release, it says so. Failures are reported with a manual Releases option. No updates are checked on launch or in the background. Downloading/installing remains a user action.
 
 Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Clash. The widget does not switch your actual in-game Supercell account.
 
@@ -75,7 +81,7 @@ EVENTS: Event/Gold Pass reductions already present in the exported work are reta
 
 Explore a sample village is a clearly marked preview. It never schedules real reminders or saves sample data as your village.
 
-PRIVACY: No Supercell login or codes are needed. There is no internet permission, screen capture, accessibility access, or automatic clipboard monitoring. Village data is stored on this phone with backup/transfer exclusions.
+PRIVACY: Tracking/planning work offline. Internet permission is used for manual HTTPS update checks to this repository's GitHub API only. Requests include the app version, not village exports, account names, player tags or credentials; GitHub sees normal connection information such as IP address. Browser redirects open the public Releases page. No screen capture, accessibility access, analytics, ads or automatic clipboard monitoring. Village data stays on this phone with backup/transfer exclusions.
 
 LIMITS: New upgrades cannot be discovered automatically with the currently available official data access. Android battery restrictions can delay inexact alarms. After force-stopping the app, reopen it to restore reminders. The export format is unofficial; compare the first imported timers with the game. Android framework tests verify widget list inflation and adapter contents, migration, and account isolation. This build has not been run on a physical phone or emulator here.
 
@@ -95,16 +101,18 @@ report = {
                   'signing_key': 'Locally generated private RSA-3072 key; not included in APK or source ZIP'},
     'antivirus': {'product': 'Microsoft Defender', 'result': 'found no threats', 'scan_exit_code': 0},
     'permissions': [e.attrib['{http://schemas.android.com/apk/res/android}name'] for e in ET.parse(ROOT / 'app/src/main/AndroidManifest.xml').getroot().findall('uses-permission')],
-    'internet_permission': False, 'backup': 'Disabled, with cloud and device transfer exclusions',
+    'internet_permission': True, 'network_scope': 'User-initiated HTTPS GitHub latest-release GET only; app version in User-Agent; no village/account data sent; release navigation delegated to browser',
+    'backup': 'Disabled, with cloud and device transfer exclusions',
     'android_device_test': 'Not run: no attached device or configured emulator available',
-    'android_framework_tests': 'Robolectric API 28 and API 35: widget inflation/adapters, migration, account/name isolation and persistence, widget identity, readable boost rows, 24x work countdown vs real ETA, focus lifecycle, foreground notification/pause, startup and base/category navigation',
+    'android_framework_tests': 'Robolectric API 28 and API 35: widget/account isolation, boost displays, foreground service, version header, update navigation, offline release guide, summary acknowledgement, earlier-release expansion and account preservation',
     'live_game_validation': 'Not run: no private user village export supplied',
     'sync': 'Explicit village export import; readable live countdowns afterward (foreground service for widgets)',
     'readable_widget_service': 'User-selected specialUse foreground service; ongoing notification with pause, screen-off/lock suspension, no wake lock',
-    'features': ['accelerated Work left and real Finishes in countdowns with imported boost sources', 'finite potion/snack windows and builder overlap priority', 'known recurring helper forecasts on a 23-hour work day', 'per-account in-game names with optional nicknames and visible tags', 'explicit days/hours/minutes/seconds countdowns', 'foreground live widget service with notification pause', 'README latest-release download button and title-case headings', 'offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
+    'features': ['installed version in app header', 'manual GitHub update checks with numeric version comparison and release-page navigation', 'accelerated Work left and real Finishes in countdowns with imported boost sources', 'finite potion/snack windows and builder overlap priority', 'known recurring helper forecasts on a 23-hour work day', 'per-account in-game names with optional nicknames and visible tags', 'explicit days/hours/minutes/seconds countdowns', 'foreground live widget service with notification pause', 'README latest-release download button and title-case headings', 'offline Build Menu with Village/Builder Base switching', 'remaining standard upgrades and catalog gates', 'resource/type/hero/status filters', 'cost/time/name sorting', 'scrollable list widget', 'multiple saved accounts', 'per-widget account selection', 'per-account names/reminder cursors', '1.0 data migration', 'duration stacks with independent expiry', 'event discount non-duplication'],
     'planner_catalog': {'items': 223, 'revision': '7afaa0375e5865c04021836a3a4192ffcfea092d', 'coverage': 'standard levels through TH18/BH10; special rules require in-game confirmation'},
     'design': 'October 2026 Build Menu structure and gray/brown cards; Lilita One, game icons, grouped green/gold countdown rows; README previews refreshed from Android layouts',
 }
+report['features'][:0] = ['offline release guide and per-version launch summary', 'expandable earlier release notes', 'shared bundled notes and generated changelog']
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')
 print(json.dumps({'apk': str(APK), 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,
