@@ -30,7 +30,7 @@ lint = collections.Counter(r['ruleId'] for run in sarif['runs'] for r in run.get
 files = [ROOT / p for p in ['.gitignore', 'README.md', 'CHANGELOG.md', 'LICENSE', 'build.ps1', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'app/build.gradle.kts', 'tools/package_release.py', 'tools/update_release_notes.py']]
 files += sorted((ROOT / 'app/src').rglob('*'))
 files += sorted((ROOT / 'docs').rglob('*'))
-files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'planner-corrections.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py', 'build_effect_icons.py')]
+files += [ROOT / 'tools' / name for name in ('fetch_planner_data.py', 'compile_planner_catalog.py', 'planner-sources.json', 'planner-corrections.json', 'build_identity_catalog.py', 'identity-overrides.json', 'check_cosmetic_ids.py', 'build_level_art.py', 'build_effect_icons.py', 'build_hired_icon.py')]
 source = OUT / f'CoC-Base-Tracker-{VERSION}-source.zip'
 with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as z:
     for file in files:
@@ -82,6 +82,8 @@ Scroll vertically inside a widget to see all upgrades. Tap an upgrade to open Cl
 MULTIPLE ACCOUNTS: Copy and import the village export for each account. Each one is saved separately. Add two widgets and choose a different village for each. Tap the downward arrow beside Sync on an existing widget to change its village. Switching villages in the app does not change other widgets. A widget's Sync rejects clipboard data from the wrong account; use Sync / Add Account in the app to save another account.
 
 IN-GAME NAMES: Names appear in account lists, app/Build Menu headers, widget selection/headers and finish reminders, alongside player tags. Exports may omit the name; enter it once after first import or use Set In-game Name / Settings > In-game Name. A plain-text name supplied by an export is used when present. Names survive sync and are stored separately per tag. Manual names take priority. Old village labels remain optional Account Nicknames (Main/Mini). Nothing is looked up online or renamed in your actual game account.
+
+KOTLIN: Most production classes now use Kotlin, with MainActivity, PlannerActivity and OverviewActivity retained in Java. Tracking calculations, export validation, planner, storage, widgets, services, reminders and update handling were migrated. Package, signing identity, file format, preference keys and widget bindings remain compatible. See docs/KOTLIN-MIGRATION.md. Sample previews use Anonymous, and hired upgrades use the official Goblin Builder head icon instead of the GOBLIN text badge.
 
 CLASH-STYLE DESIGN: Gray headers, brown upgrade cards and bottom category tabs adapt Supercell's October 2026 Build Menu. Timers retain the reference repository's wooden panel, Lilita One font, gold controls, item art and green/gold countdown rows. Bars show progress since export. README includes actual framework-rendered app, planner and widget previews, refreshed by normal builds.
 
@@ -149,6 +151,11 @@ report['app_updates'] = {'metadata_fallback': 'Android Download Manager public l
 report['features'][:0] = ['compact timer, planner and Overview layouts with normal font scaling', 'correct Monolith Arrow and Electro Fangs identity and artwork mappings', 'TH12 Stone Slammer levels 1-3', 'public release HTML system-service fallback with compact expandable error diagnostics']
 report['planner_catalog']['reviewed_corrections'] = 'tools/planner-corrections.json; docs/CATALOG-CORRECTIONS.md'
 report['android_framework_tests'] += '; TH12 Monolith Arrow level 17 and Stone Slammer visibility, corrected equipment hero gates, strict release-page metadata, 403 no-retry and one transient 504 retry'
+kotlin_bytes = sum(p.stat().st_size for p in (ROOT/'app/src/main/java').rglob('*.kt'))
+java_bytes = sum(p.stat().st_size for p in (ROOT/'app/src/main/java').rglob('*.java'))
+assert kotlin_bytes > java_bytes, 'Production implementation must remain mostly Kotlin'
+report['language_migration'] = {'production_kotlin_bytes': kotlin_bytes, 'production_java_bytes': java_bytes, 'production_kotlin_files': len(list((ROOT/'app/src/main/java').rglob('*.kt'))), 'production_java_files': len(list((ROOT/'app/src/main/java').rglob('*.java'))), 'java_screens': ['MainActivity', 'PlannerActivity', 'OverviewActivity'], 'data_format': 'unchanged', 'build': 'AGP built-in Kotlin, JVM 17'}
+report['features'][:0] = ['Kotlin tracking, storage, planner, widgets, service and updater', 'Anonymous sample name', 'official Goblin Builder head markers for hired rows and queue headings', 'expanded README permissions, setup, battery, troubleshooting and build guidance']
 (OUT / 'Verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 (OUT / 'SHA256SUMS.txt').write_text(apk_hash + '  ' + APK.name + '\n' + report['source_sha256'] + '  ' + source.name + '\n', encoding='ascii')
 print(json.dumps({'apk': str(APK), 'apk_bytes': APK.stat().st_size, 'apk_sha256': apk_hash,

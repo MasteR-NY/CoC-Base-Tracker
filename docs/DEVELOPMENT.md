@@ -10,6 +10,10 @@
 
 Set `JAVA_HOME` and `ANDROID_HOME`, or use `local.properties` for the SDK location. The build script also accepts `-JavaHome` and `-GradlePath`.
 
+## Kotlin and Java Sources
+
+Version 1.19 uses AGP’s built-in Kotlin support for 34 production Kotlin files. MainActivity, PlannerActivity and OverviewActivity remain Java. Kotlin and Java sources share `app/src/main/java/com/villageclock/app/` and target JVM 17. Java regression tests are retained; Kotlin framework tests cover the hired-worker markers. See [Kotlin Migration](KOTLIN-MIGRATION.md) for compatibility boundaries and checks.
+
 ## Build the APK
 
 From the repository root:
@@ -116,3 +120,5 @@ Planner model tests cover hall caps, reachable facility prerequisites, hero equi
 `Th12CatalogRegressionTest` uses a synthetic TH12 / Laboratory 10 / Workshop 3 / Blacksmith 5 / Hero Hall 6 snapshot. On API 26/29/35, it verifies Monolith Arrow ID 90000016 at level 17 offers level 18 with its three ore requirements, Electro Fangs retains its later hero gate, and Stone Slammer at level 1 offers level 2 within a level-3 hall cap. Both rows must appear in the default current-hall Build Menu. The supplied personal export stays local and is excluded from packaging.
 
 `ReleasePageFallbackTest` covers strict public-page parsing, rejected metadata, simulated newer releases, HTML-before-API ordering, 403 no-retry behavior, a single 504 retry and the collapsed error UI on Android 8, 10 and modern framework versions. Real phone networking and Android Downloads still require device validation. Native previews cover compact and landscape planner layouts.
+
+`python tools/build_hired_icon.py` optionally rebuilds the Goblin head marker from the pinned official support portrait, validating the source hash before the recorded crop. The runtime app uses the bundled resource. Normal previews use Anonymous and include hired-worker rows.

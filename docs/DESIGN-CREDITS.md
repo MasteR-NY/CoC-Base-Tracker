@@ -39,3 +39,11 @@ Builder Potion, Research Potion, Pet Potion, Builder Bite, Study Soup, Clock Tow
 ## Equipment Portraits Added in Version 1.18
 
 Monolith Arrow and Electro Fangs use the same pinned ClashKingAssets manifest and retained game-art attribution. Exact artwork URLs, SHA-256 hashes and explicit identity metadata references are recorded in `tools/identity-overrides.json`. The two corrected IDs are also applied to the offline planner; these portraits are not downloaded at runtime.
+
+## Hired Worker Icon Added in Version 1.19
+
+The compact Goblin head is cropped from Supercell’s official Goblin Builder portrait on its [Work for Hire support page](https://sc-clashofclans.zendesk.com/hc/en-us/articles/49529091450779-Work-for-Hire-Event). Original artwork remains © Supercell. `tools/build_hired_icon.py` verifies the source SHA-256 before cropping and resizing; source URL, crop rectangle and output hash are retained in `hired-worker-art.json`. This is an adaptation of the published portrait, not a claim that the separate in-game UI texture was extracted. Normal builds use the bundled icon and make no artwork requests.
+
+## Kotlin Runtime
+
+The Kotlin standard library is provided by JetBrains and contributors under the [Apache License 2.0](licenses/Kotlin-Apache-2.0.txt). Its license is also bundled in the APK as `assets/Kotlin-Apache-2.0.txt`. The Android Gradle plugin supplies Kotlin compilation and runtime dependency integration.

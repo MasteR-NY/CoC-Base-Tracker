@@ -31,7 +31,7 @@ public class DesignPreviewTest {
             + "\"pets\":[{\"data\":73000000,\"lvl\":11,\"timer\":350000}],"
             + "\"buildings2\":[{\"data\":1000034,\"lvl\":10},{\"data\":1000078,\"lvl\":1},{\"data\":1000036,\"lvl\":9,\"timer\":150000}]}";
         Village village = ExportParser.parse(export, Store.catalog(context), System.currentTimeMillis());
-        Store.save(context, export, village); Store.setInGameName(context, village.tag, "Kuswa"); Store.rename(context, village.tag, "Main Account"); Store.bind(context, 777, village.tag);
+        Store.save(context, export, village); Store.setInGameName(context, village.tag, "Anonymous"); Store.rename(context, village.tag, "Main Account"); Store.bind(context, 777, village.tag);
         ReleaseNotes.markSeen(context);
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         View app = activity.getWindow().getDecorView();

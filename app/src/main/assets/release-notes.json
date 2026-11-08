@@ -1,6 +1,30 @@
 {
   "releases": [
     {
+      "version": "1.19",
+      "versionCode": 20,
+      "title": "Kotlin Core and Clearer Widget Markers",
+      "highlights": [
+        {
+          "title": "Built Mostly in Kotlin",
+          "body": "Tracking, import validation, upgrade planning, account storage, widget rendering, reminders, live updates and APK update handling now use Kotlin. The three main screen classes remain in Java, with their compact layouts retained. Saved accounts and widget selections use the same package and data format."
+        },
+        {
+          "title": "Hired Workers at a Glance",
+          "body": "An official Goblin Builder head icon replaces the GOBLIN text badge. It marks extra upgrades in the app, Build Menu and widget, with a matching queue-heading icon. Hired jobs remain separate from permanent builder slots."
+        },
+        {
+          "title": "Anonymous Sample and Expanded Guide",
+          "body": "Sample timer and widget previews use Anonymous. The README adds permissions, sync, battery settings, update troubleshooting and build guidance specific to this app."
+        }
+      ],
+      "steps": [
+        "Install this release over your existing app to keep accounts and widgets. The Kotlin migration does not require a new import.",
+        "A Goblin head marks an extra hired upgrade from the export. Copy a new export after hiring or finishing one.",
+        "Read the README for first-time setup, privacy details and troubleshooting."
+      ]
+    },
+    {
       "version": "1.18",
       "versionCode": 19,
       "title": "A Tighter Layout and Correct TH12 Upgrades",

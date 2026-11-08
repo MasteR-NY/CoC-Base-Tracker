@@ -2,6 +2,18 @@
 
 Changes and usage notes for CoC Base Tracker. The installed app includes this guide under **What’s New**.
 
+## v1.19 — Kotlin Core and Clearer Widget Markers
+
+- **Built Mostly in Kotlin:** Tracking, import validation, upgrade planning, account storage, widget rendering, reminders, live updates and APK update handling now use Kotlin. The three main screen classes remain in Java, with their compact layouts retained. Saved accounts and widget selections use the same package and data format.
+- **Hired Workers at a Glance:** An official Goblin Builder head icon replaces the GOBLIN text badge. It marks extra upgrades in the app, Build Menu and widget, with a matching queue-heading icon. Hired jobs remain separate from permanent builder slots.
+- **Anonymous Sample and Expanded Guide:** Sample timer and widget previews use Anonymous. The README adds permissions, sync, battery settings, update troubleshooting and build guidance specific to this app.
+
+### How to Use It
+
+1. Install this release over your existing app to keep accounts and widgets. The Kotlin migration does not require a new import.
+2. A Goblin head marks an extra hired upgrade from the export. Copy a new export after hiring or finishing one.
+3. Read the README for first-time setup, privacy details and troubleshooting.
+
 ## v1.18 — A Tighter Layout and Correct TH12 Upgrades
 
 - **More Fits on Screen:** Upgrade rows, Build Menu cards and Overview cards use smaller portraits, tighter spacing and smaller headings. Duplicate card padding is removed while keeping inner margins and normal Android text scaling.

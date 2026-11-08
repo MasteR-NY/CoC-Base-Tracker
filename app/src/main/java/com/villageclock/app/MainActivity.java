@@ -271,7 +271,7 @@ public final class MainActivity extends Activity {
             ArrayList<Village.Upgrade> jobs = new ArrayList<>();
             for (Village.Upgrade u : village.upgrades) if (u.queue == queue) jobs.add(u);
             if (jobs.isEmpty()) continue;
-            panel.addView(text(queue == Village.Queue.STAR_LAB ? "STAR LAB" : VillageWidget.sectionTitle(village, queue, now), 16, GOLD, true)); gap(panel, 4);
+            TextView queueTitle=text(queue == Village.Queue.STAR_LAB ? "STAR LAB" : VillageWidget.sectionTitle(village, queue, now), 16, GOLD, true); if(HiredWorkers.active(village,queue,now))HiredWorkers.mark(queueTitle);panel.addView(queueTitle,new LinearLayout.LayoutParams(-2,-2)); gap(panel, 4);
             if (queue == Village.Queue.BUILDERS && village.freeBuilders(now) > 0) {
                 TextView idle = text(village.freeBuilders(now) + " builders idle", 14, GREEN, true);
                 idle.setBackgroundResource(R.drawable.row_idle); idle.setPadding(dp(9), dp(5), dp(9), dp(5)); panel.addView(idle); gap(panel, 3);
@@ -521,7 +521,7 @@ public final class MainActivity extends Activity {
         jobs.add(new Village.Upgrade(4000059, 6, "Electro Dragon", Village.Queue.LAB, now + 2 * 86400000L, false, 2));
         jobs.add(new Village.Upgrade(73000000, 8, "L.A.S.S.I", Village.Queue.PETS, now + 7 * 3600000L, false, 3));
         jobs.add(new Village.Upgrade(1000034, 10, "Builder Hall", Village.Queue.BASE, now + 19 * 3600000L, false, 4));
-        return new Village("#SAMPLE", "Sample Chief", now - 12 * 3600000L, 15, 6, 2, jobs);
+        return new Village("#SAMPLE", "Anonymous", now - 12 * 3600000L, 15, 6, 2, jobs);
     }
     private String shortDuration(long ms) { return DurationText.remaining(ms, 0); }
     private int dp(float n) { return (int)(getResources().getDisplayMetrics().density * n + 0.5f); }

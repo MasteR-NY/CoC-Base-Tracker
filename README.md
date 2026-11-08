@@ -4,7 +4,7 @@ Upgrade timers, village planning, and account-specific home screen widgets for C
 
 [![Download Latest APK](docs/images/download-apk.svg)](https://github.com/MasteR-NY/CoC-Base-Tracker/releases/latest)
 
-**Android 8.0+ · Offline Tracking · Multiple Accounts**
+**Android 8.0+ · Kotlin Core · Offline Tracking · Multiple Accounts**
 
 Download the `.apk` file under **Assets** on the latest release page. When updating, install over your existing version to keep your saved accounts and widgets.
 
@@ -14,7 +14,7 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 | --- | --- | --- |
 | <img src="docs/images/app-design.png" width="270" alt="Upgrade timers with an account name, player tag and grouped countdowns"> | <img src="docs/images/build-menu-design.png" width="270" alt="Build Menu with base selection, upgrade costs and category tabs"> | <img src="docs/images/widget-design.png" width="270" alt="Scrollable home screen widget with account details and live countdowns"> |
 
-*Previews show the current compact layouts with sample account data. Widget appearance may vary by launcher.*
+*Previews show the current compact layouts with the sample name Anonymous. Sample data is separate from your saved accounts. Widget appearance may vary by launcher.*
 
 <details>
 <summary>Village Overview Previews</summary>
@@ -50,11 +50,33 @@ Download the `.apk` file under **Assets** on the latest release page. When updat
 4. Enter the account's in-game name if prompted. You can edit it later under **Settings → In-game Name**.
 5. Tap **Add widget** and choose an account, or add CoC Base Tracker from your launcher's widget picker.
 
+The sample village uses **Anonymous** as its display name. Your own account names remain independent and can be edited in Settings. A small **Goblin head** marks an extra hired-worker upgrade; the same icon beside a queue heading shows hired work is running. These jobs do not occupy permanent builder slots.
+
 Allow notifications for upgrade-finished alerts and the live widget controls. On Android 12 and later, **Allow precise timers** helps finish alerts arrive on time.
+
+### How Sync Works
+
+1. **Copy an export in Clash.** Its timestamp records the age of the snapshot, along with the upgrades and effects supplied by the game.
+2. **Return to the tracker.** Auto-sync imports a fresh, valid export while the app has focus. You can turn this off and use Sync manually. A widget’s Sync button keeps its selected account protected.
+3. **Let the timers run.** Remaining time is calculated on your phone from the export timestamp, including supported boost windows and helper assignments.
+
+Copy another export after starting or canceling an upgrade, using a Magic Item, changing a helper assignment or finishing an upgrade early. Copying alone cannot wake or redirect to the tracker. The app must be opened or focused to read the new clipboard text.
+
+### Battery and Notification Settings
+
+The live widget notification is expected while readable widget countdowns are enabled. It updates visible timers while the phone is awake; screen-off and lock-screen pauses are intentional and do not lose elapsed time.
+
+If finish reminders arrive late, check:
+
+- **Settings in the app:** enable Notifications and, when needed, Helper & Clock Tower alerts.
+- **Android app settings:** allow notifications. On Android 12 and later, allow precise timers from the app’s Settings.
+- **Battery settings:** if your phone restricts the tracker, select Unrestricted or the equivalent option for this app. Enable Auto-start if your phone provides that control and reminders stop after reboot.
+
+Menu names vary by manufacturer. After force-stopping the app, open it again to restore reminders. Turning off Live readable widget timers uses Android’s native clock-style countdowns; the custom d/h/m/s service is then stopped.
 
 ### Checking for Updates
 
-The app header shows the installed version, for example **CoC Base Tracker v1.18**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
+The app header shows the installed version, for example **CoC Base Tracker v1.19**. Scroll to the bottom and tap **Check for Updates** to compare it with the latest stable GitHub release.
 
 If your version is current, the app confirms that you are up to date. For a newer release, choose **Download Update** to download the APK inside the app. Once the file passes verification, tap **Install Update**. Android may ask you to allow installs from CoC Base Tracker; return to the app afterward and tap Install Update again to open Android’s confirmation screen. Install over your existing version to retain accounts and widgets.
 
@@ -187,6 +209,79 @@ Update files are checked for the app’s package, newer version and matching sig
 
 There is no advertising or analytics. Clipboard text is read when you tap Sync or while the tracker has focus with **Auto-sync on return** enabled. Unrelated text is ignored, clipboard URIs are never opened, and the widget service does not monitor the clipboard. Saved accounts can be removed from Settings.
 
+### Permissions
+
+| Permission | Purpose |
+| --- | --- |
+| Internet | User-requested GitHub release checks and update downloads; tracking and planning use local data |
+| Notifications | Upgrade-finished, helper availability and update-ready alerts, plus live widget controls |
+| Schedule Exact Alarms | Prompt finish alerts and timer-expiry refreshes when allowed by Android |
+| Receive Boot Completed | Restore local alarm scheduling after reboot |
+| Foreground Service / Special Use | Keep readable widget countdowns updating with an ongoing notification while the screen is on |
+| Request Install Packages | Open Android’s installer for an explicitly downloaded and verified app update |
+
+Android asks separately for notification, exact-alarm and installation access where required. Permission to install updates does not allow silent installation. The app requests no broad storage, accessibility or screen-recording access. See the [Android manifest](app/src/main/AndroidManifest.xml) for the declared permissions.
+
+## Troubleshooting
+
+| Problem | What to Check |
+| --- | --- |
+| An upgrade is missing or its finish estimate changed | Copy a fresh export, confirm the selected account and base, and check Build Menu filters. Current Hall Only hides upgrades that need a later hall. |
+| A timer differs from Clash | Confirm the export is recent. Work left is accelerated upgrade work; Finishes in is real estimated time. Recurring helper forecasts depend on the exported assignment continuing. |
+| Sync ignores the clipboard | Copy the export again and return to the tracker. Unrelated text, duplicate snapshots and older snapshots are ignored. A widget rejects a different account’s export; add it from the app instead. |
+| The widget stops ticking | Confirm Live readable widget timers is enabled and open the app once. Check the ongoing notification and battery restrictions. Screen-off pauses are expected. |
+| A row has an unknown ID or missing artwork | Report the item ID, its level and the app version. Unknown records keep their IDs rather than receiving a guessed name or image. |
+| Update checking returns 403 or 504 | A denied/limited request or gateway timeout can occur while internet access still works. Wait before retrying. Expand Technical Details or use Open Releases. |
+| Technical Details contains EPERM | Android denied the app’s direct socket access. Check app network restrictions or VPN/firewall settings; the system-service fallback may also be restricted. |
+| A new release has no APK yet | Wait for its asset upload to finish. Release publishers should attach the versioned signed APK before publishing the release. |
+
+When reporting a problem, include the installed app version, Android version, affected base/item and the relevant technical error. Redact account details from screenshots and avoid posting a complete personal export. Reports can be filed in this repository’s [Issues](https://github.com/MasteR-NY/CoC-Base-Tracker/issues).
+
+## Frequently Asked Questions
+
+**Does tracking require a Supercell login or API key?**  
+No. Import the text copied by the game’s export feature. Never provide your Supercell password or verification code to the tracker.
+
+**Can it discover a new upgrade while Clash is closed?**  
+Existing timers continue locally. New in-game activity needs a new export; there is no background connection to your village.
+
+**Can I add potions or assign helpers from the tracker?**  
+Apply them in Clash, then import a fresh export. This release calculates the effects supplied by the snapshot; it does not perform those actions in the game.
+
+**Does it support Builder Base and multiple accounts?**  
+Yes. Switch bases in Build Menu or Overview. Import each account separately and choose an account for each widget.
+
+**Will an update keep my saved villages?**  
+Install the signed APK over the existing app. The package, signing identity, preference keys and export-file format are preserved, including through the Kotlin migration. Uninstalling or clearing app storage removes local data; cloud backup is disabled.
+
+**Is this an official Supercell app?**  
+No. It is a fan companion that reads exported data. It does not log into or modify the game. See the credits and Supercell Fan Content Policy below.
+
+## Building From Source
+
+Most production classes are Kotlin. Import validation, timing, planning, account storage, artwork lookup, widgets, notifications and update handling use Kotlin; MainActivity, PlannerActivity and OverviewActivity remain Java. The Android Gradle plugin provides built-in Kotlin support. Both languages use JVM 17 bytecode, with Android 8.0 as the minimum supported platform.
+
+Install **JDK 21+**, **Gradle 9.7.1**, Android **SDK Platform 37** and **Build Tools 36.0.0+**. Set `JAVA_HOME` and `ANDROID_HOME`, then run from the project folder:
+
+```powershell
+gradle --no-daemon :app:testDebugUnitTest :app:lintRelease
+powershell -File .\build.ps1
+```
+
+The normal build runs tests, renders README previews, checks lint, assembles and signs the APK. It writes `outputs/CoC-Base-Tracker-<version>.apk`. The script accepts `-JavaHome` and `-GradlePath` if those tools are not on PATH.
+
+The first local release build creates a signing key under `.private/`. Keep it backed up and out of Git. A source recipient’s new key produces a separate signing identity and cannot update the distributed APK. For this project’s future releases, keep the original key and increase both the version code and release version. See the [Build and Release Guide](docs/DEVELOPMENT.md) for packaging and publication.
+
+| Path | Contents |
+| --- | --- |
+| `app/src/main/java/com/villageclock/app/*.kt` | Kotlin tracking, storage, planning, widget, service and update code |
+| `app/src/main/java/com/villageclock/app/*.java` | The three retained main screen classes |
+| `app/src/main/assets/` | Offline game catalogs, release notes and source notices |
+| `app/src/main/res/` | Native layouts, fonts, artwork and icons |
+| `app/src/test/` | Timing, import, account, update and Android framework regression tests |
+| `tools/` | Reviewed catalog/artwork maintenance and release packaging scripts |
+| `docs/` | Usage references, development notes, credits and current previews |
+
 ## Documentation
 
 - [Release Notes](CHANGELOG.md)
@@ -197,11 +292,12 @@ There is no advertising or analytics. Clipboard text is read when you tap Sync o
 - [Timer Rules](docs/TIMING.md)
 - [Upgrade Planner Reference](docs/UPGRADE-PLANNER.md)
 - [Build and Release Guide](docs/DEVELOPMENT.md)
+- [Kotlin Migration](docs/KOTLIN-MIGRATION.md)
 - [Preview Maintenance](docs/DESIGN-PREVIEWS.md)
 - [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md)
 
 ## Credits
 
-Original application code is available under the [MIT License](LICENSE). The presentation draws on [Coc-Widget](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget); game artwork, fonts, and other third-party resources retain their respective terms. Full attribution is in [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md).
+Original application code is available under the [MIT License](LICENSE). The presentation draws on [Coc-Widget](https://github.com/Yusuf-Bedri-Bitiren/Coc-Widget); game artwork, fonts, and other third-party resources retain their respective terms. Full attribution is in [Credits and Third-Party Resources](docs/DESIGN-CREDITS.md). Setup and troubleshooting topics were informed by the [Clash Timers README](https://github.com/Kuswaa/clash-timers); the instructions above describe CoC Base Tracker’s own behavior and permissions.
 
 CoC Base Tracker is an unofficial fan project and is not affiliated with or endorsed by Supercell. Clash of Clans and its related assets belong to Supercell. See [Supercell's Fan Content Policy](https://supercell.com/en/fan-content-policy/).
